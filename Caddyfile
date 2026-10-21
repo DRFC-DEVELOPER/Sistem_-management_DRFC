@@ -1,0 +1,13 @@
+# Caddy obtiene y renueva el certificado HTTPS automáticamente cuando DOMINIO es un dominio real.
+{$DOMINIO::80} {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy api:3000
+	}
+
+	# La web de administración se servirá aquí en la etapa 2.
+	handle {
+		respond "Inventario de equipos: la API está en /api/docs" 200
+	}
+}

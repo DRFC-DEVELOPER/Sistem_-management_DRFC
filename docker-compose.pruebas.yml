@@ -1,0 +1,11 @@
+# Ajustes solo para pruebas en tu PC.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.pruebas.yml up -d --build
+services:
+  db:
+    # Permite abrir la base con DBeaver o pgAdmin desde tu PC (localhost:5433).
+    ports:
+      - "127.0.0.1:5433:5432"
+  caddy:
+    # En pruebas no se usa HTTPS; solo el puerto HTTP.
+    ports: !override
+      - "${PUERTO_HTTP:-8080}:80"

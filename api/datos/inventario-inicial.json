@@ -1,0 +1,2834 @@
+{
+ "empleados": [
+  {
+   "clave": "u001",
+   "nombre": "JUANCARLOS ROSALES OCAMPO",
+   "departamento": "GERENCIA",
+   "numero": "101",
+   "notas": null
+  },
+  {
+   "clave": "u002",
+   "nombre": "ANTONIO",
+   "departamento": "CONTABILIDAD",
+   "numero": "102",
+   "notas": null
+  },
+  {
+   "clave": "u003",
+   "nombre": "SERGIO GILES",
+   "departamento": "CONTABILIDAD",
+   "numero": "149/177",
+   "notas": null
+  },
+  {
+   "clave": "u004",
+   "nombre": "LUIS ALBERTO MARTINEZ CRUZ",
+   "departamento": "CONTABILIDAD",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u005",
+   "nombre": "YOSHEBETH BALLASTRA AGUILAR",
+   "departamento": "CONTABILIDAD",
+   "numero": "208",
+   "notas": null
+  },
+  {
+   "clave": "u006",
+   "nombre": "EMILIO REYES SANTAMARIA",
+   "departamento": "CONTABILIDAD",
+   "numero": "165",
+   "notas": null
+  },
+  {
+   "clave": "u007",
+   "nombre": "GERARDDO RAMIREZ BAHENA",
+   "departamento": "DESARROLLO",
+   "numero": null,
+   "notas": "Usa mouse propio."
+  },
+  {
+   "clave": "u008",
+   "nombre": "IBAN REYES RODRIGUEZ",
+   "departamento": "CONTABILIDAD",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u009",
+   "nombre": "MARIANA ESTRADA ESTRADA",
+   "departamento": "DESARROLLO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u010",
+   "nombre": "ELENA ABIGAIL ALANIS REYES",
+   "departamento": "DESARROLLO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u011",
+   "nombre": "JUAN PEREZ",
+   "departamento": "CONTABILIDAD",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u012",
+   "nombre": "SARA",
+   "departamento": "PRESUPUESTOS",
+   "numero": "212",
+   "notas": null
+  },
+  {
+   "clave": "u013",
+   "nombre": "DIEGO ALBERTO DIONICIO MORALES",
+   "departamento": "PRESUPUESTOS",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u014",
+   "nombre": "RICARDO SALGADO BLASS",
+   "departamento": "PRESUPUESTOS",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u015",
+   "nombre": "MIGUEL ANGEL LAMADRID TORRES",
+   "departamento": "MANTENIMIENTO",
+   "numero": "181",
+   "notas": null
+  },
+  {
+   "clave": "u016",
+   "nombre": "SAMUEL FERREL SILVA",
+   "departamento": "MANTENIMIENTO",
+   "numero": "182",
+   "notas": null
+  },
+  {
+   "clave": "u017",
+   "nombre": "FABIOLA OCAMPO ROSALES",
+   "departamento": "MANTENIMIENTO",
+   "numero": "183",
+   "notas": null
+  },
+  {
+   "clave": "u018",
+   "nombre": "RAFAEL MENDOZA ARRIAGA",
+   "departamento": "MANTENIMIENTO",
+   "numero": "184",
+   "notas": null
+  },
+  {
+   "clave": "u019",
+   "nombre": "ADRIAN CARRASCO ABARCA",
+   "departamento": "MANTENIMIENTO",
+   "numero": "185",
+   "notas": null
+  },
+  {
+   "clave": "u020",
+   "nombre": "KARLA YASMIN JAIMEZ VAZQUEZ",
+   "departamento": "MANTENIMIENTO",
+   "numero": "186",
+   "notas": null
+  },
+  {
+   "clave": "u021",
+   "nombre": "JUAN JULIAN MARURE DIEGO",
+   "departamento": "MANTENIMIENTO",
+   "numero": "187",
+   "notas": null
+  },
+  {
+   "clave": "u022",
+   "nombre": "LUIS FERNANDO FERNANDEZ LOPEZ",
+   "departamento": "MANTENIMIENTO",
+   "numero": "188",
+   "notas": null
+  },
+  {
+   "clave": "u023",
+   "nombre": "JORGE ENRIQUE BUSTOS TAPIA",
+   "departamento": "MANTENIMIENTO",
+   "numero": "189",
+   "notas": null
+  },
+  {
+   "clave": "u024",
+   "nombre": "BRENDA YEDID MOYSEN MARTINEZ",
+   "departamento": "MANTENIMIENTO",
+   "numero": "190",
+   "notas": null
+  },
+  {
+   "clave": "u025",
+   "nombre": "CLARA SOFIA BARTOLO BAHENA",
+   "departamento": "MANTENIMIENTO",
+   "numero": "191",
+   "notas": null
+  },
+  {
+   "clave": "u026",
+   "nombre": "NEIDY MONTZERRATH MAY DOMÍNGUEZ",
+   "departamento": "MANTENIMIENTO",
+   "numero": "192",
+   "notas": null
+  },
+  {
+   "clave": "u027",
+   "nombre": "PAOLA MENDOZA ARRIAGA",
+   "departamento": "MANTENIMIENTO",
+   "numero": "193",
+   "notas": null
+  },
+  {
+   "clave": "u028",
+   "nombre": "ASAEL RIOS PIÑA",
+   "departamento": "MANTENIMIENTO",
+   "numero": "194",
+   "notas": null
+  },
+  {
+   "clave": "u029",
+   "nombre": "MARIA FERNANDA MARTINEZ TORRES",
+   "departamento": "MANTENIMIENTO",
+   "numero": "195",
+   "notas": null
+  },
+  {
+   "clave": "u030",
+   "nombre": "RAUL OSORIO VARGAS",
+   "departamento": "MANTENIMIENTO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u031",
+   "nombre": "ROLANDO PALACIOS RAMIREZ",
+   "departamento": "MANTENIMIENTO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u032",
+   "nombre": "ALAN REYES RODRIGUEZ",
+   "departamento": "MANTENIMIENTO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u033",
+   "nombre": "CARLA LILIANA GARCIA ESTRADA",
+   "departamento": "MANTENIMIENTO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u034",
+   "nombre": "JUAN ANDRES RUIZ ARTEAGA",
+   "departamento": "MANTENIMIENTO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u035",
+   "nombre": "DIEGO ARMANDO FERNANDEZ LOPEZ",
+   "departamento": "MANTENIMIENTO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u036",
+   "nombre": "LUIS CARLOS MATEO CALVILLO",
+   "departamento": "MANTENIMIENTO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u037",
+   "nombre": "Alberto",
+   "departamento": "CONSTRUCCION",
+   "numero": "197",
+   "notas": null
+  },
+  {
+   "clave": "u038",
+   "nombre": "Isarael",
+   "departamento": "CONSTRUCCION",
+   "numero": "199",
+   "notas": null
+  },
+  {
+   "clave": "u039",
+   "nombre": "Raul",
+   "departamento": null,
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u040",
+   "nombre": "cheche",
+   "departamento": "CONSTRUCCION",
+   "numero": "201",
+   "notas": null
+  },
+  {
+   "clave": "u041",
+   "nombre": "ELVIA DOMINGUEZ FLORES",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u042",
+   "nombre": "ADRIAN ORTIZ MARTINEZ",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u043",
+   "nombre": "CESAR AUGUSTUS II",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u044",
+   "nombre": "ANA LILIA ARIAS ROBLES",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u045",
+   "nombre": "ANA PATRICIA PEREZ GUERRERO",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u046",
+   "nombre": "SAUL",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u047",
+   "nombre": "EVELYN LIZBETH MENDOZA SALGADO",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u048",
+   "nombre": "IMANOL GONZALEZ GARCIA",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u049",
+   "nombre": "ANNA JOCABET NAZARIO ALVAREZ",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u050",
+   "nombre": "KRISNA LIZETH BRAVO MENDOZA",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u051",
+   "nombre": "YARELI VERONICA FIGUEROA GARCIA",
+   "departamento": "CONSTRUCCION",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u052",
+   "nombre": "CARLOS CUAHUEY GARCIA",
+   "departamento": "CONSTRUCCION",
+   "numero": "165",
+   "notas": null
+  },
+  {
+   "clave": "u053",
+   "nombre": "Giovanna Martinez",
+   "departamento": "CONSTRUCCION",
+   "numero": "213",
+   "notas": null
+  },
+  {
+   "clave": "u054",
+   "nombre": "AGUSTIN REYES",
+   "departamento": "CONSTRUCCION",
+   "numero": "214 libre",
+   "notas": null
+  },
+  {
+   "clave": "u055",
+   "nombre": "GERARDO ADAN QUINTERRO RAMIREZ",
+   "departamento": "INFRAESTRUCTURA",
+   "numero": "215",
+   "notas": null
+  },
+  {
+   "clave": "u056",
+   "nombre": "ADRIANA CARRASCO ABARCA",
+   "departamento": "RH",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u057",
+   "nombre": "brenda jacobo",
+   "departamento": "RH",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u058",
+   "nombre": "Tania",
+   "departamento": "RH",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u059",
+   "nombre": "George Maldonado",
+   "departamento": "DISEÑO",
+   "numero": "101",
+   "notas": null
+  },
+  {
+   "clave": "u060",
+   "nombre": "Eduardo",
+   "departamento": "DISEÑO",
+   "numero": "102",
+   "notas": null
+  },
+  {
+   "clave": "u061",
+   "nombre": "Jesus Rosales",
+   "departamento": "DISEÑO",
+   "numero": "103",
+   "notas": null
+  },
+  {
+   "clave": "u062",
+   "nombre": "Elizabeth Guadarrama",
+   "departamento": "DISEÑO",
+   "numero": "104",
+   "notas": null
+  },
+  {
+   "clave": "u063",
+   "nombre": "Yair",
+   "departamento": "DISEÑO",
+   "numero": "105",
+   "notas": null
+  },
+  {
+   "clave": "u064",
+   "nombre": "Daniel Santos",
+   "departamento": "DISEÑO",
+   "numero": "106",
+   "notas": null
+  },
+  {
+   "clave": "u065",
+   "nombre": "Alberto",
+   "departamento": "DISEÑO",
+   "numero": "107",
+   "notas": null
+  },
+  {
+   "clave": "u066",
+   "nombre": "Hugo",
+   "departamento": "DISEÑO",
+   "numero": "108",
+   "notas": null
+  },
+  {
+   "clave": "u067",
+   "nombre": "Luis",
+   "departamento": "DISEÑO",
+   "numero": "109",
+   "notas": null
+  },
+  {
+   "clave": "u068",
+   "nombre": "Jonathan",
+   "departamento": "DISEÑO",
+   "numero": "110",
+   "notas": null
+  },
+  {
+   "clave": "u069",
+   "nombre": "Yaneli",
+   "departamento": "DISEÑO",
+   "numero": "111",
+   "notas": null
+  },
+  {
+   "clave": "u070",
+   "nombre": "Nicolas",
+   "departamento": "DISEÑO",
+   "numero": "112",
+   "notas": "Usa teclado propio. Usa mouse propio."
+  },
+  {
+   "clave": "u071",
+   "nombre": "Mayrel",
+   "departamento": "DISEÑO",
+   "numero": "113",
+   "notas": null
+  },
+  {
+   "clave": "u072",
+   "nombre": "Kasandra",
+   "departamento": "DISEÑO",
+   "numero": "114",
+   "notas": null
+  },
+  {
+   "clave": "u073",
+   "nombre": "Kaleb",
+   "departamento": "DISEÑO",
+   "numero": "115",
+   "notas": null
+  },
+  {
+   "clave": "u074",
+   "nombre": "Armando",
+   "departamento": "DISEÑO",
+   "numero": "116",
+   "notas": null
+  },
+  {
+   "clave": "u075",
+   "nombre": "Jesus Alberto",
+   "departamento": "DISEÑO",
+   "numero": "117",
+   "notas": null
+  },
+  {
+   "clave": "u076",
+   "nombre": "Angelica",
+   "departamento": "DISEÑO",
+   "numero": "118",
+   "notas": null
+  },
+  {
+   "clave": "u077",
+   "nombre": "katerine",
+   "departamento": "DISEÑO",
+   "numero": "119",
+   "notas": null
+  },
+  {
+   "clave": "u078",
+   "nombre": "Edgar Daniel Salgado Osorio",
+   "departamento": "DISEÑO",
+   "numero": "120",
+   "notas": null
+  },
+  {
+   "clave": "u079",
+   "nombre": "Nicolas (TIGO)",
+   "departamento": "DISEÑO",
+   "numero": null,
+   "notas": null
+  },
+  {
+   "clave": "u080",
+   "nombre": "Luis Gomez",
+   "departamento": "DIBUJO",
+   "numero": "149",
+   "notas": null
+  },
+  {
+   "clave": "u081",
+   "nombre": "Fredy Rosales",
+   "departamento": "DIBUJO",
+   "numero": "150, 153",
+   "notas": null
+  },
+  {
+   "clave": "u082",
+   "nombre": "Santiago",
+   "departamento": "DIBUJO",
+   "numero": "151",
+   "notas": null
+  },
+  {
+   "clave": "u083",
+   "nombre": "Rebeca",
+   "departamento": "DIBUJO",
+   "numero": "152",
+   "notas": null
+  },
+  {
+   "clave": "u084",
+   "nombre": "Hermana",
+   "departamento": "DIBUJO",
+   "numero": "154",
+   "notas": null
+  },
+  {
+   "clave": "u085",
+   "nombre": "Esposa",
+   "departamento": "DIBUJO",
+   "numero": "155",
+   "notas": null
+  },
+  {
+   "clave": "u086",
+   "nombre": "Irving",
+   "departamento": "DIBUJO",
+   "numero": "156",
+   "notas": null
+  },
+  {
+   "clave": "u087",
+   "nombre": "McLovig",
+   "departamento": "DIBUJO",
+   "numero": "157",
+   "notas": null
+  }
+ ],
+ "equipos": [
+  {
+   "tipo": "LAPTOP",
+   "marca": "HP",
+   "color": "GRIS",
+   "memoriaGb": "12",
+   "procesador": "AMD RYZEN 3",
+   "disco": "2 TB",
+   "sistemaOperativo": "WINDOWS 11",
+   "estatus": "ASIGNADO",
+   "empleado": "u002",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MULTIFUNCIONAL",
+   "descripcion": "Multifuncional",
+   "marca": "CANON",
+   "modelo": "MF1538C",
+   "serie": "4UN06227",
+   "ipGestion": "250",
+   "estatus": "ASIGNADO",
+   "empleado": "u002",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "HP",
+   "modelo": "PAVILLION",
+   "serie": "N954RD0B",
+   "color": "GRIS",
+   "memoriaGb": "12",
+   "procesador": "AMD RYZEN 3",
+   "disco": "2 TB",
+   "sistemaOperativo": "WINDOWS 11",
+   "estatus": "ASIGNADO",
+   "empleado": "u003",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 11",
+   "estatus": "ASIGNADO",
+   "empleado": "u004",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u004",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "ACTECK",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u004",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LG",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u004",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUDE 5520",
+   "serie": "3ZCQQG3",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u005",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2523MR90PP08",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u005",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2435HSY23SW8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u005",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "HP",
+   "modelo": "E243",
+   "serie": "CNK9521603",
+   "color": "GRIS Y NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u005",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "K57F9KQ",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u006",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2537HSGYN98",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u006",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINVISION T22I",
+   "serie": "V6RW4889",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u006",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u006",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "DELL PRO 14",
+   "serie": "PC14250",
+   "color": "GRIS",
+   "memoriaGb": "32",
+   "procesador": "INTEL CORE ULTRA 7",
+   "disco": "1 TB",
+   "sistemaOperativo": "WINDOWS 11",
+   "notas": "Serie repetida en el Excel (también: laptop de ELENA ABIGAIL ALANIS REYES, laptop de JUAN PEREZ). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u007",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "serie": "2511MSR0JRB8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u007",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINKVISION",
+   "serie": "V3095GA3",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u007",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3930V5",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u008",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "920-004422",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u008",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "910-004053",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u008",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "TINKVISION T22I-10",
+   "serie": "10868650414",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u008",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u008",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u008",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3BJ1ST",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7 11 GENERACION",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u009",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2543VFY0F6D8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u009",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2547HSQ2C828",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u009",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "A-19238QP1 THINK VISION",
+   "serie": "V3095G0M",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u009",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u009",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u009",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "DELL PRO 14",
+   "serie": "PC14250",
+   "color": "GRIS",
+   "memoriaGb": "32",
+   "procesador": "INTEL CORE ULTRA 7",
+   "disco": "1 TB",
+   "sistemaOperativo": "WINDOWS 11",
+   "notas": "Serie repetida en el Excel (también: laptop de GERARDDO RAMIREZ BAHENA, laptop de JUAN PEREZ). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u010",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "INSPIRE TA210",
+   "serie": "368628940171 S",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u010",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2452HS20NNP8",
+   "color": "GRIS",
+   "notas": "Serie repetida en el Excel (también: mouse de sin usuario). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u010",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINKVISION T24I-20",
+   "serie": "VKDK8503",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u010",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "DELL PRO 14",
+   "serie": "PC14250",
+   "color": "GRIS",
+   "memoriaGb": "32",
+   "procesador": "INTEL CORE ULTRA 7",
+   "disco": "1 TB",
+   "sistemaOperativo": "WINDOWS 11",
+   "notas": "Serie repetida en el Excel (también: laptop de GERARDDO RAMIREZ BAHENA, laptop de ELENA ABIGAIL ALANIS REYES). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u011",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3BHSQN",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7 11th GEN",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u012",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M170",
+   "serie": "26032ERG7F98",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u012",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "HP",
+   "modelo": "HP E243",
+   "serie": "CNK0142SB3",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u012",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "TIHINKPAD L15",
+   "serie": "PF3CM2GQ",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7 11th GEN",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u013",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "INSPIRE TA210",
+   "serie": "3686289401719",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u013",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "ACTECK",
+   "modelo": "OPTIMIZE M1240",
+   "serie": "AC-928885",
+   "color": "NEGRO",
+   "notas": "Serie repetida en el Excel (también: mouse de ELVIA DOMINGUEZ FLORES). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u013",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "DELL",
+   "serie": "CN-0KH0NG",
+   "color": "NEGRO",
+   "notas": "Serie repetida en el Excel (también: monitor de KARLA YASMIN JAIMEZ VAZQUEZ). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u013",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u013",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u013",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "ASUS",
+   "modelo": "FA607N",
+   "serie": "T5NCRX062973219",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "AMD RYZEN 5",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 11 HOME SINGLE LANGUAGE",
+   "estatus": "ASIGNADO",
+   "empleado": "u015",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "T2424PA",
+   "serie": "V1K32409",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u015",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L13",
+   "serie": "R9-0ZLZ1D",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "237 GB",
+   "sistemaOperativo": "WINDOWS 10 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u016",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2228MR143BE8",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u016",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "HP",
+   "modelo": "HSTND-9581-Q",
+   "serie": "CNK0142SBH",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u016",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "12906563727",
+   "serie": "6XG8GB3",
+   "estatus": "ASIGNADO",
+   "empleado": "u017",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "YU0042",
+   "serie": "2511MR20JRE8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u017",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2334H50559M8",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u017",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "ACER",
+   "modelo": "V246HQL-BI",
+   "serie": "20911854142",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u017",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUD 5320",
+   "serie": "NT2020MX048014",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u018",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "NT2020MX048614",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u018",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2507HS5Y03WT8",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u018",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINKVISION",
+   "serie": "10868650351",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u018",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD",
+   "serie": "P64NXPXQ",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u019",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "DELL",
+   "serie": "NT2021DTO34565",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u019",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUDE 5410",
+   "serie": "C122BC3",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u020",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2346MR13E9C8",
+   "color": "NEGRO",
+   "notas": "Serie repetida en el Excel (también: teclado de LUIS FERNANDO FERNANDEZ LOPEZ). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u020",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2303H5018MK8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u020",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "DELL",
+   "modelo": "NT20ZDT011616",
+   "serie": "CN-0KH0NG",
+   "color": "NEGRO",
+   "notas": "Serie repetida en el Excel (también: monitor de DIEGO ALBERTO DIONICIO MORALES). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u020",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "DELL",
+   "serie": "2020APO746",
+   "estatus": "ASIGNADO",
+   "empleado": "u021",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "K120920604422",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u021",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3BHJRS",
+   "estatus": "ASIGNADO",
+   "empleado": "u022",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2346MR13E9C8",
+   "color": "NEGRO",
+   "notas": "Serie repetida en el Excel (también: teclado de KARLA YASMIN JAIMEZ VAZQUEZ). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u022",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2303H5026C28",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u022",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINVISION T221-10",
+   "serie": "1561AMAR1USVSRW4880",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u022",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u023",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUDE 5520",
+   "serie": "B4DQQG3",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "estatus": "ASIGNADO",
+   "empleado": "u024",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "YU0042",
+   "serie": "2437MRX20R58",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u024",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2452HS40NP58",
+   "color": "NEGRO/GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u024",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "ACER",
+   "modelo": "V246HQL",
+   "serie": "MMT2BAAB132091CFIE4243",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u024",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "serie": "PF32Y3V7",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u025",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15 C",
+   "serie": "3305319040209",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "238 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u026",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "AC-9289496",
+   "serie": "3686268941592",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u026",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "ACTECK",
+   "modelo": "AC-928885",
+   "serie": "23146109029",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u026",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "HP",
+   "modelo": "HSTDN-9581-Q",
+   "serie": "CNK0142SBG",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u026",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "modelo": "GIGABIT",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u026",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "TIHINKPAD T14",
+   "serie": "PCITKHF6",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u027",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "AC-928885",
+   "serie": "AC-92885",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u027",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "SAMSUNG",
+   "estatus": "ASIGNADO",
+   "empleado": "u027",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L13",
+   "serie": "R9-0ZLYZK",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "238 GB",
+   "sistemaOperativo": "WINDOWS 10 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u028",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "INSPIRE TA210",
+   "serie": "3686289401717",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u028",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90 M-U0026",
+   "serie": "2435M5123G18",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u028",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "SAMSUNG",
+   "modelo": "T24D315N0",
+   "serie": "0B49MCJR502064X",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u028",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "modelo": "GIGABIT",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u028",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3B4RPQ",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u029",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "INSPIRE TA210",
+   "serie": "368628940125",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u029",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90 M-U0026",
+   "serie": "2501H5W0TGL8",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u029",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINKVISION T221-10",
+   "serie": "V6RW4879",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u029",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u029",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "marca": "STEREN",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u029",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "DESKTOP",
+   "serie": "3RCRZP",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "512 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u030",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "YU0042",
+   "serie": "2228MR13E448",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u030",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "modelo": "M90",
+   "serie": "4046HS07W1Y8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u030",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "MITSUY",
+   "modelo": "MTV2416LRD",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u030",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u031",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "LATITTU 520",
+   "serie": "0A21",
+   "estatus": "ASIGNADO",
+   "empleado": "u032",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "252545A26A2",
+   "color": "GRIS OSCURO",
+   "estatus": "ASIGNADO",
+   "empleado": "u032",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "20X451SK00",
+   "serie": "PF31Y0FV",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u033",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2540CFW1PAD9",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u033",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2543HSG39NR9",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u033",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "62B2CAR1WW",
+   "serie": "V308PG3",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u033",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u033",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "marca": "GIGATECH",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u033",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUD 5520",
+   "serie": "00425-0000-00002",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u034",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "YU0042",
+   "serie": "2523MRNOPPQ8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u034",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M-00026",
+   "serie": "2225HSAZVUP8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u034",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LG",
+   "modelo": "24MK430H",
+   "serie": "101NTOV1M442",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u034",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD 20X4515K00",
+   "serie": "PF3CM8DM",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u035",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "serie": "2541CF41YPM9",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u035",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "M-U0026SU-100",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u035",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "62B2-GAC-WW",
+   "serie": "V308RPAV",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u035",
+   "fechaEntrega": "2026-07-07"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "HP",
+   "modelo": "ELITEBOOK 650",
+   "serie": "5CD2391VXH",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i5 12 GEN",
+   "disco": "478 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u036",
+   "fechaEntrega": "2026-09-28"
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2543CFH0E9B8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u036",
+   "fechaEntrega": "2026-09-28"
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2549HS908C99",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u036",
+   "fechaEntrega": "2026-09-28"
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINKVISION P24H2L",
+   "serie": "V3095G76",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u036",
+   "fechaEntrega": "2026-09-28"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUD 3490",
+   "serie": "HFTTKP2",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "237 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u039",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2452HS30NNQ8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u039",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "SAMSUNG",
+   "modelo": "S24A336NHL",
+   "serie": "4X4THTW301608R",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u039",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUDE 5520",
+   "serie": "B3DQQG3",
+   "memoriaGb": "9.6",
+   "procesador": "INTER CORE I7",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 ENTERPRISE LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u041",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2022MR1B17A8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u041",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "ACTECK",
+   "modelo": "MI240",
+   "serie": "AC-928885",
+   "color": "NEGRO",
+   "notas": "Serie repetida en el Excel (también: mouse de DIEGO ALBERTO DIONICIO MORALES). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u041",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "DESKTOP-GQLHCUR",
+   "serie": "431W3G2",
+   "memoriaGb": "8",
+   "procesador": "INTERL(R) CORE i5",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u042",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "INSPIRE TA210",
+   "serie": "368628942437",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u042",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2225HS006VG8",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u042",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "V5RW4896",
+   "serie": "61A9-MAR1-WW",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u042",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUDE 3490",
+   "serie": "D5KTKP2",
+   "memoriaGb": "15.9",
+   "procesador": "INTERL(R) CORE i7",
+   "disco": "238 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u043",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "INSPIRE TA210",
+   "serie": "3686289401713",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u043",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2452HSS0NNR8",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u043",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINKVISION",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u043",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUDE 5480",
+   "serie": "C6V23M2",
+   "memoriaGb": "16",
+   "procesador": "INTERL CORE i5-6300U CPU @ 2.40 GHZ",
+   "disco": "237 GB",
+   "sistemaOperativo": "WINDOWS 10 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u044",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "YU0042",
+   "serie": "2437MRC20RU8",
+   "color": "NEGRO/GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u044",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M-U0026",
+   "serie": "2435HS323G48",
+   "color": "NEGRO/GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u044",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "HP",
+   "modelo": "W1Y58AA",
+   "serie": "CNK8130XVT",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u044",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "modelo": "PORTS",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u044",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L15",
+   "serie": "20X4-S1SK00",
+   "memoriaGb": "7.9",
+   "procesador": "INTERL(R) CORE i7",
+   "disco": "476 GB",
+   "sistemaOperativo": "WINDOWS 10",
+   "notas": "En el Excel aparecía como “QUIEN LA TIENE”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "AC-928946",
+   "serie": "3686289401715",
+   "color": "NEGRO",
+   "notas": "En el Excel aparecía como “QUIEN LA TIENE”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M-U0026",
+   "serie": "2452HS20NNP8",
+   "color": "NEGRO",
+   "notas": "En el Excel aparecía como “QUIEN LA TIENE”. Serie repetida en el Excel (también: mouse de ELENA ABIGAIL ALANIS REYES). Verificar.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "THINKVISION 61F7-MAR1-WW",
+   "serie": "5D10X78202",
+   "color": "NEGRO",
+   "notas": "En el Excel aparecía como “QUIEN LA TIENE”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "modelo": "UE300",
+   "notas": "En el Excel aparecía como “QUIEN LA TIENE”.",
+   "tipoAdaptador": "RED",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "marca": "BROBOTIX",
+   "notas": "En el Excel aparecía como “QUIEN LA TIENE”.",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L13",
+   "serie": "R9-0ZLZ1C",
+   "memoriaGb": "7.7",
+   "procesador": "INTERL CORE i5-6300U CPU @ 2.40 GHZ",
+   "disco": "239 GB",
+   "sistemaOperativo": "WINDOWS 10",
+   "estatus": "ASIGNADO",
+   "empleado": "u045",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "PERFECT CHOICE",
+   "modelo": "PC-200970",
+   "serie": "L120200970",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u045",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2435HSB240R8",
+   "color": "GRIS CON NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u045",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "ACER",
+   "modelo": "V247Y",
+   "serie": "MMTVHA",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u045",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "marca": "ACTECK",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u045",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "LATITUDE 3490",
+   "serie": "FT8TKP2",
+   "memoriaGb": "16",
+   "procesador": "Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz 1.99 GHz",
+   "disco": "239 GB",
+   "sistemaOperativo": "WINDOWS 10 ENTERPRISE LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u046",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2436MRM2VDH8",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u046",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M-U0026",
+   "serie": "2452HS60NNM8",
+   "color": "GRIS CON NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u046",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "T22I-10",
+   "serie": "V5PZ7068",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u046",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "20R4S3J813",
+   "serie": "R9-0ZLVA5",
+   "memoriaGb": "6.5",
+   "procesador": "INTERL(R) CORE i5",
+   "disco": "239 GB",
+   "sistemaOperativo": "WINDOWS 10",
+   "estatus": "ASIGNADO",
+   "empleado": "u047",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "1613SC500808",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u047",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2152HS01XZ38",
+   "color": "GRIS CON NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u047",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "5D10X78202",
+   "serie": "VKDK8501",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u047",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u047",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "marca": "BROBOTIX",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u047",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L15",
+   "serie": "PF3BHEG4",
+   "memoriaGb": "16",
+   "procesador": "INTEL CORE i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10",
+   "estatus": "ASIGNADO",
+   "empleado": "u048",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "LOGITECH",
+   "modelo": "K120",
+   "serie": "2436MRM2VDM9",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u048",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2452HS90NNM9",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u048",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LG",
+   "modelo": "24MK430H",
+   "serie": "010MTSU2U758",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u048",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "UKK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u048",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "marca": "BROBOTIX",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u048",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "C18238FTO",
+   "serie": "VNA38M6Y",
+   "memoriaGb": "16",
+   "procesador": "INTERL(R) CORE I7-1185GHZ",
+   "disco": "476 GB",
+   "sistemaOperativo": "WINDOWS 10",
+   "notas": "Serie repetida en el Excel (también: monitor de ANNA JOCABET NAZARIO ALVAREZ). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u049",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "PERFECT CHOICE",
+   "modelo": "PC-201045",
+   "serie": "L927201045",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u049",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LISTED",
+   "modelo": "M-U0026",
+   "serie": "1934HS02PHUB",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u049",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "C18238FTO",
+   "serie": "VNA38M6Y",
+   "color": "NEGRO",
+   "notas": "Serie repetida en el Excel (también: laptop de ANNA JOCABET NAZARIO ALVAREZ). Verificar.",
+   "estatus": "ASIGNADO",
+   "empleado": "u049",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "modelo": "PORTS",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u049",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "T14S",
+   "serie": "CP-1NXPHZ",
+   "memoriaGb": "16",
+   "procesador": "Intel(R) Core(TM) i5-10310U CPU @ 1.70GHz (2.21 GHz)",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u050",
+   "fechaEntrega": "2016-06-12"
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "ACTECK",
+   "modelo": "INSPIRE TA210",
+   "serie": "368628942436",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u050",
+   "fechaEntrega": "2016-06-12"
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2507HSF03WQ8",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u050",
+   "fechaEntrega": "2016-06-12"
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "HP",
+   "modelo": "E243",
+   "serie": "CNK0142SC1",
+   "color": "GRIS",
+   "estatus": "ASIGNADO",
+   "empleado": "u050",
+   "fechaEntrega": "2016-06-12"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "UKK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u050",
+   "fechaEntrega": "2016-06-12"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "marca": "MANHATTAN",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u050",
+   "fechaEntrega": "2016-06-12"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15 G2",
+   "serie": "20X4S1SK00",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "INTEL CORE I7 11 TH GEN",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10",
+   "notas": "En el Excel aparecía como “SIN USUARIO”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "TECLADO",
+   "marca": "EASYLINE",
+   "modelo": "EL-993384",
+   "serie": "L116993384",
+   "color": "NEGRO",
+   "notas": "En el Excel aparecía como “SIN USUARIO”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "MOUSE",
+   "marca": "LOGITECH",
+   "modelo": "M90",
+   "serie": "2524HSH1ZKY8",
+   "color": "GRIS",
+   "notas": "En el Excel aparecía como “SIN USUARIO”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LG",
+   "modelo": "24M35",
+   "serie": "408NDQA1V220",
+   "color": "NEGRO",
+   "notas": "En el Excel aparecía como “SIN USUARIO”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "UKA",
+   "notas": "En el Excel aparecía como “SIN USUARIO”.",
+   "tipoAdaptador": "RED",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "modelo": "PORTS",
+   "notas": "En el Excel aparecía como “SIN USUARIO”.",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3BHSRG",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u051",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u051",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3CM66P",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "notas": "En el Excel aparecía como “SIN USUARIO”.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u054",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "HP",
+   "modelo": "HSTND-9581-Q",
+   "serie": "CNK9521612",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u054",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PFEBJJ77",
+   "estatus": "ASIGNADO",
+   "empleado": "u055",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "A19238Q91",
+   "serie": "V308RP9X",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u055",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "LENOVO",
+   "modelo": "A19238Q91",
+   "serie": "V3095G1W",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u055",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L14S",
+   "serie": "20T1S31V1K",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "procesador": "i5",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u056",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "MONITOR",
+   "marca": "DELL",
+   "modelo": "JCJ6SK2",
+   "serie": "NT2021DT039565",
+   "color": "NEGRO",
+   "estatus": "ASIGNADO",
+   "empleado": "u056",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador multipuertos",
+   "tipoAdaptador": "MULTIPUERTOS",
+   "estatus": "ASIGNADO",
+   "empleado": "u057",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD",
+   "estatus": "ASIGNADO",
+   "empleado": "u062",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3BJ9Z4",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7-11th",
+   "disco": "500 GB",
+   "sistemaOperativo": "WINDOWS 11 PRO",
+   "notas": "Hoja STOCK: Estado: Completa. Origen: LAPONE. Recibido el 10/07/2026. En STOCK figura entregado a Daniel Silviano (DISEÑO) el 14/07/2026. Hoja DAÑADOS: Revisado el 14/07/2026: Teclas atoradas se envia con proeedor. Revisar si sigue en uso.",
+   "estatus": "ASIGNADO",
+   "empleado": "u064",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD T14S",
+   "serie": "PC1TKHFR",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "notas": "Hoja STOCK: Estado: Funcional solo office. Origen: USUARIO. Recibido el 30/06/2026.",
+   "estatus": "ASIGNADO",
+   "empleado": "u070",
+   "fechaEntrega": "2026-07-14"
+  },
+  {
+   "tipo": "ADAPTADOR",
+   "descripcion": "Adaptador de red",
+   "marca": "TP-LINK",
+   "tipoAdaptador": "RED",
+   "estatus": "ASIGNADO",
+   "empleado": "u070",
+   "fechaEntrega": "2026-07-14"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3FN1TH",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7-11th",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u079",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3FAKFZ",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7-11th",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u079",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3930XA",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "procesador": "i7-11th",
+   "disco": "477 GB",
+   "sistemaOperativo": "WINDOWS 10 LTSC",
+   "estatus": "ASIGNADO",
+   "empleado": "u079",
+   "fechaEntrega": null
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L14",
+   "serie": "PC1TKHH7",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "notas": "Estado: Funcional solo office. Origen: USUARIO. Recibido el 08/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L13",
+   "serie": "R90ZLVB0",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "notas": "Estado: Funcional solo office. Origen: USUARIO. Recibido el 08/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "T460S",
+   "serie": "PC0HZ548",
+   "color": "NEGRO",
+   "memoriaGb": "16",
+   "notas": "Estado: Funcional solo office. Origen: USUARIO. Recibido el 08/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "DELL",
+   "modelo": "INSPIRION 15 3000",
+   "serie": "P112F001",
+   "color": "GRIS",
+   "memoriaGb": "12",
+   "notas": "Estado: Funcional solo office. Origen: USUARIO. Recibido el 08/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L15",
+   "notas": "Origen: LAPONE. Recibido el 10/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L15",
+   "notas": "Origen: LAPONE. Recibido el 10/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L15",
+   "notas": "Origen: LAPONE. Recibido el 10/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L150",
+   "notas": "Origen: LAPONE. Recibido el 10/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "notas": "Origen: LAPONE. Recibido el 10/07/2026.",
+   "estatus": "DISPONIBLE"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "THINKPAD L15",
+   "serie": "PF3B2BKD",
+   "color": "GRIS",
+   "memoriaGb": "16",
+   "notas": "Usuario: Gerardo Ramirez Bahena (CONTABILIDAD). Motivo: Imagen de pantalla inistable. Estado en Excel: En revision. Solución: Proveedor nos camia equipo.",
+   "estatus": "EN_REPARACION",
+   "reparacion": {
+    "fechaEnvio": "2026-05-21",
+    "motivo": "Imagen de pantalla inestable",
+    "solucion": null
+   }
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "T460S",
+   "color": "NEGRO",
+   "notas": "Revisado el 08/07/2025: Bateria sulfatada, teclado son falla.",
+   "estatus": "DANADO"
+  },
+  {
+   "tipo": "LAPTOP",
+   "marca": "LENOVO",
+   "modelo": "L390",
+   "color": "GRIS",
+   "notas": "Revisado el 08/07/2026: No sirve teclado, sin hd y sin memoria.",
+   "estatus": "DANADO"
+  }
+ ]
+}

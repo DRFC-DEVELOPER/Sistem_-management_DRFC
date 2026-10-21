@@ -1,6 +1,11 @@
-# Sistema de inventario de equipos (etapa 1: base de datos y API)
+# Sistema de inventario de equipos
 
-API para registrar equipos de cómputo, empleados, asignaciones, reparaciones y bajas, con inicio de sesión por roles y bitácora de cambios. La web de administración (etapa 2) y la app móvil (etapa 3) se conectan a esta API.
+Sistema para registrar equipos de cómputo, empleados, asignaciones, reparaciones y bajas, con inicio de sesión por roles, bitácora de cambios e importación y exportación de Excel.
+
+- `api/`: base de datos y API (NestJS + Drizzle + PostgreSQL).
+- `web/`: web de administración (React + Vite).
+
+Para probarlo en tu computadora sigue **PRUEBAS-PC.md**. Esta guía es para instalarlo en el VPS.
 
 Todo el software es gratuito y de código abierto: PostgreSQL, Node.js, NestJS, Drizzle ORM, Docker y Caddy.
 
@@ -9,7 +14,8 @@ Todo el software es gratuito y de código abierto: PostgreSQL, Node.js, NestJS, 
 ```
 Internet ──► Caddy (HTTPS automático, puertos 80/443)
                  │
-                 └── /api/* ──► API NestJS (puerto 3000, interno)
+                 ├── /       ──► Web de administración (archivos estáticos)
+                 └── /api/*  ──► API NestJS (puerto 3000, interno)
                                     │
                                     └──► PostgreSQL 16 (interno, sin acceso desde internet)
 ```
@@ -99,7 +105,9 @@ Después de este paso puedes borrar `ADMIN_PASSWORD` del `.env`.
 
 ### 9. Pruébalo
 
-Abre `https://inventario.tuempresa.com/api/docs`. Es la documentación interactiva:
+Abre `https://inventario.tuempresa.com` e inicia sesión con el administrador.
+
+La documentación interactiva de la API está en `https://inventario.tuempresa.com/api/docs`:
 
 1. Abre **POST /api/auth/login**, pulsa *Try it out*, escribe tu correo y contraseña, y ejecuta.
 2. Copia el `token` de la respuesta.
@@ -159,6 +167,8 @@ Todas empiezan con `/api`. Excepto el login y la salud, requieren el encabezado 
 | `GET /departamentos` · `POST` · `PATCH` | Catálogo de departamentos |
 | `GET/POST/PATCH /usuarios-sistema` | Usuarios que entran al sistema (solo ADMIN) |
 | `GET /bitacora` | Quién hizo qué y cuándo (solo ADMIN) |
+| `GET /excel/exportar` | Descargar el inventario en Excel |
+| `POST /excel/analizar` · `POST /excel/importar` | Revisar un Excel sin guardar · importarlo |
 | `GET /salud` | Comprobar que API y base responden |
 
 ## Reglas que aplica el sistema
@@ -180,9 +190,17 @@ npm run build && npm run migrar && npm run seed
 npm run start:dev
 ```
 
+En otra terminal, la web:
+
+```bash
+cd web
+npm install
+npm run dev     # http://localhost:5173
+```
+
 Para cambiar la base de datos: edita `api/src/db/esquema.ts`, ejecuta `npm run migracion:generar` y revisa el SQL nuevo en `api/drizzle/`. Se aplicará solo en el siguiente arranque.
 
 ## Próximas etapas
 
-- **Etapa 2:** web de administración (React), importación y exportación de Excel con el formato actual, carta responsiva en PDF.
-- **Etapa 3:** app Android (APK) con escaneo de códigos de barras por cámara.
+- Carta responsiva en PDF al asignar un equipo.
+- App Android (APK) con escaneo de códigos de barras por cámara.

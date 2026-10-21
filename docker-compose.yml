@@ -33,8 +33,9 @@ services:
       SWAGGER: ${SWAGGER:-true}
       TZ: ${TZ:-America/Mexico_City}
 
+  # Caddy sirve la web y reenvía /api a la API. Se construye desde ./web.
   caddy:
-    image: caddy:2-alpine
+    build: ./web
     restart: unless-stopped
     depends_on:
       - api

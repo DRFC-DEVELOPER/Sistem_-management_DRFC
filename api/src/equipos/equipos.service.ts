@@ -89,7 +89,7 @@ export class EquiposService {
       with: {
         empleado: { columns: { id: true, nombre: true, numero: true }, with: { departamento: { columns: { id: true, nombre: true } } } },
         asignaciones: {
-          orderBy: [desc(asignaciones.fechaEntrega), desc(asignaciones.id)],
+          orderBy: [sql`${asignaciones.fechaEntrega} desc nulls last`, desc(asignaciones.id)],
           with: {
             empleado: { columns: { id: true, nombre: true } },
             entregadoPor: { columns: { nombre: true } },

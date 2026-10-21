@@ -6,8 +6,10 @@
 		reverse_proxy api:3000
 	}
 
-	# La web de administración se servirá aquí en la etapa 2.
+	# Web de administración (React). Las rutas internas regresan a index.html.
 	handle {
-		respond "Inventario de equipos: la API está en /api/docs" 200
+		root * /srv
+		try_files {path} /index.html
+		file_server
 	}
 }

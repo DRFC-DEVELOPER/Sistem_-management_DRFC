@@ -2,10 +2,12 @@
 
 Hay dos formas. La **opción A (Docker)** es la recomendada porque es idéntica a como correrá en el VPS; cuando pases a producción solo cambias el archivo `.env`. La **opción B** sirve si tu PC no puede instalar Docker.
 
-Al terminar, la documentación interactiva queda en:
+Al terminar tendrás:
 
-- Opción A: http://localhost:8080/api/docs
-- Opción B: http://localhost:3000/api/docs
+| | Opción A (Docker) | Opción B (sin Docker) |
+|---|---|---|
+| Web de administración | http://localhost:8080 | http://localhost:5173 |
+| Documentación de la API | http://localhost:8080/api/docs | http://localhost:3000/api/docs |
 
 Usuario de prueba: `admin@pruebas.com` · contraseña `Pruebas12345`
 
@@ -50,7 +52,9 @@ Crea el administrador de pruebas e importa tus 87 empleados y 212 equipos.
 
 ### 5. Úsalo
 
-Abre http://localhost:8080/api/docs:
+Abre http://localhost:8080 e inicia sesión. La web ya viene incluida en Docker.
+
+Para probar la API directamente, abre http://localhost:8080/api/docs:
 
 1. **POST /api/auth/login** → *Try it out* → escribe el correo y contraseña de prueba → *Execute*.
 2. Copia el valor de `token`.
@@ -58,6 +62,9 @@ Abre http://localhost:8080/api/docs:
 4. Prueba, por ejemplo, **GET /api/equipos/resumen** o **GET /api/empleados**.
 
 ### Comandos útiles
+
+Si actualizas el código, vuelve a ejecutar el comando del paso 3 para reconstruir.
+
 
 | Para | Comando |
 |---|---|
@@ -100,15 +107,34 @@ npm run pruebas:preparar
 npm run pruebas:iniciar
 ```
 
-`pruebas:preparar` compila, crea las tablas y carga tu inventario (solo hace falta la primera vez o después de cambiar el código). `pruebas:iniciar` arranca la API; déjala abierta mientras pruebas y detenla con `Ctrl+C`.
+`pruebas:preparar` compila, crea las tablas y carga tu inventario (hace falta la primera vez y cada vez que actualices el código). `pruebas:iniciar` arranca la API; déjala abierta mientras pruebas y detenla con `Ctrl+C`.
 
-Abre http://localhost:3000/api/docs y sigue el paso 5 de la opción A.
+### 4. Arranca la web
+
+Abre **otra terminal** (en VS Code, el botón **+** del panel de terminal) y ejecuta:
+
+```powershell
+cd C:\inventario-drfc\web
+npm install
+npm run dev
+```
+
+Abre http://localhost:5173 e inicia sesión. La web le pasa las peticiones a la API del puerto 3000, así que **las dos terminales deben quedar abiertas**.
+
+La documentación de la API sigue disponible en http://localhost:3000/api/docs.
+
+### Cuando recibas una versión nueva del código
+
+1. Detén la API y la web con `Ctrl+C` en cada terminal.
+2. Copia los archivos nuevos encima de los anteriores.
+3. En la terminal de la API: `npm install`, `npm run pruebas:preparar` y `npm run pruebas:iniciar`.
+4. En la terminal de la web: `npm install` y `npm run dev`.
 
 ---
 
 ## Probar desde el celular (misma red Wi-Fi)
 
-Busca la IP de tu PC con `ipconfig` (línea *Dirección IPv4*, algo como `192.168.1.50`) y abre en el celular `http://192.168.1.50:8080/api/docs` (o `:3000` en la opción B). Si no carga, permite el puerto en el Firewall de Windows. Esto será útil cuando lleguemos a la app Android.
+Busca la IP de tu PC con `ipconfig` (línea *Dirección IPv4*, algo como `192.168.1.50`) y abre en el celular `http://192.168.1.50:8080` (opción A) o `http://192.168.1.50:5173` (opción B). Si no carga, permite el puerto en el Firewall de Windows. Esto será útil cuando lleguemos a la app Android.
 
 ## Cuando pases al VPS
 

@@ -41,7 +41,7 @@ export class EmpleadosService {
         departamento: true,
         equiposActuales: { orderBy: [asc(equipos.tipo)] },
         asignaciones: {
-          orderBy: [desc(asignaciones.fechaEntrega), desc(asignaciones.id)],
+          orderBy: [sql`${asignaciones.fechaEntrega} desc nulls last`, desc(asignaciones.id)],
           with: { equipo: { columns: { id: true, tipo: true, marca: true, modelo: true, serie: true } } },
         },
       },

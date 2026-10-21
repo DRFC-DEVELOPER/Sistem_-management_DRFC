@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { and, desc, eq, isNull, SQL } from 'drizzle-orm';
+import { and, desc, eq, isNull, SQL, sql } from 'drizzle-orm';
 import { DB, InjectDb, Tx } from '../db/db.module';
 import { asignaciones, empleados, equipos } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
@@ -22,7 +22,7 @@ export class AsignacionesService {
     if (f.abiertas) c.push(isNull(asignaciones.fechaDevolucion));
     return this.db.query.asignaciones.findMany({
       where: c.length ? and(...c) : undefined,
-      orderBy: [desc(asignaciones.fechaEntrega), desc(asignaciones.id)],
+      orderBy: [sql`${asignaciones.fechaEntrega} desc nulls last`, desc(asignaciones.id)],
       limit: 500,
       with: {
         equipo: equipoBreve,

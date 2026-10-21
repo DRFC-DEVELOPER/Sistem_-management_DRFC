@@ -10,6 +10,7 @@ import { EmpleadosModule } from './empleados/empleados.module';
 import { EquiposModule } from './equipos/equipos.module';
 import { AsignacionesModule } from './asignaciones/asignaciones.module';
 import { ReparacionesModule } from './reparaciones/reparaciones.module';
+import { ExcelModule } from './excel/excel.module';
 import { SaludController } from './salud/salud.controller';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -29,6 +30,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     EquiposModule,
     AsignacionesModule,
     ReparacionesModule,
+    ExcelModule,
   ],
   controllers: [SaludController],
   providers: [

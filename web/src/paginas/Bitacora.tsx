@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { useCarga } from '../usar';
-import { Pagina } from '../tipos';
+import { ORDENES, Pagina } from '../tipos';
 import { Cargando, ErrorCarga, Paginacion } from '../ui';
 
 interface Registro { id: number; accion: string; entidad: string; entidadId: number | null; fecha: string; usuario: { nombre: string } | null }
@@ -11,10 +11,15 @@ const hora = (iso: string) => new Date(iso).toLocaleString('es-MX', { dateStyle:
 
 export default function Bitacora() {
   const [pagina, setPagina] = useState(1);
-  const { datos, error, recargar } = useCarga(() => api<Pagina<Registro>>(`/bitacora?pagina=${pagina}&limite=50`), [pagina]);
+  const [orden, setOrden] = useState('recientes');
+  const { datos, error, recargar } = useCarga(() => api<Pagina<Registro>>(`/bitacora?pagina=${pagina}&limite=50&orden=${orden}`), [pagina, orden]);
   return (
     <>
-      <div className="encabezado"><div><h1>Bitácora</h1><p className="sub" style={{ margin: '4px 0 0' }}>Quién hizo cada cambio y cuándo.</p></div></div>
+      <div className="encabezado"><div><h1>Bitácora</h1><p className="sub" style={{ margin: '4px 0 0' }}>Quién hizo cada cambio y cuándo.</p></div>
+        <select className="entrada" style={{ width: 'auto' }} value={orden} onChange={(e) => { setOrden(e.target.value); setPagina(1); }} aria-label="Ordenar">
+          {ORDENES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+        </select>
+      </div>
       {error ? <ErrorCarga mensaje={error} reintentar={recargar} /> : !datos ? <Cargando /> : (
         <>
           <section className="panel desliza">

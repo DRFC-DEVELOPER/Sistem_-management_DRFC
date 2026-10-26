@@ -1,8 +1,11 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, descargar } from '../api';
+import { descargarEtiquetasPdf, OpcionesEtiquetas, OrdenEtiquetas } from '../etiquetasPdf';
 import { useSesion } from '../sesion';
-import { useAvisos } from '../ui';
+import { EmpleadoListado, Ref } from '../tipos';
+import { Campo, useAvisos } from '../ui';
+import { useCarga } from '../usar';
 
 interface Analisis {
   filas: number; empleadosNuevos: number; equiposNuevos: number; asignados: number;
@@ -51,6 +54,8 @@ export default function Excel() {
           <button className="btn ghost" onClick={exportar} disabled={!!ocupado}>{ocupado === 'exportar' ? 'Preparando…' : 'Descargar Excel'}</button>
         </section>
 
+        <PanelEtiquetas />
+
         {puedeEditar && (
           <section className="panel importacion">
             <h2>Importar desde Excel</h2>
@@ -84,6 +89,104 @@ export default function Excel() {
         )}
       </div>
     </>
+  );
+}
+
+type Alcance = 'todos' | 'departamento' | 'empleado' | 'recientes';
+
+const ORDENES: [OrdenEtiquetas, string][] = [['usuario', 'Usuario'], ['departamento', 'Departamento'], ['recientes', 'Más recientes primero']];
+
+const haceDias = (n: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+const slug = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+function PanelEtiquetas() {
+  const { avisar } = useAvisos();
+  const [alcance, setAlcance] = useState<Alcance>('todos');
+  const [departamentoId, setDepartamento] = useState('');
+  const [empleadoId, setEmpleado] = useState('');
+  const [desde, setDesde] = useState(haceDias(30));
+  const [orden, setOrden] = useState<OrdenEtiquetas>('usuario');
+  const [ocupado, setOcupado] = useState(false);
+  const deptos = useCarga(() => (alcance === 'departamento' ? api<Ref[]>('/departamentos') : Promise.resolve(null)), [alcance]);
+  const empleados = useCarga(() => (alcance === 'empleado' ? api<EmpleadoListado[]>('/empleados') : Promise.resolve(null)), [alcance]);
+
+  const cambiarAlcance = (a: Alcance) => {
+    setAlcance(a);
+    if (a === 'recientes') setOrden('recientes');
+    else if (orden === 'recientes') setOrden('usuario');
+  };
+
+  const opciones = (): OpcionesEtiquetas | null => {
+    if (alcance === 'departamento') {
+      const d = deptos.datos?.find((x) => String(x.id) === departamentoId);
+      return d ? { departamentoId: d.id, orden, descripcion: `Departamento: ${d.nombre}`, archivo: slug(d.nombre) } : null;
+    }
+    if (alcance === 'empleado') {
+      const e = empleados.datos?.find((x) => String(x.id) === empleadoId);
+      return e ? { empleadoId: e.id, orden, descripcion: `Usuario: ${e.nombre}`, archivo: slug(e.nombre) } : null;
+    }
+    if (alcance === 'recientes') {
+      if (!desde) return null;
+      return { desde, orden, descripcion: `Dados de alta desde el ${new Date(`${desde}T00:00:00`).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}`, archivo: `desde-${desde}` };
+    }
+    return { orden, descripcion: `Todos los equipos, ordenados por ${ORDENES.find(([k]) => k === orden)![1].toLowerCase()}` };
+  };
+  const listo = opciones();
+
+  const generar = async () => {
+    if (!listo) return;
+    setOcupado(true);
+    try { avisar(`PDF descargado con ${await descargarEtiquetasPdf(listo)} equipos`); } catch (e) { avisar((e as Error).message); } finally { setOcupado(false); }
+  };
+
+  return (
+    <section className="panel">
+      <h2>Códigos de barras y QR</h2>
+      <p style={{ marginTop: 0 }}>Descarga un PDF con el código de barras y el QR de cada equipo, con el nombre del usuario al que está asignado, listo para imprimir.</p>
+      <div className="form">
+        <Campo etiqueta="Qué equipos">
+          <select value={alcance} onChange={(e) => cambiarAlcance(e.target.value as Alcance)}>
+            <option value="todos">Todos</option>
+            <option value="departamento">De un departamento</option>
+            <option value="empleado">De una persona</option>
+            <option value="recientes">Dados de alta recientemente</option>
+          </select>
+        </Campo>
+        {alcance === 'departamento' && (
+          <Campo etiqueta="Departamento">
+            <select value={departamentoId} onChange={(e) => setDepartamento(e.target.value)} disabled={!deptos.datos}>
+              <option value="">{deptos.datos ? 'Elige un departamento' : 'Cargando…'}</option>
+              {deptos.datos?.map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+            </select>
+          </Campo>
+        )}
+        {alcance === 'empleado' && (
+          <Campo etiqueta="Persona">
+            <select value={empleadoId} onChange={(e) => setEmpleado(e.target.value)} disabled={!empleados.datos}>
+              <option value="">{empleados.datos ? 'Elige una persona' : 'Cargando…'}</option>
+              {empleados.datos?.map((e) => <option key={e.id} value={e.id}>{e.nombre} ({e.equiposAsignados} equipos)</option>)}
+            </select>
+          </Campo>
+        )}
+        {alcance === 'recientes' && (
+          <Campo etiqueta="Dados de alta desde"><input type="date" value={desde} max={haceDias(0)} onChange={(e) => setDesde(e.target.value)} /></Campo>
+        )}
+        {alcance !== 'empleado' && (
+          <Campo etiqueta="Ordenar por">
+            <select value={orden} onChange={(e) => setOrden(e.target.value as OrdenEtiquetas)}>
+              {ORDENES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+            </select>
+          </Campo>
+        )}
+        {(deptos.error || empleados.error) && <p className="error" role="alert">{deptos.error || empleados.error}</p>}
+        <div><button className="btn ghost" onClick={generar} disabled={ocupado || !listo}>{ocupado ? 'Generando PDF…' : 'Descargar PDF'}</button></div>
+      </div>
+    </section>
   );
 }
 

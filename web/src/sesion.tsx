@@ -5,7 +5,7 @@ import { Usuario } from './tipos';
 interface Sesion {
   usuario: Usuario | null;
   cargando: boolean;
-  entrar: (correo: string, password: string) => Promise<void>;
+  entrar: (usuario: string, password: string) => Promise<void>;
   salir: () => void;
   puedeEditar: boolean;
   esAdmin: boolean;
@@ -28,8 +28,8 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('sesion-expirada', fin);
   }, []);
 
-  const entrar = useCallback(async (correo: string, password: string) => {
-    const r = await api<{ token: string; usuario: Usuario }>('/auth/login', { cuerpo: { correo, password } });
+  const entrar = useCallback(async (usuario: string, password: string) => {
+    const r = await api<{ token: string; usuario: Usuario }>('/auth/login', { cuerpo: { usuario, password } });
     token.guardar(r.token);
     setUsuario(r.usuario);
   }, []);

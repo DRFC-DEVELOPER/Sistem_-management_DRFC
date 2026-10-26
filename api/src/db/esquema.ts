@@ -1,9 +1,9 @@
 // Esquema de la base de datos del inventario de equipos.
 import { relations, sql } from 'drizzle-orm';
-import { boolean, date, index, integer, jsonb, pgEnum, pgTable, serial, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+import { AnyPgColumn, boolean, date, index, integer, jsonb, pgEnum, pgSequence, pgTable, serial, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
 export const rol = pgEnum('rol', ['ADMIN', 'TECNICO', 'CONSULTA']);
-export const tipoEquipo = pgEnum('tipo_equipo', ['LAPTOP', 'TECLADO', 'MOUSE', 'MONITOR', 'ADAPTADOR', 'MULTIFUNCIONAL', 'ACCESS_POINT', 'OTRO']);
+export const tipoEquipo = pgEnum('tipo_equipo', ['LAPTOP', 'TECLADO', 'MOUSE', 'MONITOR', 'ADAPTADOR', 'MULTIFUNCIONAL', 'SOPORTE', 'ACCESS_POINT', 'OTRO']);
 export const estatusEquipo = pgEnum('estatus_equipo', ['DISPONIBLE', 'ASIGNADO', 'EN_REPARACION', 'DANADO', 'BAJA']);
 export const tipoAdaptador = pgEnum('tipo_adaptador', ['RED', 'MULTIPUERTOS']);
 
@@ -42,7 +42,8 @@ export const empleados = pgTable(
 export const usuariosSistema = pgTable('usuarios_sistema', {
   id: serial('id').primaryKey(),
   nombre: varchar('nombre', { length: 120 }).notNull(),
-  correo: varchar('correo', { length: 150 }).notNull().unique(),
+  usuario: varchar('usuario', { length: 60 }).notNull().unique(),
+  correo: varchar('correo', { length: 150 }).unique(),
   passwordHash: text('password_hash').notNull(),
   rol: rol('rol').default('CONSULTA').notNull(),
   activo: boolean('activo').default(true).notNull(),
@@ -50,6 +51,9 @@ export const usuariosSistema = pgTable('usuarios_sistema', {
   creadoEn: creadoEn(),
   actualizadoEn: actualizadoEn(),
 });
+
+// Consecutivo de los códigos de barras automáticos de los equipos.
+export const equiposCodigoSeq = pgSequence('equipos_codigo_seq', { startWith: 1 });
 
 export const equipos = pgTable(
   'equipos',
@@ -60,7 +64,8 @@ export const equipos = pgTable(
     marca: varchar('marca', { length: 80 }),
     modelo: varchar('modelo', { length: 120 }),
     serie: varchar('serie', { length: 120 }),
-    codigoBarras: varchar('codigo_barras', { length: 120 }),
+    // Si no se captura uno, se genera el siguiente consecutivo: DRFC000001, DRFC000002...
+    codigoBarras: varchar('codigo_barras', { length: 120 }).default(sql`'DRFC' || lpad(nextval('equipos_codigo_seq')::text, 6, '0')`),
     color: varchar('color', { length: 60 }),
     memoriaGb: varchar('memoria_gb', { length: 20 }),
     procesador: varchar('procesador', { length: 120 }),
@@ -96,6 +101,10 @@ export const asignaciones = pgTable(
     fechaEntrega: fecha('fecha_entrega'),
     fechaDevolucion: fecha('fecha_devolucion'),
     notas: text('notas'),
+    // Estatus en que quedó el equipo al cerrar la asignación (devuelto, dañado, a reparación o baja).
+    resultado: estatusEquipo('resultado'),
+    // Equipo dañado o en reparación al que sustituye mientras la asignación es temporal.
+    sustituyeEquipoId: integer('sustituye_equipo_id').references((): AnyPgColumn => equipos.id, { onDelete: 'set null' }),
     entregadoPorId: integer('entregado_por_id').references(() => usuariosSistema.id, { onDelete: 'set null' }),
     recibidoPorId: integer('recibido_por_id').references(() => usuariosSistema.id, { onDelete: 'set null' }),
     creadoEn: creadoEn(),

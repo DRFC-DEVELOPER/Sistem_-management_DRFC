@@ -1,26 +1,29 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
 import { DB, InjectDb } from '../db/db.module';
 import { usuariosSistema } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 
-// Hash de relleno para que el tiempo de respuesta sea igual exista o no el correo.
+// Hash de relleno para que el tiempo de respuesta sea igual exista o no el usuario.
 const HASH_FALSO = '$2a$12$C6UzMDM.H6dfI/f/IKcEeO5VKe5kUYwYpv6FpIo5Fj6Fvl8Bdv1Wa';
 
 @Injectable()
 export class AuthService {
   constructor(@InjectDb() private db: DB, private jwt: JwtService, private bitacora: BitacoraService) {}
 
-  async login(correo: string, password: string) {
-    const u = await this.db.query.usuariosSistema.findFirst({ where: eq(usuariosSistema.correo, correo.toLowerCase().trim()) });
+  async login(usuario: string, password: string) {
+    const identificador = usuario.toLowerCase().trim();
+    const u = await this.db.query.usuariosSistema.findFirst({
+      where: or(eq(usuariosSistema.usuario, identificador), eq(usuariosSistema.correo, identificador)),
+    });
     const coincide = await bcrypt.compare(password, u?.passwordHash ?? HASH_FALSO);
-    if (!u || !u.activo || !coincide) throw new UnauthorizedException('Correo o contraseña incorrectos.');
+    if (!u || !u.activo || !coincide) throw new UnauthorizedException('Usuario o contraseña incorrectos.');
     await this.db.update(usuariosSistema).set({ ultimoAcceso: new Date() }).where(eq(usuariosSistema.id, u.id));
     return {
       token: await this.jwt.signAsync({ sub: u.id, rol: u.rol }),
-      usuario: { id: u.id, nombre: u.nombre, correo: u.correo, rol: u.rol },
+      usuario: { id: u.id, nombre: u.nombre, usuario: u.usuario, correo: u.correo, rol: u.rol },
     };
   }
 

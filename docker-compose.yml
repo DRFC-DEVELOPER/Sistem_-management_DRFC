@@ -27,6 +27,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en .env}
       JWT_EXPIRA: ${JWT_EXPIRA:-12h}
       ADMIN_NOMBRE: ${ADMIN_NOMBRE:-Administrador}
+      ADMIN_USUARIO: ${ADMIN_USUARIO:-admin}
       ADMIN_CORREO: ${ADMIN_CORREO:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       CORS_ORIGEN: ${CORS_ORIGEN:-}

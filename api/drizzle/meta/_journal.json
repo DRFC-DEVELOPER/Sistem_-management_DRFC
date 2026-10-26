@@ -8,6 +8,48 @@
       "when": 1792551602098,
       "tag": "0000_inicial",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792614429803,
+      "tag": "0001_estado_devolucion",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792617912173,
+      "tag": "0002_codigo_barras_automatico",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792622354111,
+      "tag": "0003_religar_danados",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792629536289,
+      "tag": "0004_asignacion_temporal",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792727291981,
+      "tag": "0005_usuario_login",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792819604838,
+      "tag": "0006_tipo_soporte",
+      "breakpoints": true
     }
   ]
 }

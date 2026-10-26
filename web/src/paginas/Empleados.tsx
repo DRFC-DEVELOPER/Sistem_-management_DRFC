@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, qs } from '../api';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
-import { EmpleadoListado, iniciales, Ref } from '../tipos';
+import { EmpleadoListado, iniciales, ORDENES, Ref } from '../tipos';
 import { BUSCAR, Cargando, ErrorCarga, Vacio } from '../ui';
 import EmpleadoForm from './EmpleadoForm';
 
@@ -15,11 +15,18 @@ export default function Empleados() {
   const q = useRetraso(texto);
   const [depto, setDepto] = useState('');
   const [inactivos, setInactivos] = useState(false);
+  const [orden, setOrden] = useState('');
   const deptos = useCarga(() => api<Ref[]>('/departamentos'), []);
   const { datos, error, recargar } = useCarga(
     () => api<EmpleadoListado[]>(`/empleados${qs({ q, departamentoId: depto, incluirInactivos: inactivos })}`),
     [q, depto, inactivos],
   );
+  // La API los regresa en orden alfabético.
+  const lista = useMemo(() => {
+    if (!datos || !orden) return datos;
+    const signo = orden === 'antiguos' ? 1 : -1;
+    return [...datos].sort((a, b) => signo * (a.creadoEn.localeCompare(b.creadoEn) || a.id - b.id));
+  }, [datos, orden]);
 
   return (
     <>
@@ -35,14 +42,18 @@ export default function Empleados() {
           <option value="">Todos los departamentos</option>
           {(deptos.datos ?? []).map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
         </select>
+        <select className="entrada" value={orden} onChange={(e) => setOrden(e.target.value)} aria-label="Ordenar">
+          <option value="">Alfabético (A–Z)</option>
+          {ORDENES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+        </select>
         <label className="casilla"><input type="checkbox" checked={inactivos} onChange={(e) => setInactivos(e.target.checked)} /> Mostrar dados de baja</label>
       </div>
-      {error ? <ErrorCarga mensaje={error} reintentar={recargar} /> : !datos ? <Cargando /> : (
+      {error ? <ErrorCarga mensaje={error} reintentar={recargar} /> : !lista ? <Cargando /> : (
         <>
-          <p className="conteo">{datos.length} {datos.length === 1 ? 'empleado' : 'empleados'}</p>
-          {datos.length ? (
+          <p className="conteo">{lista.length} {lista.length === 1 ? 'empleado' : 'empleados'}</p>
+          {lista.length ? (
             <div className="lista dos">
-              {datos.map((e) => (
+              {lista.map((e) => (
                 <Link key={e.id} to={`/empleados/${e.id}`} className={`persona${e.activo ? '' : ' inactivo'}`}>
                   <span className="av">{iniciales(e.nombre)}</span>
                   <span><b>{e.nombre}</b><span className="sub">{e.departamento?.nombre ?? 'Sin departamento'}{e.activo ? '' : ' (dado de baja)'}</span></span>

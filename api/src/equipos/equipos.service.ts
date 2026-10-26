@@ -36,24 +36,48 @@ export class EquiposService {
           ...getTableColumns(equipos),
           empleado: { id: empleados.id, nombre: empleados.nombre, numero: empleados.numero },
           departamento: { id: departamentos.id, nombre: departamentos.nombre },
+          temporal: sql<boolean>`exists (select 1 from ${asignaciones} x where x.equipo_id = ${equipos.id} and x.fecha_devolucion is null and x.sustituye_equipo_id is not null)`,
         })
         .from(equipos)
         .leftJoin(empleados, eq(equipos.empleadoId, empleados.id))
         .leftJoin(departamentos, eq(empleados.departamentoId, departamentos.id))
         .where(where)
-        .orderBy(asc(equipos.tipo), asc(equipos.marca), asc(equipos.id))
+        .orderBy(...(f.orden === 'recientes' ? [desc(equipos.creadoEn), desc(equipos.id)] : f.orden === 'antiguos' ? [asc(equipos.creadoEn), asc(equipos.id)] : [asc(equipos.tipo), asc(equipos.marca), asc(equipos.id)]))
         .offset(offset)
         .limit(limit),
     ]);
     return { total, pagina, limite, datos: filas };
   }
 
-  /** Conteos para el tablero: por estatus y por tipo. */
+  /** Datos del tablero: estatus, tipos, movimientos de 6 meses, departamentos, empleados y reparaciones. */
   async resumen() {
-    const filas = await this.db
-      .select({ tipo: equipos.tipo, estatus: equipos.estatus, n: count() })
-      .from(equipos)
-      .groupBy(equipos.tipo, equipos.estatus);
+    const [filas, movimientos, porDepartamento, [empleadosCuenta], [{ reparacionesAbiertas }]] = await Promise.all([
+      this.db.select({ tipo: equipos.tipo, estatus: equipos.estatus, n: count() }).from(equipos).groupBy(equipos.tipo, equipos.estatus),
+      this.db
+        .execute<{ mes: string; entregas: number; devoluciones: number }>(sql`
+          select to_char(m, 'YYYY-MM') as mes,
+            (select count(*)::int from asignaciones where date_trunc('month', fecha_entrega)::date = m::date) as entregas,
+            (select count(*)::int from asignaciones where date_trunc('month', fecha_devolucion)::date = m::date) as devoluciones
+          from generate_series(date_trunc('month', current_date) - interval '5 months', date_trunc('month', current_date), interval '1 month') as m
+          order by m`)
+        .then((r) => r.rows),
+      this.db
+        .execute<{ nombre: string; n: number }>(sql`
+          select coalesce(d.nombre, 'Sin departamento') as nombre, count(*)::int as n
+          from equipos e
+          join empleados em on em.id = e.empleado_id
+          left join departamentos d on d.id = em.departamento_id
+          where e.estatus = 'ASIGNADO'
+          group by 1 order by 2 desc, 1`)
+        .then((r) => r.rows),
+      this.db
+        .execute<{ activos: number; sinEquipo: number }>(sql`
+          select count(*)::int as "activos",
+            count(*) filter (where not exists (select 1 from equipos q where q.empleado_id = em.id))::int as "sinEquipo"
+          from empleados em where em.activo`)
+        .then((r) => r.rows),
+      this.db.select({ reparacionesAbiertas: count() }).from(reparaciones).where(isNull(reparaciones.fechaRecepcion)),
+    ]);
     const porEstatus = Object.fromEntries(estatusEquipo.enumValues.map((s) => [s, 0])) as Record<EstatusEquipo, number>;
     const porTipo: Record<string, { total: number; disponibles: number }> = {};
     for (const r of filas) {
@@ -63,7 +87,7 @@ export class EquiposService {
       porTipo[r.tipo].total += r.n;
       if (r.estatus === 'DISPONIBLE') porTipo[r.tipo].disponibles += r.n;
     }
-    return { porEstatus, porTipo };
+    return { porEstatus, porTipo, movimientos, porDepartamento, empleados: empleadosCuenta, reparacionesAbiertas };
   }
 
   private conEmpleado(where: SQL) {
@@ -100,7 +124,16 @@ export class EquiposService {
       },
     });
     if (!e) throw new NotFoundException('El equipo no existe.');
-    return e;
+    const breve = { id: true, tipo: true, marca: true, modelo: true, serie: true, estatus: true } as const;
+    // Equipo dañado al que sustituye este (si es temporal) y equipos que sustituyen a este (si está dañado).
+    const vigente = e.asignaciones.find((a) => !a.fechaDevolucion);
+    const [sustituye, temporales] = await Promise.all([
+      vigente?.sustituyeEquipoId ? this.db.query.equipos.findFirst({ where: eq(equipos.id, vigente.sustituyeEquipoId), columns: breve }) : undefined,
+      this.db.query.asignaciones
+        .findMany({ where: and(eq(asignaciones.sustituyeEquipoId, id), isNull(asignaciones.fechaDevolucion)), with: { equipo: { columns: breve } } })
+        .then((r) => r.map((a) => a.equipo)),
+    ]);
+    return { ...e, sustituye: sustituye ?? null, temporales };
   }
 
   private async validarUnicos(d: { serie?: string | null; codigoBarras?: string | null }, excluirId?: number, tx: DbOTx = this.db) {
@@ -118,6 +151,8 @@ export class EquiposService {
   async crear(dto: CrearEquipoDto, usuarioId: number) {
     const { estatusInicial, empleadoId, fechaEntrega, ...resto } = dto;
     const d = limpiar(resto);
+    // Sin código capturado, la base asigna el siguiente consecutivo.
+    if (!d.codigoBarras) delete d.codigoBarras;
     if (!d.marca && !d.modelo && !d.serie && !d.descripcion) {
       throw new BadRequestException('Escribe al menos la marca, el modelo, la serie o una descripción.');
     }
@@ -136,6 +171,8 @@ export class EquiposService {
     const actual = await this.db.query.equipos.findFirst({ where: eq(equipos.id, id) });
     if (!actual) throw new NotFoundException('El equipo no existe.');
     const d = limpiar(dto);
+    // El código de barras se puede cambiar, pero no borrar: el equipo siempre conserva uno.
+    if (d.codigoBarras === null) delete d.codigoBarras;
     if (!Object.keys(d).length) throw new BadRequestException('No enviaste cambios.');
     // La serie solo se valida si cambió, para no bloquear equipos importados con series repetidas.
     await this.validarUnicos(
@@ -161,16 +198,16 @@ export class EquiposService {
     };
     const bloqueo = bloqueos[e.estatus];
     if (bloqueo) throw new ConflictException(bloqueo);
-    const [r] = await this.db
-      .update(equipos)
-      .set({ estatus: dto.estatus, ...(dto.notas ? { notas: [e.notas, dto.notas].filter(Boolean).join('\n') } : {}) })
-      .where(eq(equipos.id, id))
-      .returning();
-    await this.bitacora.registrar({ usuarioId, accion: `Cambió ${nombreEquipo(e)} a ${dto.estatus}`, entidad: 'equipo', entidadId: id, detalle: { de: e.estatus, notas: dto.notas } });
-    return r;
+    return this.db.transaction(async (tx) => {
+      if (dto.notas) await tx.update(equipos).set({ notas: [e.notas, dto.notas].filter(Boolean).join('\n') }).where(eq(equipos.id, id));
+      const estatus = dto.estatus === 'DISPONIBLE' ? await this.asignaciones.alQuedarDisponible(tx, id, dto.regresarAEmpleado, usuarioId) : dto.estatus;
+      const [r] = await tx.update(equipos).set({ estatus }).where(eq(equipos.id, id)).returning();
+      await this.bitacora.registrar({ usuarioId, accion: `Cambió ${nombreEquipo(e)} a ${dto.estatus}`, entidad: 'equipo', entidadId: id, detalle: { de: e.estatus, notas: dto.notas } }, tx);
+      return r;
+    });
   }
 
-  /** Da de baja el equipo. Si estaba asignado se le retira al empleado; si estaba en reparación se cierra. */
+  /** Da de baja el equipo. Si estaba asignado o ligado se le retira al empleado; si estaba en reparación se cierra. */
   baja(id: number, motivo: string, usuarioId: number) {
     return this.db.transaction(async (tx) => {
       const e = await tx.query.equipos.findFirst({ where: eq(equipos.id, id) });
@@ -178,14 +215,16 @@ export class EquiposService {
       if (e.estatus === 'BAJA') throw new BadRequestException('El equipo ya está dado de baja.');
       let retirado: string | undefined;
       if (e.estatus === 'ASIGNADO') {
-        const a = await this.asignaciones.cerrarVigente(tx, id, usuarioId, hoy(), `Retirado por baja: ${motivo}`);
+        const a = await this.asignaciones.cerrarVigente(tx, id, usuarioId, 'BAJA', hoy(), `Retirado por baja: ${motivo}`);
         retirado = a?.empleado.nombre;
       }
+      // Los equipos que lo sustituían temporalmente se quedan con el empleado.
+      await this.asignaciones.resolverTemporales(tx, id, false, usuarioId);
       await tx
         .update(reparaciones)
         .set({ fechaRecepcion: hoy(), resultado: 'BAJA', solucion: `Dado de baja: ${motivo}` })
         .where(and(eq(reparaciones.equipoId, id), isNull(reparaciones.fechaRecepcion)));
-      const [r] = await tx.update(equipos).set({ estatus: 'BAJA', fechaBaja: hoy(), motivoBaja: motivo.trim() }).where(eq(equipos.id, id)).returning();
+      const [r] = await tx.update(equipos).set({ estatus: 'BAJA', fechaBaja: hoy(), motivoBaja: motivo.trim(), empleadoId: null }).where(eq(equipos.id, id)).returning();
       await this.bitacora.registrar(
         { usuarioId, accion: `Dio de baja ${nombreEquipo(e)}${retirado ? ` (retirado a ${retirado})` : ''}`, entidad: 'equipo', entidadId: id, detalle: { motivo } },
         tx,

@@ -20,7 +20,7 @@ export class ReparacionesService {
       orderBy: [desc(reparaciones.fechaEnvio), desc(reparaciones.id)],
       limit: 500,
       with: {
-        equipo: { columns: { id: true, tipo: true, marca: true, modelo: true, serie: true, estatus: true } },
+        equipo: { columns: { id: true, tipo: true, marca: true, modelo: true, serie: true, estatus: true }, with: { empleado: { columns: { id: true, nombre: true } } } },
         creadoPor: { columns: { nombre: true } },
       },
     });
@@ -36,7 +36,7 @@ export class ReparacionesService {
       const fecha = aFecha(dto.fechaEnvio) ?? hoy();
       let de: string | undefined;
       if (e.estatus === 'ASIGNADO') {
-        const a = await this.asignaciones.cerrarVigente(tx, e.id, usuarioId, fecha, 'Enviado a reparación');
+        const a = await this.asignaciones.cerrarVigente(tx, e.id, usuarioId, 'EN_REPARACION', fecha, 'Enviado a reparación');
         de = a?.empleado.nombre;
       }
       const [r] = await tx
@@ -63,10 +63,15 @@ export class ReparacionesService {
         .set({ fechaRecepcion: fecha, solucion: dto.solucion.trim(), resultado: dto.resultado })
         .where(eq(reparaciones.id, id))
         .returning();
-      await tx
-        .update(equipos)
-        .set({ estatus: dto.resultado, ...(dto.resultado === 'BAJA' ? { fechaBaja: fecha, motivoBaja: dto.solucion.trim() } : {}) })
-        .where(eq(equipos.id, r.equipoId));
+      if (dto.resultado === 'DISPONIBLE') {
+        await this.asignaciones.alQuedarDisponible(tx, r.equipoId, dto.regresarAEmpleado, usuarioId, fecha);
+      } else if (dto.resultado === 'BAJA') {
+        // Los equipos que lo sustituían temporalmente se quedan con el empleado.
+        await this.asignaciones.resolverTemporales(tx, r.equipoId, false, usuarioId, fecha);
+        await tx.update(equipos).set({ estatus: 'BAJA', empleadoId: null, fechaBaja: fecha, motivoBaja: dto.solucion.trim() }).where(eq(equipos.id, r.equipoId));
+      } else {
+        await tx.update(equipos).set({ estatus: dto.resultado }).where(eq(equipos.id, r.equipoId));
+      }
       await this.bitacora.registrar(
         { usuarioId, accion: `Recibió ${nombreEquipo(r.equipo)} de reparación como ${dto.resultado}`, entidad: 'reparacion', entidadId: id, detalle: { equipoId: r.equipoId } },
         tx,

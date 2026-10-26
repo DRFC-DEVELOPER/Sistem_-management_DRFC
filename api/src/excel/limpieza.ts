@@ -63,4 +63,5 @@ export function fecha(v: unknown): string | null {
   return m ? m[0] : null;
 }
 
-export const tipoMultifuncional = (equipo: string): TipoEquipo => (/\bAP\b|ACCESS|WIFI/i.test(equipo) ? 'ACCESS_POINT' : 'MULTIFUNCIONAL');
+export const tipoMultifuncional = (equipo: string): TipoEquipo =>
+  /SOPORTE/i.test(equipo) ? 'SOPORTE' : /\bAP\b|ACCESS|WIFI/i.test(equipo) ? 'ACCESS_POINT' : 'MULTIFUNCIONAL';

@@ -63,9 +63,9 @@ export default function EquipoForm({ equipo, onCerrar, onGuardado, empleadoInici
             )}
           </Campo>
         ))}
-        <Campo etiqueta="Código de barras" opcional ancho>
+        <Campo etiqueta="Código de barras" opcional={nuevo} ancho>
           <div className="fila">
-            <input className="mono" value={v.codigoBarras} onChange={poner('codigoBarras')} placeholder="Escanéalo o escríbelo" autoComplete="off" spellCheck={false} />
+            <input className="mono" value={v.codigoBarras} onChange={poner('codigoBarras')} placeholder={nuevo ? 'Vacío = se genera el siguiente consecutivo' : 'Escanéalo o escríbelo'} autoComplete="off" spellCheck={false} />
             <button type="button" className="btn ghost sm" onClick={() => setV((p) => ({ ...p, codigoBarras: p.serie }))} disabled={!v.serie}>Usar serie</button>
           </div>
         </Campo>

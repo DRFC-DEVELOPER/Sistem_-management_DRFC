@@ -20,9 +20,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: { sub: number }): Promise<UsuarioActual> {
     const u = await this.db.query.usuariosSistema.findFirst({
       where: eq(usuariosSistema.id, payload.sub),
-      columns: { id: true, nombre: true, correo: true, rol: true, activo: true },
+      columns: { id: true, nombre: true, usuario: true, correo: true, rol: true, activo: true },
     });
     if (!u || !u.activo) throw new UnauthorizedException('Tu acceso fue desactivado.');
-    return { id: u.id, nombre: u.nombre, correo: u.correo, rol: u.rol };
+    return { id: u.id, nombre: u.nombre, usuario: u.usuario, correo: u.correo, rol: u.rol };
   }
 }

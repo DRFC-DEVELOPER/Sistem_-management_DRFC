@@ -42,7 +42,7 @@ export class EmpleadosService {
         equiposActuales: { orderBy: [asc(equipos.tipo)] },
         asignaciones: {
           orderBy: [sql`${asignaciones.fechaEntrega} desc nulls last`, desc(asignaciones.id)],
-          with: { equipo: { columns: { id: true, tipo: true, marca: true, modelo: true, serie: true } } },
+          with: { equipo: { columns: { id: true, tipo: true, marca: true, modelo: true, serie: true, estatus: true, empleadoId: true } } },
         },
       },
     });
@@ -90,14 +90,21 @@ export class EmpleadosService {
     return e;
   }
 
-  /** Da de baja al empleado y regresa todos sus equipos al inventario como disponibles. */
+  /**
+   * Da de baja al empleado y regresa sus equipos asignados al inventario como disponibles.
+   * Los que tenía ligados por estar dañados o en reparación conservan su estatus y quedan sin empleado.
+   */
   baja(id: number, usuarioId: number) {
     return this.db.transaction(async (tx) => {
       const e = await tx.query.empleados.findFirst({ where: eq(empleados.id, id), with: { equiposActuales: true } });
       if (!e) throw new NotFoundException('El empleado no existe.');
       if (!e.activo) throw new BadRequestException('El empleado ya está dado de baja.');
       for (const eq_ of e.equiposActuales) {
-        await this.asignaciones.cerrarVigente(tx, eq_.id, usuarioId, hoy(), `Devuelto por baja de ${e.nombre}`);
+        if (eq_.estatus !== 'ASIGNADO') {
+          await tx.update(equipos).set({ empleadoId: null }).where(eq(equipos.id, eq_.id));
+          continue;
+        }
+        await this.asignaciones.cerrarVigente(tx, eq_.id, usuarioId, 'DISPONIBLE', hoy(), `Devuelto por baja de ${e.nombre}`);
         await tx.update(equipos).set({ estatus: 'DISPONIBLE' }).where(eq(equipos.id, eq_.id));
         await this.bitacora.registrar({ usuarioId, accion: `Recibió ${nombreEquipo(eq_)} por baja de ${e.nombre}`, entidad: 'equipo', entidadId: eq_.id }, tx);
       }

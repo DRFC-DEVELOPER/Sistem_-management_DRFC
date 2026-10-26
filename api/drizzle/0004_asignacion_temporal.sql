@@ -1,0 +1,2 @@
+ALTER TABLE "asignaciones" ADD COLUMN "sustituye_equipo_id" integer;--> statement-breakpoint
+ALTER TABLE "asignaciones" ADD CONSTRAINT "asignaciones_sustituye_equipo_id_equipos_id_fk" FOREIGN KEY ("sustituye_equipo_id") REFERENCES "public"."equipos"("id") ON DELETE set null ON UPDATE no action;

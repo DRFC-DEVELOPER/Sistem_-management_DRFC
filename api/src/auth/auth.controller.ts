@@ -19,7 +19,7 @@ export class AuthController {
   @HttpCode(200)
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   login(@Body() dto: LoginDto) {
-    return this.auth.login(dto.correo, dto.password);
+    return this.auth.login(dto.usuario, dto.password);
   }
 
   /** Datos del usuario con la sesión iniciada. */

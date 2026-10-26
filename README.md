@@ -84,7 +84,7 @@ openssl rand -hex 32   # úsalo para JWT_SECRET
 nano .env
 ```
 
-Llena `DOMINIO`, `POSTGRES_PASSWORD`, `JWT_SECRET`, `ADMIN_CORREO` y `ADMIN_PASSWORD`. Guarda con `Ctrl+O` y sal con `Ctrl+X`.
+Llena `DOMINIO`, `POSTGRES_PASSWORD`, `JWT_SECRET`, `ADMIN_USUARIO`, `ADMIN_CORREO` y `ADMIN_PASSWORD`. Guarda con `Ctrl+O` y sal con `Ctrl+X`.
 
 ### 7. Levanta el sistema
 
@@ -109,7 +109,7 @@ Abre `https://inventario.tuempresa.com` e inicia sesión con el administrador.
 
 La documentación interactiva de la API está en `https://inventario.tuempresa.com/api/docs`:
 
-1. Abre **POST /api/auth/login**, pulsa *Try it out*, escribe tu correo y contraseña, y ejecuta.
+1. Abre **POST /api/auth/login**, pulsa *Try it out*, escribe tu usuario y contraseña, y ejecuta.
 2. Copia el `token` de la respuesta.
 3. Pulsa **Authorize** arriba a la derecha y pega el token.
 4. Ya puedes probar cualquier ruta, por ejemplo **GET /api/equipos/resumen**.
@@ -185,7 +185,7 @@ Todas empiezan con `/api`. Excepto el login y la salud, requieren el encabezado 
 ```bash
 cd api
 npm install
-# PostgreSQL local y variables DATABASE_URL, JWT_SECRET, ADMIN_CORREO, ADMIN_PASSWORD
+# PostgreSQL local y variables DATABASE_URL, JWT_SECRET, ADMIN_USUARIO, ADMIN_PASSWORD
 npm run build && npm run migrar && npm run seed
 npm run start:dev
 ```

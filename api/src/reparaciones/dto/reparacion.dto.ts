@@ -28,6 +28,10 @@ export class RecibirReparacionDto {
   /** Cómo queda el equipo después de la reparación. */
   @IsIn(['DISPONIBLE', 'DANADO', 'BAJA'])
   resultado: 'DISPONIBLE' | 'DANADO' | 'BAJA';
+
+  /** Con resultado DISPONIBLE: true = se le regresa al empleado al que está ligado. */
+  @IsOptional() @IsBoolean()
+  regresarAEmpleado?: boolean;
 }
 
 export class FiltroReparacionesDto {

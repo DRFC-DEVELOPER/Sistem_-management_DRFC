@@ -9,7 +9,7 @@ Al terminar tendrás:
 | Web de administración | http://localhost:8080 | http://localhost:5173 |
 | Documentación de la API | http://localhost:8080/api/docs | http://localhost:3000/api/docs |
 
-Usuario de prueba: `admin@pruebas.com` · contraseña `Pruebas12345`
+Cuenta de prueba: usuario `admin` o correo `admin@pruebas.com` · contraseña `Pruebas12345`
 
 ---
 
@@ -56,7 +56,7 @@ Abre http://localhost:8080 e inicia sesión. La web ya viene incluida en Docker.
 
 Para probar la API directamente, abre http://localhost:8080/api/docs:
 
-1. **POST /api/auth/login** → *Try it out* → escribe el correo y contraseña de prueba → *Execute*.
+1. **POST /api/auth/login** → *Try it out* → escribe el usuario y contraseña de prueba → *Execute*.
 2. Copia el valor de `token`.
 3. Botón **Authorize** (arriba a la derecha) → pega el token → *Authorize*.
 4. Prueba, por ejemplo, **GET /api/equipos/resumen** o **GET /api/empleados**.

@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq, ne, or } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
 import { DB, InjectDb } from '../db/db.module';
 import { usuariosSistema } from '../db/esquema';
@@ -7,7 +7,7 @@ import { BitacoraService } from '../bitacora/bitacora.service';
 import { ActualizarUsuarioSistemaDto, CrearUsuarioSistemaDto } from './dto/usuario-sistema.dto';
 
 const publico = {
-  id: usuariosSistema.id, nombre: usuariosSistema.nombre, correo: usuariosSistema.correo, rol: usuariosSistema.rol,
+  id: usuariosSistema.id, nombre: usuariosSistema.nombre, usuario: usuariosSistema.usuario, correo: usuariosSistema.correo, rol: usuariosSistema.rol,
   activo: usuariosSistema.activo, ultimoAcceso: usuariosSistema.ultimoAcceso, creadoEn: usuariosSistema.creadoEn,
 };
 
@@ -19,16 +19,25 @@ export class UsuariosSistemaService {
     return this.db.select(publico).from(usuariosSistema).orderBy(asc(usuariosSistema.nombre));
   }
 
+  // Revisa que el usuario y el correo no los tenga otra cuenta.
+  private async validarUnicos(usuario: string | undefined, correo: string | null | undefined, excepto?: number) {
+    const condiciones = [usuario && eq(usuariosSistema.usuario, usuario), correo && eq(usuariosSistema.correo, correo)].filter((c) => !!c);
+    if (!condiciones.length) return;
+    const otro = await this.db.query.usuariosSistema.findFirst({
+      where: and(or(...condiciones), excepto ? ne(usuariosSistema.id, excepto) : undefined),
+    });
+    if (otro) throw new ConflictException(otro.usuario === usuario ? 'Ya existe una cuenta con ese usuario.' : 'Ya existe una cuenta con ese correo.');
+  }
+
   async crear(dto: CrearUsuarioSistemaDto, autorId: number) {
-    const correo = dto.correo.toLowerCase().trim();
-    if (await this.db.query.usuariosSistema.findFirst({ where: eq(usuariosSistema.correo, correo) })) {
-      throw new ConflictException('Ya existe un usuario con ese correo.');
-    }
+    const usuario = dto.usuario.toLowerCase().trim();
+    const correo = dto.correo?.toLowerCase().trim() || null;
+    await this.validarUnicos(usuario, correo);
     const [u] = await this.db
       .insert(usuariosSistema)
-      .values({ nombre: dto.nombre.trim(), correo, rol: dto.rol, passwordHash: await bcrypt.hash(dto.password, 12) })
+      .values({ nombre: dto.nombre.trim(), usuario, correo, rol: dto.rol, passwordHash: await bcrypt.hash(dto.password, 12) })
       .returning(publico);
-    await this.bitacora.registrar({ usuarioId: autorId, accion: `Creó el usuario ${u.correo} (${u.rol})`, entidad: 'usuario', entidadId: u.id });
+    await this.bitacora.registrar({ usuarioId: autorId, accion: `Creó el usuario ${u.usuario} (${u.rol})`, entidad: 'usuario', entidadId: u.id });
     return u;
   }
 
@@ -38,15 +47,17 @@ export class UsuariosSistemaService {
     }
     const data: Partial<typeof usuariosSistema.$inferInsert> = {};
     if (dto.nombre) data.nombre = dto.nombre.trim();
-    if (dto.correo) data.correo = dto.correo.toLowerCase().trim();
+    if (dto.usuario) data.usuario = dto.usuario.toLowerCase().trim();
+    if (dto.correo !== undefined) data.correo = dto.correo?.toLowerCase().trim() || null;
     if (dto.rol) data.rol = dto.rol;
     if (dto.activo !== undefined) data.activo = dto.activo;
     if (dto.password) data.passwordHash = await bcrypt.hash(dto.password, 12);
     if (!Object.keys(data).length) throw new BadRequestException('No enviaste cambios.');
+    await this.validarUnicos(data.usuario, data.correo, id);
     const [u] = await this.db.update(usuariosSistema).set(data).where(eq(usuariosSistema.id, id)).returning(publico);
     if (!u) throw new NotFoundException('El usuario no existe.');
     const cambios = Object.keys(data).map((k) => (k === 'passwordHash' ? 'password' : k));
-    await this.bitacora.registrar({ usuarioId: autorId, accion: `Modificó el usuario ${u.correo}`, entidad: 'usuario', entidadId: id, detalle: { cambios } });
+    await this.bitacora.registrar({ usuarioId: autorId, accion: `Modificó el usuario ${u.usuario}`, entidad: 'usuario', entidadId: id, detalle: { cambios } });
     return u;
   }
 }

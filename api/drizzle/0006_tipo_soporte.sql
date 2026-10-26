@@ -1,0 +1,1 @@
+ALTER TYPE "public"."tipo_equipo" ADD VALUE 'SOPORTE' BEFORE 'ACCESS_POINT';

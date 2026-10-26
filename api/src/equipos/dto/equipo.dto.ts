@@ -44,6 +44,10 @@ export class CambiarEstatusDto {
 
   @IsOptional() @IsString() @MaxLength(500)
   notas?: string;
+
+  /** Al marcarlo disponible: true = se le regresa al empleado al que está ligado. */
+  @IsOptional() @IsBoolean()
+  regresarAEmpleado?: boolean;
 }
 
 export class BajaEquipoDto {
@@ -60,6 +64,8 @@ export class FiltroEquiposDto {
   @IsOptional() @Type(() => Number) @IsInt() departamentoId?: number;
   /** Por defecto se ocultan los dados de baja. */
   @IsOptional() @Transform(({ value }) => value === 'true' || value === true) @IsBoolean() incluirBajas?: boolean;
+  /** Sin valor: por tipo y marca. */
+  @IsOptional() @IsIn(['recientes', 'antiguos']) orden?: 'recientes' | 'antiguos';
   @IsOptional() @Type(() => Number) @IsInt() @Min(1) pagina?: number;
   @IsOptional() @Type(() => Number) @IsInt() @Min(1) @Max(500) limite?: number;
 }

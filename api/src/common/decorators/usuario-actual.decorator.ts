@@ -4,7 +4,8 @@ import { Rol } from '../../db/esquema';
 export interface UsuarioActual {
   id: number;
   nombre: string;
-  correo: string;
+  usuario: string;
+  correo: string | null;
   rol: Rol;
 }
 

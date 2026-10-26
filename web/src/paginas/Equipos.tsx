@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api, qs } from '../api';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
-import { ESTATUS, EquipoListado, Estatus, Pagina, Tipo, TIPOS } from '../tipos';
+import { ESTATUS, EquipoListado, Estatus, ORDENES, Pagina, Tipo, TIPOS } from '../tipos';
 import { BUSCAR, Cargando, ErrorCarga, Paginacion, Pill, TarjetaEquipo, Vacio } from '../ui';
 import EquipoForm from './EquipoForm';
 
@@ -17,6 +17,7 @@ export default function Equipos() {
   const q = useRetraso(texto);
   const tipo = p.get('tipo') ?? '';
   const estatus = p.get('estatus') ?? '';
+  const orden = p.get('orden') ?? '';
   const pagina = Number(p.get('pagina') ?? 1);
   const cambiar = (k: string, valor: string) => {
     const n = new URLSearchParams(p);
@@ -27,11 +28,11 @@ export default function Equipos() {
 
   const { datos, error, cargando, recargar } = useCarga(
     () => api<Pagina<EquipoListado>>(`/equipos${qs({
-      q, tipo, pagina, limite: 50,
+      q, tipo, orden, pagina, limite: 50,
       estatus: estatus && estatus !== 'todos' ? estatus : undefined,
       incluirBajas: estatus === 'todos',
     })}`),
-    [q, tipo, estatus, pagina],
+    [q, tipo, estatus, orden, pagina],
   );
 
   // Los lectores de código de barras escriben el código y presionan Enter.
@@ -58,6 +59,10 @@ export default function Equipos() {
           <option value="">Todos los tipos</option>
           {(Object.keys(TIPOS) as Tipo[]).map((t) => <option key={t} value={t}>{TIPOS[t]}</option>)}
         </select>
+        <select className="entrada" value={orden} onChange={(e) => cambiar('orden', e.target.value)} aria-label="Ordenar">
+          <option value="">Por tipo</option>
+          {ORDENES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+        </select>
       </div>
       <div className="chips" role="group" aria-label="Estado">
         {FILTROS.map(([k, n]) => <button key={k} className="chip" aria-pressed={estatus === k} onClick={() => cambiar('estatus', k)}>{n}</button>)}
@@ -69,7 +74,7 @@ export default function Equipos() {
           {datos.datos.length ? (
             <div className="lista dos">
               {datos.datos.map((e) => (
-                <TarjetaEquipo key={e.id} e={e} a={`/equipos/${e.id}`} lado={<><Pill estatus={e.estatus} />{e.empleado && <><br />{e.empleado.nombre}</>}</>} />
+                <TarjetaEquipo key={e.id} e={e} a={`/equipos/${e.id}`} persona={e.empleado?.nombre} temporal={e.temporal} lado={<Pill estatus={e.estatus} />} />
               ))}
             </div>
           ) : (

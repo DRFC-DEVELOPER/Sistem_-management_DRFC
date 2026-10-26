@@ -36,7 +36,7 @@ interface Analisis {
 
 const TIPOS_ES: Record<TipoEquipo, string> = {
   LAPTOP: 'Laptop', TECLADO: 'Teclado', MOUSE: 'Mouse', MONITOR: 'Monitor', ADAPTADOR: 'Adaptador',
-  MULTIFUNCIONAL: 'Multifuncional', ACCESS_POINT: 'Access Point', OTRO: 'Otro',
+  MULTIFUNCIONAL: 'Multifuncional', SOPORTE: 'Soporte', ACCESS_POINT: 'Access Point', OTRO: 'Otro',
 };
 const clave = (nombre: string, depto: string) => `${nombre.toLowerCase()}|${normalizarDepto(depto)}`;
 
@@ -267,7 +267,7 @@ export class ExcelService {
       const de = (f: (e: (typeof mios)[number]) => boolean) => mios.filter(f) as (typeof todos)[number][];
       const L = de((e) => e.tipo === 'LAPTOP'), T = de((e) => e.tipo === 'TECLADO'), M = de((e) => e.tipo === 'MOUSE'), Mo = de((e) => e.tipo === 'MONITOR');
       const AR = de((e) => e.tipo === 'ADAPTADOR' && e.tipoAdaptador !== 'MULTIPUERTOS'), AM = de((e) => e.tipo === 'ADAPTADOR' && e.tipoAdaptador === 'MULTIPUERTOS');
-      const MF = de((e) => ['MULTIFUNCIONAL', 'ACCESS_POINT', 'OTRO'].includes(e.tipo));
+      const MF = de((e) => ['MULTIFUNCIONAL', 'SOPORTE', 'ACCESS_POINT', 'OTRO'].includes(e.tipo));
       const n = Math.max(1, L.length, T.length, M.length, Mo.length, AR.length, AM.length, MF.length);
       for (let i = 0; i < n; i++) {
         const l = L[i], mf = MF[i];

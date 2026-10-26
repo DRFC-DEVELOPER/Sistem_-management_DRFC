@@ -27,17 +27,18 @@ async function main() {
   const [{ n: usuarios }] = await db.select({ n: count() }).from(usuariosSistema);
   let adminId: number | null = null;
   if (usuarios === 0) {
-    const correo = process.env.ADMIN_CORREO?.toLowerCase().trim();
+    const usuario = process.env.ADMIN_USUARIO?.toLowerCase().trim();
+    const correo = process.env.ADMIN_CORREO?.toLowerCase().trim() || null;
     const password = process.env.ADMIN_PASSWORD;
-    if (!correo || !password || password.length < 10) {
-      throw new Error('Define ADMIN_CORREO y ADMIN_PASSWORD (mínimo 10 caracteres) en el archivo .env.');
+    if (!usuario || !password || password.length < 10) {
+      throw new Error('Define ADMIN_USUARIO y ADMIN_PASSWORD (mínimo 10 caracteres) en el archivo .env.');
     }
     const [a] = await db
       .insert(usuariosSistema)
-      .values({ nombre: process.env.ADMIN_NOMBRE || 'Administrador', correo, rol: 'ADMIN', passwordHash: await bcrypt.hash(password, 12) })
+      .values({ nombre: process.env.ADMIN_NOMBRE || 'Administrador', usuario, correo, rol: 'ADMIN', passwordHash: await bcrypt.hash(password, 12) })
       .returning();
     adminId = a.id;
-    console.log(`Administrador creado: ${correo}`);
+    console.log(`Administrador creado: ${usuario}`);
   } else {
     console.log('Ya hay usuarios del sistema; no se crea el administrador.');
   }

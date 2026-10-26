@@ -1,4 +1,5 @@
 const CLAVE = 'inventario.token';
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 export class ErrorApi extends Error {
   constructor(public status: number, mensaje: string) {
@@ -21,7 +22,7 @@ async function peticion(ruta: string, o: Opciones = {}) {
   if (o.cuerpo !== undefined) headers['Content-Type'] = 'application/json';
   let res: Response;
   try {
-    res = await fetch(`/api${ruta}`, {
+    res = await fetch(`${API_BASE}${ruta}`, {
       method: o.metodo ?? (o.cuerpo !== undefined || o.formulario ? 'POST' : 'GET'),
       headers,
       body: o.formulario ?? (o.cuerpo !== undefined ? JSON.stringify(o.cuerpo) : undefined),

@@ -180,6 +180,17 @@ Todas empiezan con `/api`. Excepto el login y la salud, requieren el encabezado 
 - Al dar de baja a un empleado, todos sus equipos regresan al inventario como disponibles.
 - Cada alta, cambio, asignación, devolución, reparación y baja queda en la bitácora con el usuario que la hizo.
 
+## Publicar la web de pruebas en GitHub Pages
+
+GitHub Pages solo aloja la web estática; la API y PostgreSQL deben estar ejecutándose en un servidor público con HTTPS para que otras personas puedan iniciar sesión y probar el sistema.
+
+1. En **Settings → Pages → Build and deployment**, selecciona **GitHub Actions** como origen.
+2. En **Settings → Secrets and variables → Actions → Variables**, crea `VITE_API_URL` con la URL pública de la API, incluyendo `/api` (por ejemplo, `https://inventario.tudominio.com/api`). No pongas contraseñas ni claves aquí.
+3. Configura `CORS_ORIGEN` en el servidor de la API con `https://drfc-developer.github.io` y reinicia la API.
+4. Sube los cambios a la rama `main`. GitHub Actions compilará y publicará la web en `https://drfc-developer.github.io/Sistem_-management_DRFC/`.
+
+Sin una API pública configurada, la página puede mostrarse, pero las funciones que requieren datos e inicio de sesión no estarán disponibles.
+
 ## Para desarrolladores
 
 ```bash

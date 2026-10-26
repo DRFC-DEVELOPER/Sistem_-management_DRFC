@@ -8,7 +8,7 @@ import './estilos.css';
 
 createRoot(document.getElementById('raiz')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}>
       <ProveedorSesion>
         <ProveedorAvisos>
           <App />

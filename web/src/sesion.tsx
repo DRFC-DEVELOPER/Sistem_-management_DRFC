@@ -7,6 +7,7 @@ interface Sesion {
   cargando: boolean;
   entrar: (usuario: string, password: string) => Promise<void>;
   salir: () => void;
+  actualizarUsuario: (usuario: Usuario) => void;
   puedeEditar: boolean;
   esAdmin: boolean;
 }
@@ -39,8 +40,12 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     setUsuario(null);
   }, []);
 
+  const actualizarUsuario = useCallback((actualizado: Usuario) => {
+    setUsuario(actualizado);
+  }, []);
+
   return (
-    <Ctx.Provider value={{ usuario, cargando, entrar, salir, puedeEditar: !!usuario && usuario.rol !== 'CONSULTA', esAdmin: usuario?.rol === 'ADMIN' }}>
+    <Ctx.Provider value={{ usuario, cargando, entrar, salir, actualizarUsuario, puedeEditar: !!usuario && usuario.rol !== 'CONSULTA', esAdmin: usuario?.rol === 'ADMIN' }}>
       {children}
     </Ctx.Provider>
   );

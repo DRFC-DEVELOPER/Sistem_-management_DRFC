@@ -37,8 +37,13 @@ h1, h2, h3 { font-family: var(--titular); font-weight: 600; margin: 0; line-heig
 .perfil__boton { display: flex; flex-direction: column; align-items: center; border: 0; background: none; color: #fff; cursor: pointer; padding: 0; text-align: center; }
 .perfil__foto { width: 188px; height: 188px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 50% 35%, #f2f2f2, #b9bec4); color: var(--ink); font-size: 54px; font-weight: 600; margin-bottom: 8px; overflow: hidden; }
 .perfil__foto video { width: 100%; height: 100%; object-fit: cover; object-position: 50% 4%; display: block; }
+.perfil__identidad { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.perfil__texto { align-items: center; }
 .perfil__rol { font-size: 19px; font-weight: 700; line-height: 1.15; }
 .perfil__nombre { font-size: 18px; font-weight: 400; line-height: 1.2; }
+.perfil__editar { display: grid; place-items: center; width: 30px; height: 30px; padding: 6px; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
+.perfil__editar:hover { background: rgba(255,255,255,.12); }
+.perfil__editar svg { width: 16px; height: 16px; }
 .perfil .menu { left: 50%; right: auto; transform: translateX(-50%); top: calc(100% - 12px); color: var(--tinta); }
 .sidebar__nav { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 0 0 20px 50px; }
 .sidebar__nav a { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; height: 58px; padding-left: 28px; border-radius: 30px 0 0 30px; color: #fff; text-decoration: none; font-size: 17px; font-weight: 400; transition: color .35s ease, padding-left .35s ease, background-color .2s; }

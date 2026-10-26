@@ -2,8 +2,8 @@ import { FormEvent, ReactNode, useEffect, useLayoutEffect, useRef, useState } fr
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from './api';
 import { useSesion } from './sesion';
-import { iniciales, ROLES } from './tipos';
-import { Cargando } from './ui';
+import { iniciales, ROLES, Usuario } from './tipos';
+import { Campo, Cargando, FormModal, useAvisos } from './ui';
 import Acceso from './paginas/Acceso';
 import Resumen from './paginas/Resumen';
 import Equipos from './paginas/Equipos';
@@ -40,11 +40,12 @@ const BUSCAR = <svg viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth={2
 const CAMPANA = <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden width="38" height="38"><path d="M12 2a1.6 1.6 0 0 1 1.6 1.6v.6A6.5 6.5 0 0 1 18.5 10.5v4.2l1.8 2.4a.8.8 0 0 1-.6 1.3H4.3a.8.8 0 0 1-.6-1.3l1.8-2.4v-4.2a6.5 6.5 0 0 1 4.9-6.3v-.6A1.6 1.6 0 0 1 12 2M9.5 19.6h5a2.5 2.5 0 0 1-5 0" /></svg>;
 const MENU = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden width="24" height="24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>;
 
-/** Foto, rol y nombre del usuario; al tocarlo se puede cambiar la contraseña. */
+/** Perfil del usuario con acceso a su cuenta, edición de datos y cambio de contraseña. */
 function Perfil() {
-  const { usuario } = useSesion();
+  const { usuario, actualizarUsuario } = useSesion();
   const [abierto, setAbierto] = useState(false);
   const [clave, setClave] = useState(false);
+  const [editar, setEditar] = useState(false);
   // Animación de perfil en web/public/GIF_IA.mp4 (debe ser H.264 para que la reproduzca cualquier navegador).
   // Si no se puede cargar se muestran las iniciales.
   const [sinGif, setSinGif] = useState(false);
@@ -62,9 +63,20 @@ function Perfil() {
         <span className="perfil__foto">
           {sinGif ? iniciales(usuario.nombre) : <video src="/GIF_IA.mp4" autoPlay loop muted playsInline aria-hidden onError={() => setSinGif(true)} />}
         </span>
-        <span className="perfil__rol">{ROLES[usuario.rol]}</span>
-        <span className="perfil__nombre">{usuario.nombre}</span>
       </button>
+      <div className="perfil__identidad">
+        <button className="perfil__boton perfil__texto" onClick={() => setAbierto(!abierto)} aria-expanded={abierto} aria-label="Mi cuenta">
+          <span className="perfil__rol">{ROLES[usuario.rol]}</span>
+          <span className="perfil__nombre">{usuario.nombre}</span>
+        </button>
+        {usuario.rol === 'ADMIN' && (
+          <button className="perfil__editar" onClick={() => { setAbierto(false); setEditar(true); }} aria-label="Editar mi usuario" title="Editar mi usuario">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16 4 20z" />
+            </svg>
+          </button>
+        )}
+      </div>
       {abierto && (
         <div className="menu">
           <p><b>{usuario.nombre}</b><br /><span className="sub">{usuario.usuario} | {ROLES[usuario.rol]}</span></p>
@@ -72,7 +84,31 @@ function Perfil() {
         </div>
       )}
       {clave && <CambiarPassword onCerrar={() => setClave(false)} />}
+      {editar && <EditarPerfil onCerrar={() => setEditar(false)} onGuardado={(actualizado) => { actualizarUsuario(actualizado); setEditar(false); }} />}
     </div>
+  );
+}
+
+function EditarPerfil({ onCerrar, onGuardado }: { onCerrar: () => void; onGuardado: (usuario: Usuario) => void }) {
+  const { usuario } = useSesion();
+  const { avisar } = useAvisos();
+  const [nombre, setNombre] = useState(usuario?.nombre ?? '');
+  const [nombreUsuario, setNombreUsuario] = useState(usuario?.usuario ?? '');
+  const [correo, setCorreo] = useState(usuario?.correo ?? '');
+  if (!usuario) return null;
+  return (
+    <FormModal titulo="Editar mi usuario" boton="Guardar cambios" onCerrar={onCerrar} onEnviar={async () => {
+      const actualizado = await api<Usuario>(`/usuarios-sistema/${usuario.id}`, {
+        metodo: 'PATCH',
+        cuerpo: { nombre, usuario: nombreUsuario, correo: correo || null },
+      });
+      onGuardado(actualizado);
+      avisar('Usuario actualizado');
+    }}>
+      <Campo etiqueta="Nombre"><input value={nombre} onChange={(e) => setNombre(e.target.value)} autoComplete="name" /></Campo>
+      <Campo etiqueta="Usuario (para iniciar sesión)"><input value={nombreUsuario} onChange={(e) => setNombreUsuario(e.target.value)} autoCapitalize="none" spellCheck={false} autoComplete="username" /></Campo>
+      <Campo etiqueta="Correo" opcional><input type="email" value={correo} onChange={(e) => setCorreo(e.target.value)} autoComplete="email" /></Campo>
+    </FormModal>
   );
 }
 

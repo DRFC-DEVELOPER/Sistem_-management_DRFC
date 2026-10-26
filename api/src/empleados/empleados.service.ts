@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, desc, eq, getTableColumns, ilike, isNull, ne, or, SQL, sql } from 'drizzle-orm';
 import { DB, InjectDb } from '../db/db.module';
-import { asignaciones, departamentos, empleados, equipos } from '../db/esquema';
+import { asignaciones, departamentos, empleados, equipos, puestos } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { DepartamentosService } from '../departamentos/departamentos.service';
 import { AsignacionesService, nombreEquipo } from '../asignaciones/asignaciones.service';
@@ -26,10 +26,12 @@ export class EmpleadosService {
       .select({
         ...getTableColumns(empleados),
         departamento: { id: departamentos.id, nombre: departamentos.nombre },
+        puesto: { id: puestos.id, nombre: puestos.nombre },
         equiposAsignados: sql<number>`(select count(*)::int from equipos q where q.empleado_id = "empleados"."id")`,
       })
       .from(empleados)
       .leftJoin(departamentos, eq(empleados.departamentoId, departamentos.id))
+      .leftJoin(puestos, eq(empleados.puestoId, puestos.id))
       .where(c.length ? and(...c) : undefined)
       .orderBy(asc(empleados.nombre));
   }
@@ -39,6 +41,7 @@ export class EmpleadosService {
       where: eq(empleados.id, id),
       with: {
         departamento: true,
+        puesto: true,
         equiposActuales: { orderBy: [asc(equipos.tipo)] },
         asignaciones: {
           orderBy: [sql`${asignaciones.fechaEntrega} desc nulls last`, desc(asignaciones.id)],
@@ -61,13 +64,22 @@ export class EmpleadosService {
     if (otro) throw new ConflictException('Ya existe un empleado con ese nombre en ese departamento.');
   }
 
+  private async verificarPuesto(puestoId: number | null | undefined, departamentoId: number | null) {
+    if (puestoId == null) return;
+    const puesto = await this.db.query.puestos.findFirst({ where: eq(puestos.id, puestoId) });
+    if (!puesto || puesto.departamentoId !== departamentoId) {
+      throw new BadRequestException('El puesto seleccionado no pertenece al departamento elegido.');
+    }
+  }
+
   async crear(dto: CrearEmpleadoDto, usuarioId: number) {
     const d = limpiar(dto);
     const departamentoId = await this.deptos.obtenerOCrear(d.departamento);
+    await this.verificarPuesto(d.puestoId, departamentoId);
     await this.verificarDuplicado(d.nombre, departamentoId);
     const [e] = await this.db
       .insert(empleados)
-      .values({ nombre: d.nombre, numero: d.numero, correo: d.correo?.toLowerCase() ?? null, notas: d.notas, departamentoId })
+      .values({ nombre: d.nombre, numero: d.numero, correo: d.correo?.toLowerCase() ?? null, notas: d.notas, departamentoId, puestoId: d.puestoId ?? null })
       .returning();
     await this.bitacora.registrar({ usuarioId, accion: `Dio de alta a ${e.nombre}`, entidad: 'empleado', entidadId: e.id });
     return e;
@@ -83,6 +95,13 @@ export class EmpleadosService {
     if (d.correo !== undefined) data.correo = d.correo?.toLowerCase() ?? null;
     if (d.notas !== undefined) data.notas = d.notas;
     if (dto.departamento !== undefined) data.departamentoId = await this.deptos.obtenerOCrear(d.departamento);
+    const departamentoId = data.departamentoId !== undefined ? data.departamentoId : actual.departamentoId;
+    if (d.puestoId !== undefined) {
+      await this.verificarPuesto(d.puestoId, departamentoId);
+      data.puestoId = d.puestoId;
+    } else if (data.departamentoId !== undefined && data.departamentoId !== actual.departamentoId) {
+      data.puestoId = null;
+    }
     if (!Object.keys(data).length) throw new BadRequestException('No enviaste cambios.');
     await this.verificarDuplicado(data.nombre ?? actual.nombre, data.departamentoId !== undefined ? data.departamentoId : actual.departamentoId, id);
     const [e] = await this.db.update(empleados).set(data).where(eq(empleados.id, id)).returning();

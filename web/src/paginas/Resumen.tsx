@@ -2,7 +2,7 @@ import { FocusEvent, MouseEvent, ReactNode, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { useCarga } from '../usar';
-import { Asignacion, Estatus, fecha, nombreEquipo, Tipo, TIPOS } from '../tipos';
+import { Asignacion, Estatus, etiquetaTipo, fecha, nombreEquipo, Tipo, TipoEquipoCatalogo, TIPOS } from '../tipos';
 import { Cargando, ErrorCarga, Icono, IconoEstatus, Vacio } from '../ui';
 
 interface Resumen {
@@ -64,6 +64,7 @@ function Leyenda({ items }: { items: { nombre: string; color: string }[] }) {
 export default function Resumen() {
   const r = useCarga(() => api<Resumen>('/equipos/resumen'), []);
   const a = useCarga(() => api<Asignacion[]>('/asignaciones'), []);
+  const catalogos = useCarga(() => api<TipoEquipoCatalogo[]>('/catalogos/tipos-equipo'), []);
   const tip = useTooltip();
 
   if (r.error) return <ErrorCarga mensaje={r.error} reintentar={r.recargar} />;
@@ -73,7 +74,7 @@ export default function Resumen() {
   const activos = e.DISPONIBLE + e.ASIGNADO + e.EN_REPARACION + e.DANADO;
   // Los totales por tipo no incluyen los dados de baja.
   // Los tipos principales se muestran siempre, aunque aún no haya equipos; los demás solo si tienen alguno.
-  const tipos = (Object.keys(TIPOS) as Tipo[])
+  const tipos = (catalogos.datos?.map((t) => t.nombre) ?? Object.keys(TIPOS))
     .filter((t) => d.porTipo[t] || PRINCIPALES.includes(t))
     .map((t) => ({ t, total: 0, disponibles: 0, ...d.porTipo[t] }))
     .sort((x, y) => y.total - x.total);
@@ -82,6 +83,7 @@ export default function Resumen() {
   return (
     <>
       <div className="encabezado"><h2>Resumen</h2></div>
+      {catalogos.error && <ErrorCarga mensaje={catalogos.error} reintentar={catalogos.recargar} />}
 
       {activos + e.BAJA === 0 ? (
         <Vacio titulo="El inventario está vacío">Importa tu Excel o registra el primer equipo.<br /><Link className="btn" to="/excel">Importar desde Excel</Link></Vacio>
@@ -97,8 +99,8 @@ export default function Resumen() {
             </Link>
             <div className="res-chips">
               {tipos.map((x) => (
-                <Link key={x.t} className="res-chip" to={`/equipos?tipo=${x.t}`} title={`${x.total} en total, ${x.disponibles} disponibles`}>
-                  <span className="res-chip__ic"><Icono tipo={x.t} /></span>{TIPOS[x.t]}
+                <Link key={x.t} className="res-chip" to={`/equipos?tipo=${encodeURIComponent(x.t)}`} title={`${x.total} en total, ${x.disponibles} disponibles`}>
+                  <span className="res-chip__ic"><Icono tipo={x.t} /></span>{etiquetaTipo(x.t)}
                 </Link>
               ))}
             </div>
@@ -163,10 +165,10 @@ function DisponibilidadPorTipo({ tipos, en }: { tipos: { t: Tipo; total: number;
         <Link
           key={x.t}
           className="hbars__row"
-          to={`/equipos?tipo=${x.t}`}
-          {...en(<><b>{TIPOS[x.t]}</b><br />{x.disponibles} disponibles<br />{x.total - x.disponibles} en uso u otro estatus<br />{x.total} en total</>)}
+          to={`/equipos?tipo=${encodeURIComponent(x.t)}`}
+          {...en(<><b>{etiquetaTipo(x.t)}</b><br />{x.disponibles} disponibles<br />{x.total - x.disponibles} en uso u otro estatus<br />{x.total} en total</>)}
         >
-          <span className="hbars__label">{TIPOS[x.t]}</span>
+          <span className="hbars__label">{etiquetaTipo(x.t)}</span>
           <span className="hbars__bar">
             <span className="hbars__track" style={{ width: `${Math.max((x.total / max) * 100, 12)}%` }}>
               <span className="hbars__fill" style={{ width: `${x.total ? (x.disponibles / x.total) * 100 : 0}%` }} />

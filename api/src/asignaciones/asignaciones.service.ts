@@ -53,6 +53,7 @@ export class AsignacionesService {
       if (!e) throw new NotFoundException('El equipo no existe.');
       throw new ConflictException(`El equipo no está disponible (estatus actual: ${e.estatus}).`);
     }
+    if (equipo.ambito !== 'USUARIO') throw new BadRequestException('Los equipos de infraestructura no se asignan a empleados.');
     // Solo un equipo en uso por tipo; uno dañado o en reparación sí admite otro (que queda como temporal).
     if (equipo.tipo !== 'OTRO') {
       const igual = await tx.query.equipos.findFirst({

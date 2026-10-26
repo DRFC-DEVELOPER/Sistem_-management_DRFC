@@ -10,6 +10,9 @@ export class CrearEmpleadoDto {
   @IsOptional() @IsString() @MaxLength(80)
   departamento?: string;
 
+  @IsOptional() @IsInt()
+  puestoId?: number | null;
+
   /** Número de empleado o extensión. */
   @IsOptional() @IsString() @MaxLength(40)
   numero?: string;

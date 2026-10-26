@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api } from '../api';
+import { api, qs } from '../api';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
-import { EmpleadoListado, EquipoDetalle, Estatus, ESTATUS, fecha, hoy, iniciales, nombreEquipo, Reparacion, TIPOS } from '../tipos';
+import { AMBITOS_EQUIPO, EmpleadoListado, EquipoDetalle, Estatus, ESTATUS, etiquetaTipo, fecha, hoy, iniciales, nombreEquipo, Reparacion, Ref } from '../tipos';
 import { BUSCAR, Campo, Cargando, DatosEquipo, ErrorCarga, EtiquetaEquipo, FormModal, Icono, MarcaTemporal, Modal, Pill, useAvisos } from '../ui';
 import EquipoForm from './EquipoForm';
 
@@ -47,13 +47,13 @@ export default function EquipoPagina() {
           <span className="icono-grande"><Icono tipo={e.tipo} /></span>
           <div>
             <h1>{nombreEquipo(e)}</h1>
-            <span className="sub">{TIPOS[e.tipo]} | <Pill estatus={e.estatus} />{e.sustituye && <MarcaTemporal />}</span>
+            <span className="sub">{AMBITOS_EQUIPO[e.ambito]} | {etiquetaTipo(e.tipo)} | <Pill estatus={e.estatus} />{e.sustituye && <MarcaTemporal />}</span>
           </div>
         </div>
         {puedeEditar && (
           <div className="acciones">
             <button className="btn ghost" onClick={() => setVentana('editar')}>Editar</button>
-            {e.estatus === 'DISPONIBLE' && <button className="btn" onClick={() => setVentana('asignar')}>Asignar a un empleado</button>}
+            {e.ambito === 'USUARIO' && e.estatus === 'DISPONIBLE' && <button className="btn" onClick={() => setVentana('asignar')}>Asignar a un empleado</button>}
           </div>
         )}
       </div>
@@ -169,10 +169,12 @@ export default function EquipoPagina() {
 function AsignarEquipo({ equipoId, nombre, onCerrar, onListo }: { equipoId: number; nombre: string; onCerrar: () => void; onListo: () => void }) {
   const { avisar } = useAvisos();
   const [texto, setTexto] = useState('');
+  const [departamentoId, setDepartamentoId] = useState('');
   const [fechaEntrega, setFecha] = useState(hoy());
   const [error, setError] = useState('');
   const q = useRetraso(texto);
-  const { datos } = useCarga(() => api<EmpleadoListado[]>(`/empleados${q ? `?q=${encodeURIComponent(q)}` : ''}`), [q]);
+  const deptos = useCarga(() => api<Ref[]>('/departamentos'), []);
+  const empleados = useCarga(() => api<EmpleadoListado[]>(`/empleados${qs({ q, departamentoId })}`), [q, departamentoId]);
   const elegir = async (emp: EmpleadoListado) => {
     try {
       await api('/asignaciones', { cuerpo: { equipoId, empleadoId: emp.id, fechaEntrega } });
@@ -184,17 +186,25 @@ function AsignarEquipo({ equipoId, nombre, onCerrar, onListo }: { equipoId: numb
     <Modal titulo="Asignar a un empleado" sub={nombre} onCerrar={onCerrar}>
       <div className="form">
         <Campo etiqueta="Fecha de entrega"><input type="date" value={fechaEntrega} onChange={(e) => setFecha(e.target.value)} /></Campo>
+        <Campo etiqueta="Departamento">
+          <select value={departamentoId} onChange={(e) => setDepartamentoId(e.target.value)} disabled={!deptos.datos}>
+            <option value="">Todos los departamentos</option>
+            {(deptos.datos ?? []).map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+          </select>
+        </Campo>
         <label className="buscar">{BUSCAR}<input className="entrada" type="search" placeholder="Buscar por nombre" value={texto} onChange={(e) => setTexto(e.target.value)} aria-label="Buscar empleado" /></label>
+        {deptos.error && <p className="error" role="alert">{deptos.error}</p>}
+        {empleados.error && <p className="error" role="alert">{empleados.error}</p>}
         {error && <p className="error" role="alert">{error}</p>}
         <div className="lista-elegir">
-          {(datos ?? []).map((emp) => (
+          {(empleados.datos ?? []).map((emp) => (
             <button key={emp.id} className="persona" onClick={() => elegir(emp)}>
               <span className="av">{iniciales(emp.nombre)}</span>
               <span><b>{emp.nombre}</b><span className="sub">{emp.departamento?.nombre ?? 'Sin departamento'}</span></span>
               <span className="sub">{emp.equiposAsignados} equipos</span>
             </button>
           ))}
-          {datos && !datos.length && <p className="sub">Ningún empleado activo coincide.</p>}
+          {empleados.datos && !empleados.datos.length && <p className="sub">Ningún empleado activo coincide en este departamento.</p>}
         </div>
       </div>
     </Modal>

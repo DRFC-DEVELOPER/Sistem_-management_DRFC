@@ -13,6 +13,7 @@ import EmpleadoPagina from './paginas/Empleado';
 import Reparaciones from './paginas/Reparaciones';
 import Excel from './paginas/Excel';
 import Usuarios from './paginas/Usuarios';
+import Altas from './paginas/Altas';
 import Bitacora from './paginas/Bitacora';
 import CambiarPassword from './paginas/CambiarPassword';
 
@@ -34,6 +35,7 @@ const SECCIONES: { ruta: string; nombre: string; admin?: boolean; icono: ReactNo
   { ruta: '/excel', nombre: 'Generar', icono: <svg {...trazo}><path d="M7 18H6a4 4 0 0 1-.5-8A6 6 0 0 1 17 8.5a4.5 4.5 0 0 1 1 9h-1" /><path d="M12 21v-9M8.5 15 12 11.5l3.5 3.5" /></svg> },
   { ruta: '/bitacora', nombre: 'Bitacora', admin: true, icono: <svg {...trazo}><path d="M15 4.5h2.5a1 1 0 0 1 1 1V12M8.5 4.5H6a1 1 0 0 0-1 1V20a1 1 0 0 0 1 1h6" /><rect x="8.5" y="3" width="6.5" height="3" rx="1" /><path d="M8 10h7M8 13.5h4" /><circle cx="17" cy="18" r="4" /><path d="m15.3 18 1.2 1.2 2.2-2.4" /></svg> },
   { ruta: '/usuarios', nombre: 'Usuarios', admin: true, icono: <svg {...trazo}><path d="M12 2.5 4 5.5v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10v-6z" /><circle cx="12" cy="10" r="2.5" /><path d="M8 16.5c.8-1.7 2.2-2.5 4-2.5s3.2.8 4 2.5" /></svg> },
+  { ruta: '/altas', nombre: 'Altas', admin: true, icono: <svg {...trazo}><path d="M3 21h18M5 21V5l7-3 7 3v16M9 8h1M14 8h1M9 12h1M14 12h1M10 21v-5h4v5" /></svg> },
 ];
 
 const BUSCAR = <svg viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth={2.6} strokeLinecap="round" aria-hidden width="20" height="20"><circle cx="10" cy="10" r="6.5" /><path d="m15 15 6 6" /></svg>;
@@ -209,6 +211,8 @@ export default function App() {
             <Route path="/reparaciones" element={<Reparaciones />} />
             <Route path="/excel" element={<Excel />} />
             {esAdmin && <Route path="/usuarios" element={<Usuarios />} />}
+            {esAdmin && <Route path="/altas" element={<Altas />} />}
+            {esAdmin && <Route path="/departamentos" element={<Navigate to="/altas" replace />} />}
             {esAdmin && <Route path="/bitacora" element={<Bitacora />} />}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

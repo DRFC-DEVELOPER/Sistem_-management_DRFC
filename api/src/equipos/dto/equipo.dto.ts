@@ -1,11 +1,14 @@
 import { OmitType, PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
-import { estatusEquipo, EstatusEquipo, tipoAdaptador, TipoAdaptador, tipoEquipo, TipoEquipo } from '../../db/esquema';
+import { ambitoEquipo, AmbitoEquipo, estatusEquipo, EstatusEquipo, tipoAdaptador, TipoAdaptador, TipoEquipo } from '../../db/esquema';
 
 export class CrearEquipoDto {
-  @IsIn(tipoEquipo.enumValues)
+  @IsString() @MaxLength(80)
   tipo: TipoEquipo;
+
+  @IsOptional() @IsIn(ambitoEquipo.enumValues)
+  ambito?: AmbitoEquipo;
 
   /** Nombre libre, por ejemplo “Impresora piso 2”. */
   @IsOptional() @IsString() @MaxLength(200) descripcion?: string;
@@ -58,7 +61,8 @@ export class BajaEquipoDto {
 export class FiltroEquiposDto {
   /** Busca en marca, modelo, serie, código, descripción, IP y nombre del empleado. */
   @IsOptional() @IsString() q?: string;
-  @IsOptional() @IsIn(tipoEquipo.enumValues) tipo?: TipoEquipo;
+  @IsOptional() @IsString() @MaxLength(80) tipo?: TipoEquipo;
+  @IsOptional() @IsIn(ambitoEquipo.enumValues) ambito?: AmbitoEquipo;
   @IsOptional() @IsIn(estatusEquipo.enumValues) estatus?: EstatusEquipo;
   @IsOptional() @Type(() => Number) @IsInt() empleadoId?: number;
   @IsOptional() @Type(() => Number) @IsInt() departamentoId?: number;

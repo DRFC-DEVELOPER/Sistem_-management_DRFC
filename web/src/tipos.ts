@@ -1,14 +1,21 @@
 export type Rol = 'ADMIN' | 'TECNICO' | 'CONSULTA';
-export type Tipo = 'LAPTOP' | 'TECLADO' | 'MOUSE' | 'MONITOR' | 'ADAPTADOR' | 'MULTIFUNCIONAL' | 'SOPORTE' | 'ACCESS_POINT' | 'OTRO';
+export type Tipo = string;
+export type AmbitoEquipo = 'USUARIO' | 'INFRAESTRUCTURA';
 export type Estatus = 'DISPONIBLE' | 'ASIGNADO' | 'EN_REPARACION' | 'DANADO' | 'BAJA';
 
-export const TIPOS: Record<Tipo, string> = {
+export const TIPOS: Record<string, string> = {
   LAPTOP: 'Laptop', TECLADO: 'Teclado', MOUSE: 'Mouse', MONITOR: 'Monitor', ADAPTADOR: 'Adaptador',
   MULTIFUNCIONAL: 'Multifuncional', SOPORTE: 'Soporte', ACCESS_POINT: 'Access Point', OTRO: 'Otro',
 };
-export const TIPOS_PLURAL: Record<Tipo, string> = {
+export const TIPOS_PLURAL: Record<string, string> = {
   LAPTOP: 'laptops', TECLADO: 'teclados', MOUSE: 'mouse', MONITOR: 'monitores', ADAPTADOR: 'adaptadores',
   MULTIFUNCIONAL: 'multifuncionales', SOPORTE: 'soportes', ACCESS_POINT: 'access points', OTRO: 'otros equipos',
+};
+export const etiquetaTipo = (tipo: Tipo) => TIPOS[tipo] ?? tipo;
+export const pluralTipo = (tipo: Tipo) => TIPOS_PLURAL[tipo] ?? `equipos de tipo ${etiquetaTipo(tipo).toLowerCase()}`;
+export const AMBITOS_EQUIPO: Record<AmbitoEquipo, string> = {
+  USUARIO: 'Equipo de usuario',
+  INFRAESTRUCTURA: 'Infraestructura',
 };
 export const ESTATUS: Record<Estatus, { nombre: string; plural: string; clase: string }> = {
   DISPONIBLE: { nombre: 'Disponible', plural: 'Disponibles', clase: 'c-disp' },
@@ -26,10 +33,12 @@ export const ROLES: Record<Rol, string> = { ADMIN: 'Administrador', TECNICO: 'T�
 export interface Usuario { id: number; nombre: string; usuario: string; correo: string | null; rol: Rol }
 
 export interface Ref { id: number; nombre: string }
+export interface TipoEquipoCatalogo { nombre: Tipo; predeterminado: boolean }
 
 export interface Equipo {
   id: number;
   tipo: Tipo;
+  ambito: AmbitoEquipo;
   descripcion: string | null;
   marca: string | null;
   modelo: string | null;
@@ -109,11 +118,13 @@ export interface Empleado {
   activo: boolean;
   fechaBaja: string | null;
   departamentoId: number | null;
+  puestoId: number | null;
   creadoEn: string;
 }
-export interface EmpleadoListado extends Empleado { departamento: Ref | null; equiposAsignados: number }
+export interface EmpleadoListado extends Empleado { departamento: Ref | null; puesto: Ref | null; equiposAsignados: number }
 export interface EmpleadoDetalle extends Empleado {
   departamento: Ref | null;
+  puesto: Ref | null;
   equiposActuales: Equipo[];
   asignaciones: Asignacion[];
 }
@@ -122,7 +133,7 @@ export interface Pagina<T> { total: number; pagina: number; limite: number; dato
 
 // Campos que aplican a cada tipo de equipo (sin lista = todos los tipos).
 export const CAMPOS: { clave: keyof Equipo; etiqueta: string; tipos?: Tipo[]; opciones?: [string, string][]; mono?: boolean }[] = [
-  { clave: 'descripcion', etiqueta: 'Equipo / descripción', tipos: ['MULTIFUNCIONAL', 'SOPORTE', 'ACCESS_POINT', 'OTRO', 'ADAPTADOR'] },
+  { clave: 'descripcion', etiqueta: 'Equipo / descripción' },
   { clave: 'tipoAdaptador', etiqueta: 'Tipo de adaptador', tipos: ['ADAPTADOR'], opciones: [['RED', 'Red'], ['MULTIPUERTOS', 'Multipuertos']] },
   { clave: 'marca', etiqueta: 'Marca' },
   { clave: 'modelo', etiqueta: 'Modelo' },
@@ -136,7 +147,7 @@ export const CAMPOS: { clave: keyof Equipo; etiqueta: string; tipos?: Tipo[]; op
 ];
 
 export const nombreEquipo = (e: Pick<Equipo, 'tipo' | 'marca' | 'modelo'> & { descripcion?: string | null }) =>
-  [e.descripcion && e.tipo !== 'ADAPTADOR' ? e.descripcion : TIPOS[e.tipo], e.marca, e.modelo].filter(Boolean).join(' ');
+  [e.descripcion && e.tipo !== 'ADAPTADOR' ? e.descripcion : etiquetaTipo(e.tipo), e.marca, e.modelo].filter(Boolean).join(' ');
 
 export const fecha = (iso?: string | null) => {
   if (!iso) return '';

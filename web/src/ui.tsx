@@ -6,7 +6,7 @@ import Swal, { SweetAlertIcon } from 'sweetalert2';
 import { CAMPOS, ESTATUS, Estatus, Equipo, fecha, nombreEquipo, Tipo } from './tipos';
 
 // ---------- Iconos por tipo de equipo ----------
-const TRAZOS: Record<Tipo, string> = {
+const TRAZOS: Record<string, string> = {
   LAPTOP: '<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>',
   TECLADO: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
   MOUSE: '<rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 7v4"/>',

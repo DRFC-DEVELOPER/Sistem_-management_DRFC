@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, count, desc, eq, getTableColumns, ilike, isNull, ne, or, SQL, sql } from 'drizzle-orm';
 import { DB, DbOTx, InjectDb } from '../db/db.module';
-import { asignaciones, departamentos, empleados, EstatusEquipo, estatusEquipo, equipos, reparaciones } from '../db/esquema';
+import { asignaciones, departamentos, empleados, EstatusEquipo, estatusEquipo, equipos, reparaciones, tiposEquipo } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { AsignacionesService, nombreEquipo } from '../asignaciones/asignaciones.service';
 import { hoy, limpiar, paginar, patron } from '../common/utiles';
@@ -15,6 +15,7 @@ export class EquiposService {
     const { offset, limit, pagina, limite } = paginar(f.pagina, f.limite);
     const c: SQL[] = [];
     if (f.tipo) c.push(eq(equipos.tipo, f.tipo));
+    if (f.ambito) c.push(eq(equipos.ambito, f.ambito));
     if (f.empleadoId) c.push(eq(equipos.empleadoId, f.empleadoId));
     if (f.estatus) c.push(eq(equipos.estatus, f.estatus));
     else if (!f.incluirBajas) c.push(ne(equipos.estatus, 'BAJA'));
@@ -151,6 +152,10 @@ export class EquiposService {
   async crear(dto: CrearEquipoDto, usuarioId: number) {
     const { estatusInicial, empleadoId, fechaEntrega, ...resto } = dto;
     const d = limpiar(resto);
+    if (!await this.db.query.tiposEquipo.findFirst({ where: eq(tiposEquipo.nombre, d.tipo) })) {
+      throw new BadRequestException('El tipo de equipo seleccionado ya no existe. Actualiza la lista e inténtalo de nuevo.');
+    }
+    if (d.ambito === 'INFRAESTRUCTURA' && empleadoId) throw new BadRequestException('Los equipos de infraestructura no se asignan a empleados.');
     // Sin código capturado, la base asigna el siguiente consecutivo.
     if (!d.codigoBarras) delete d.codigoBarras;
     if (!d.marca && !d.modelo && !d.serie && !d.descripcion) {
@@ -171,6 +176,12 @@ export class EquiposService {
     const actual = await this.db.query.equipos.findFirst({ where: eq(equipos.id, id) });
     if (!actual) throw new NotFoundException('El equipo no existe.');
     const d = limpiar(dto);
+    if (d.tipo && !await this.db.query.tiposEquipo.findFirst({ where: eq(tiposEquipo.nombre, d.tipo) })) {
+      throw new BadRequestException('El tipo de equipo seleccionado ya no existe. Actualiza la lista e inténtalo de nuevo.');
+    }
+    if (d.ambito === 'INFRAESTRUCTURA' && actual.empleadoId) {
+      throw new BadRequestException('Registra la devolución del equipo antes de cambiarlo a infraestructura.');
+    }
     // El código de barras se puede cambiar, pero no borrar: el equipo siempre conserva uno.
     if (d.codigoBarras === null) delete d.codigoBarras;
     if (!Object.keys(d).length) throw new BadRequestException('No enviaste cambios.');

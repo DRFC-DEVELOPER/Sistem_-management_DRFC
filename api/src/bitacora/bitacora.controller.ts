@@ -6,7 +6,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { BitacoraService } from './bitacora.service';
 
 export class FiltroBitacoraDto {
-  @IsOptional() @IsIn(['equipo', 'empleado', 'asignacion', 'reparacion', 'usuario', 'departamento']) entidad?: string;
+  @IsOptional() @IsIn(['equipo', 'empleado', 'asignacion', 'reparacion', 'usuario', 'departamento', 'tipo_equipo', 'marca_equipo', 'puesto']) entidad?: string;
   @IsOptional() @Type(() => Number) @IsInt() entidadId?: number;
   @IsOptional() @IsIn(['recientes', 'antiguos']) orden?: 'recientes' | 'antiguos';
   @IsOptional() @Type(() => Number) @IsInt() @Min(1) pagina?: number;

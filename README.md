@@ -164,7 +164,10 @@ Todas empiezan con `/api`. Excepto el login y la salud, requieren el encabezado 
 | `POST /asignaciones/devolucion` | Registrar devolución |
 | `GET /asignaciones` | Historial (filtros `empleadoId`, `equipoId`, `abiertas`) |
 | `POST /reparaciones` · `POST /reparaciones/{id}/recepcion` | Enviar a reparación · registrar regreso |
-| `GET /departamentos` · `POST` · `PATCH` | Catálogo de departamentos |
+| `GET/POST/PATCH/DELETE /departamentos` | Consultar · crear · renombrar · eliminar si no tiene empleados |
+| `GET/POST/PATCH/DELETE /departamentos/{id}/puestos` | Consultar y administrar puestos de cada departamento |
+| `GET /catalogos/tipos-equipo` · `GET /catalogos/marcas` | Consultar tipos y marcas disponibles |
+| `POST/PATCH/DELETE /catalogos/tipos-equipo` · `/catalogos/marcas` | Administrar categorías y marcas (solo ADMIN) |
 | `GET/POST/PATCH /usuarios-sistema` | Usuarios que entran al sistema (solo ADMIN) |
 | `GET /bitacora` | Quién hizo qué y cuándo (solo ADMIN) |
 | `GET /excel/exportar` | Descargar el inventario en Excel |
@@ -179,6 +182,10 @@ Todas empiezan con `/api`. Excepto el login y la salud, requieren el encabezado 
 - Al enviar a reparación un equipo asignado, se registra la devolución automáticamente.
 - Al dar de baja a un empleado, todos sus equipos regresan al inventario como disponibles.
 - Cada alta, cambio, asignación, devolución, reparación y baja queda en la bitácora con el usuario que la hizo.
+- En **Altas → Departamentos y puestos**, los administradores pueden crear, renombrar y eliminar departamentos vacíos. No se elimina un departamento mientras tenga empleados asignados.
+- En **Altas**, los administradores mantienen departamentos y puestos por departamento, además de tipos de equipo y marcas. Lenovo y DELL se agregan como marcas iniciales; las marcas usadas no se pueden eliminar y al renombrarlas se actualizan los equipos relacionados.
+- Los puestos solo se pueden asignar a empleados del departamento correspondiente. Los tipos originales se conservan; los tipos personalizados se pueden renombrar y no se pueden eliminar mientras tengan equipos asociados.
+- Los equipos se separan en **Equipo de usuario** e **Infraestructura**. Los equipos de infraestructura no se pueden asignar a empleados; los registros existentes quedan clasificados como equipos de usuario hasta que un administrador los cambie.
 
 ## Publicar la web de pruebas en GitHub Pages
 

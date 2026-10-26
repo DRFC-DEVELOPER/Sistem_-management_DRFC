@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, qs } from '../api';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
-import { Asignacion, EmpleadoDetalle, Equipo, EquipoListado, Estatus, ESTATUS, fecha, hoy, iniciales, nombreEquipo, Pagina, RESULTADOS, Tipo, TIPOS, TIPOS_PLURAL } from '../tipos';
+import { Asignacion, EmpleadoDetalle, Equipo, EquipoListado, Estatus, ESTATUS, etiquetaTipo, fecha, hoy, iniciales, nombreEquipo, Pagina, pluralTipo, RESULTADOS, TipoEquipoCatalogo } from '../tipos';
 import { BUSCAR, Campo, Cargando, DatosEquipo, ErrorCarga, EtiquetaEquipo, Modal, MarcaTemporal, Pill, TarjetaEquipo, useAvisos, Vacio } from '../ui';
 import EmpleadoForm from './EmpleadoForm';
 
@@ -49,7 +49,7 @@ export default function EmpleadoPagina() {
           <span className="av" style={{ width: 52, height: 52, fontSize: '1.2rem' }}>{iniciales(e.nombre)}</span>
           <div>
             <h1>{e.nombre}</h1>
-            <span className="sub">{e.departamento?.nombre ?? 'Sin departamento'}{e.activo ? '' : ` | Dado de baja el ${fecha(e.fechaBaja)}`}</span>
+            <span className="sub">{e.departamento?.nombre ?? 'Sin departamento'}{e.puesto ? ` | ${e.puesto.nombre}` : ''}{e.activo ? '' : ` | Dado de baja el ${fecha(e.fechaBaja)}`}</span>
           </div>
         </div>
         {puedeEditar && e.activo && (
@@ -109,6 +109,7 @@ export default function EmpleadoPagina() {
             <dl className="dl">
               <dt>Nombre</dt><dd>{e.nombre}</dd>
               <dt>Departamento</dt><dd>{e.departamento?.nombre ?? '—'}</dd>
+              <dt>Puesto</dt><dd>{e.puesto?.nombre ?? '—'}</dd>
               <dt>Número</dt><dd>{e.numero || '—'}</dd>
               <dt>Correo</dt><dd>{e.correo || '—'}</dd>
               {e.notas && <><dt>Notas</dt><dd>{e.notas}</dd></>}
@@ -205,7 +206,7 @@ function DevolverEquipo({ equipo, empleado: emp, onCerrar, onListo }: { equipo: 
     >
       <div className={`ficha-lateral${abierto ? ' abierta' : ''}`}>
         <section className="panel">
-          <h2>{TIPOS[equipo.tipo]} | <Pill estatus={equipo.estatus} />{sustituyeId && <MarcaTemporal />}</h2>
+          <h2>{etiquetaTipo(equipo.tipo)} | <Pill estatus={equipo.estatus} />{sustituyeId && <MarcaTemporal />}</h2>
           {sustituyeId && (
             <p className="aviso temp">
               Asignado temporalmente en lugar de <b>{sustituye ? nombreEquipo(sustituye) : 'su equipo'}</b>{sustituye && ` (${ESTATUS[sustituye.estatus].nombre.toLowerCase()})`}.
@@ -261,11 +262,12 @@ function ElegirEquipo({ empleado, onCerrar, onListo }: { empleado: EmpleadoDetal
   const [error, setError] = useState('');
   const q = useRetraso(texto);
   const { datos } = useCarga(() => api<Pagina<EquipoListado>>(`/equipos${qs({ estatus: 'DISPONIBLE', q, tipo, limite: 100 })}`), [q, tipo]);
+  const tipos = useCarga(() => api<TipoEquipoCatalogo[]>('/catalogos/tipos-equipo'), []);
   // Tipos que ya tiene en uso: no puede recibir otro igual (OTRO no cuenta).
   const enUso = empleado.equiposActuales.filter((x) => x.estatus === 'ASIGNADO' && x.tipo !== 'OTRO');
   const ocupados = [...new Set(enUso.map((x) => x.tipo))];
   const opciones = (datos?.datos ?? []).filter((x) => !ocupados.includes(x.tipo));
-  const tipoElegido = tipo as Tipo | '';
+  const tipoElegido = tipo;
   const yaTieneElegido = tipoElegido ? enUso.filter((x) => x.tipo === tipoElegido) : [];
   // Equipos sin sustituto todavía: al asignarle uno del mismo tipo, el servidor lo marca como temporal.
   const danados = empleado.equiposActuales.filter(
@@ -286,14 +288,15 @@ function ElegirEquipo({ empleado, onCerrar, onListo }: { empleado: EmpleadoDetal
           <Campo etiqueta="Tipo">
             <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
               <option value="">Todos</option>
-              {(Object.keys(TIPOS) as Tipo[]).map((t) => <option key={t} value={t}>{TIPOS[t]}{ocupados.includes(t) ? ' (ya tiene)' : ''}</option>)}
+              {(tipos.datos ?? []).map((t) => <option key={t.nombre} value={t.nombre}>{etiquetaTipo(t.nombre)}{ocupados.includes(t.nombre) ? ' (ya tiene)' : ''}</option>)}
             </select>
           </Campo>
         </div>
+        {tipos.error && <ErrorCarga mensaje={tipos.error} reintentar={tipos.recargar} />}
         {!tipoElegido && enUso.length > 0 && (
           <div className="aviso ya" style={{ margin: 0 }}>
             <b>Ya tiene asignado:</b>
-            <ul>{enUso.map((x) => <li key={x.id}><b>{TIPOS[x.tipo]}</b>: {nombreEquipo(x)}{x.serie && <span className="mono"> {x.serie}</span>}</li>)}</ul>
+            <ul>{enUso.map((x) => <li key={x.id}><b>{etiquetaTipo(x.tipo)}</b>: {nombreEquipo(x)}{x.serie && <span className="mono"> {x.serie}</span>}</li>)}</ul>
             <span className="sub">No se muestran esos tipos. Solo puede recibir otro igual si el suyo está dañado, en reparación o dado de baja.</span>
           </div>
         )}
@@ -309,12 +312,12 @@ function ElegirEquipo({ empleado, onCerrar, onListo }: { empleado: EmpleadoDetal
           {datos && !opciones.length && (
             yaTieneElegido.length ? (
               <div className="aviso ya" role="status" style={{ margin: 0 }}>
-                <b>Ya tiene {TIPOS[yaTieneElegido[0].tipo].toLowerCase()} asignado:</b> {yaTieneElegido.map(nombreEquipo).join(', ')}.
+                <b>Ya tiene {etiquetaTipo(yaTieneElegido[0].tipo).toLowerCase()} asignado:</b> {yaTieneElegido.map(nombreEquipo).join(', ')}.
                 <span className="sub" style={{ display: 'block' }}>Solo puede recibir otro si el suyo está dañado, en reparación o dado de baja.</span>
               </div>
             ) : tipoElegido && !q ? (
               <div className="aviso err" role="status" style={{ margin: 0 }}>
-                <b>No hay {TIPOS_PLURAL[tipoElegido]} disponibles.</b>
+                <b>No hay {pluralTipo(tipoElegido)} disponibles.</b>
                 <span className="sub" style={{ display: 'block' }}>Todos están asignados, dañados o en reparación. Registra uno nuevo o recibe una devolución para poder asignarlo.</span>
               </div>
             ) : <p className="sub">No hay equipos disponibles con ese filtro.</p>

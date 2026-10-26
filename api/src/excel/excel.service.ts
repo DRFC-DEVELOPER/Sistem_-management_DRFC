@@ -287,7 +287,7 @@ export class ExcelService {
 
     const p = wb.addWorksheet('Equipos', { views: [{ state: 'frozen', ySplit: 1 }] });
     p.columns = [
-      ['Id', 'id', 7], ['Tipo', 'tipo', 14], ['Descripción', 'descripcion', 24], ['Marca', 'marca', 14], ['Modelo', 'modelo', 20], ['Serie', 'serie', 18],
+      ['Id', 'id', 7], ['Tipo', 'tipo', 14], ['Área', 'ambito', 20], ['Descripción', 'descripcion', 24], ['Marca', 'marca', 14], ['Modelo', 'modelo', 20], ['Serie', 'serie', 18],
       ['Código de barras', 'codigo', 18], ['Color', 'color', 10], ['Memoria GB', 'memoria', 11], ['Procesador', 'procesador', 22], ['Disco', 'disco', 10],
       ['SO', 'so', 18], ['Tipo de adaptador', 'adaptador', 14], ['IP de gestión', 'ip', 14], ['Estatus', 'estatus', 14], ['Empleado', 'empleado', 30],
       ['Departamento', 'depto', 18], ['Notas', 'notas', 50],
@@ -295,12 +295,13 @@ export class ExcelService {
     p.getRow(1).font = { bold: true };
     for (const e of todos) {
       p.addRow({
-        id: e.id, tipo: TIPOS_ES[e.tipo], descripcion: e.descripcion, marca: e.marca, modelo: e.modelo, serie: e.serie, codigo: e.codigoBarras,
+        id: e.id, tipo: TIPOS_ES[e.tipo] ?? e.tipo, ambito: e.ambito === 'USUARIO' ? 'Usuario' : 'Infraestructura',
+        descripcion: e.descripcion, marca: e.marca, modelo: e.modelo, serie: e.serie, codigo: e.codigoBarras,
         color: e.color, memoria: e.memoriaGb, procesador: e.procesador, disco: e.disco, so: e.sistemaOperativo, adaptador: e.tipoAdaptador,
         ip: e.ipGestion, estatus: e.estatus, empleado: e.empleado?.nombre, depto: e.empleado?.departamento?.nombre, notas: e.notas,
       });
     }
-    p.autoFilter = { from: 'A1', to: 'R1' };
+    p.autoFilter = { from: 'A1', to: 'S1' };
     return Buffer.from(await wb.xlsx.writeBuffer());
   }
 }

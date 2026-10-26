@@ -3,12 +3,13 @@ import { relations, sql } from 'drizzle-orm';
 import { AnyPgColumn, boolean, date, index, integer, jsonb, pgEnum, pgSequence, pgTable, serial, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
 export const rol = pgEnum('rol', ['ADMIN', 'TECNICO', 'CONSULTA']);
-export const tipoEquipo = pgEnum('tipo_equipo', ['LAPTOP', 'TECLADO', 'MOUSE', 'MONITOR', 'ADAPTADOR', 'MULTIFUNCIONAL', 'SOPORTE', 'ACCESS_POINT', 'OTRO']);
+export const ambitoEquipo = pgEnum('ambito_equipo', ['USUARIO', 'INFRAESTRUCTURA']);
 export const estatusEquipo = pgEnum('estatus_equipo', ['DISPONIBLE', 'ASIGNADO', 'EN_REPARACION', 'DANADO', 'BAJA']);
 export const tipoAdaptador = pgEnum('tipo_adaptador', ['RED', 'MULTIPUERTOS']);
 
 export type Rol = (typeof rol.enumValues)[number];
-export type TipoEquipo = (typeof tipoEquipo.enumValues)[number];
+export type TipoEquipo = string;
+export type AmbitoEquipo = (typeof ambitoEquipo.enumValues)[number];
 export type EstatusEquipo = (typeof estatusEquipo.enumValues)[number];
 export type TipoAdaptador = (typeof tipoAdaptador.enumValues)[number];
 
@@ -22,6 +23,33 @@ export const departamentos = pgTable('departamentos', {
   creadoEn: creadoEn(),
 });
 
+export const puestos = pgTable(
+  'puestos',
+  {
+    id: serial('id').primaryKey(),
+    departamentoId: integer('departamento_id').notNull().references(() => departamentos.id, { onDelete: 'cascade' }),
+    nombre: varchar('nombre', { length: 80 }).notNull(),
+    creadoEn: creadoEn(),
+  },
+  (t) => [uniqueIndex('puestos_departamento_nombre_unico').on(t.departamentoId, sql`lower(${t.nombre})`)],
+);
+
+export const tiposEquipo = pgTable('tipos_equipo', {
+  nombre: varchar('nombre', { length: 80 }).primaryKey(),
+  predeterminado: boolean('predeterminado').default(false).notNull(),
+  creadoEn: creadoEn(),
+});
+
+export const marcasEquipo = pgTable(
+  'marcas_equipo',
+  {
+    id: serial('id').primaryKey(),
+    nombre: varchar('nombre', { length: 80 }).notNull(),
+    creadoEn: creadoEn(),
+  },
+  (t) => [uniqueIndex('marcas_equipo_nombre_unico').on(sql`lower(${t.nombre})`)],
+);
+
 export const empleados = pgTable(
   'empleados',
   {
@@ -30,6 +58,7 @@ export const empleados = pgTable(
     nombre: varchar('nombre', { length: 150 }).notNull(),
     correo: varchar('correo', { length: 150 }),
     notas: text('notas'),
+    puestoId: integer('puesto_id').references(() => puestos.id, { onDelete: 'set null' }),
     activo: boolean('activo').default(true).notNull(),
     fechaBaja: fecha('fecha_baja'),
     departamentoId: integer('departamento_id').references(() => departamentos.id),
@@ -59,7 +88,8 @@ export const equipos = pgTable(
   'equipos',
   {
     id: serial('id').primaryKey(),
-    tipo: tipoEquipo('tipo').notNull(),
+    tipo: varchar('tipo', { length: 80 }).notNull().references(() => tiposEquipo.nombre, { onUpdate: 'cascade' }),
+    ambito: ambitoEquipo('ambito').default('USUARIO').notNull(),
     descripcion: varchar('descripcion', { length: 200 }),
     marca: varchar('marca', { length: 80 }),
     modelo: varchar('modelo', { length: 120 }),
@@ -149,16 +179,25 @@ export const bitacora = pgTable(
 );
 
 // ---------- Relaciones (para consultas con `with`) ----------
-export const departamentosRel = relations(departamentos, ({ many }) => ({ empleados: many(empleados) }));
+export const departamentosRel = relations(departamentos, ({ many }) => ({ empleados: many(empleados), puestos: many(puestos) }));
+
+export const puestosRel = relations(puestos, ({ one, many }) => ({
+  departamento: one(departamentos, { fields: [puestos.departamentoId], references: [departamentos.id] }),
+  empleados: many(empleados),
+}));
+
+export const tiposEquipoRel = relations(tiposEquipo, ({ many }) => ({ equipos: many(equipos) }));
 
 export const empleadosRel = relations(empleados, ({ one, many }) => ({
   departamento: one(departamentos, { fields: [empleados.departamentoId], references: [departamentos.id] }),
+  puesto: one(puestos, { fields: [empleados.puestoId], references: [puestos.id] }),
   equiposActuales: many(equipos),
   asignaciones: many(asignaciones),
 }));
 
 export const equiposRel = relations(equipos, ({ one, many }) => ({
   empleado: one(empleados, { fields: [equipos.empleadoId], references: [empleados.id] }),
+  tipoCatalogo: one(tiposEquipo, { fields: [equipos.tipo], references: [tiposEquipo.nombre] }),
   asignaciones: many(asignaciones),
   reparaciones: many(reparaciones),
 }));

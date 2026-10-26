@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api, qs } from '../api';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
-import { ESTATUS, EquipoListado, Estatus, ORDENES, Pagina, Tipo, TIPOS } from '../tipos';
+import { AMBITOS_EQUIPO, AmbitoEquipo, ESTATUS, EquipoListado, Estatus, ORDENES, Pagina, TipoEquipoCatalogo, etiquetaTipo } from '../tipos';
 import { BUSCAR, Cargando, ErrorCarga, Paginacion, Pill, TarjetaEquipo, Vacio } from '../ui';
 import EquipoForm from './EquipoForm';
 
@@ -16,9 +16,11 @@ export default function Equipos() {
   const [texto, setTexto] = useState(p.get('q') ?? '');
   const q = useRetraso(texto);
   const tipo = p.get('tipo') ?? '';
+  const ambito = (p.get('ambito') as AmbitoEquipo | null) ?? 'USUARIO';
   const estatus = p.get('estatus') ?? '';
   const orden = p.get('orden') ?? '';
   const pagina = Number(p.get('pagina') ?? 1);
+  const tipos = useCarga(() => api<TipoEquipoCatalogo[]>('/catalogos/tipos-equipo'), []);
   const cambiar = (k: string, valor: string) => {
     const n = new URLSearchParams(p);
     if (valor) n.set(k, valor); else n.delete(k);
@@ -28,11 +30,11 @@ export default function Equipos() {
 
   const { datos, error, cargando, recargar } = useCarga(
     () => api<Pagina<EquipoListado>>(`/equipos${qs({
-      q, tipo, orden, pagina, limite: 50,
+      q, tipo, ambito, orden, pagina, limite: 50,
       estatus: estatus && estatus !== 'todos' ? estatus : undefined,
       incluirBajas: estatus === 'todos',
     })}`),
-    [q, tipo, estatus, orden, pagina],
+    [q, tipo, ambito, estatus, orden, pagina],
   );
 
   // Los lectores de código de barras escriben el código y presionan Enter.
@@ -50,6 +52,11 @@ export default function Equipos() {
         <h1>Equipos</h1>
         {puedeEditar && <button className="btn" onClick={() => cambiar('nuevo', '1')}>Registrar equipo</button>}
       </div>
+      <div className="chips" role="group" aria-label="Área de equipos">
+        {(Object.keys(AMBITOS_EQUIPO) as AmbitoEquipo[]).map((a) => (
+          <button key={a} className="chip" aria-pressed={ambito === a} onClick={() => cambiar('ambito', a)}>{AMBITOS_EQUIPO[a]}</button>
+        ))}
+      </div>
       <div className="barra">
         <label className="buscar crece">{BUSCAR}
           <input className="entrada" type="search" placeholder="Buscar por serie, marca, modelo, empleado o código" value={texto}
@@ -57,13 +64,14 @@ export default function Equipos() {
         </label>
         <select className="entrada" value={tipo} onChange={(e) => cambiar('tipo', e.target.value)} aria-label="Tipo de equipo">
           <option value="">Todos los tipos</option>
-          {(Object.keys(TIPOS) as Tipo[]).map((t) => <option key={t} value={t}>{TIPOS[t]}</option>)}
+          {(tipos.datos ?? []).map((t) => <option key={t.nombre} value={t.nombre}>{etiquetaTipo(t.nombre)}</option>)}
         </select>
         <select className="entrada" value={orden} onChange={(e) => cambiar('orden', e.target.value)} aria-label="Ordenar">
           <option value="">Por tipo</option>
           {ORDENES.map(([k, n]) => <option key={k} value={k}>{n}</option>)}
         </select>
       </div>
+      {tipos.error && <ErrorCarga mensaje={tipos.error} reintentar={tipos.recargar} />}
       <div className="chips" role="group" aria-label="Estado">
         {FILTROS.map(([k, n]) => <button key={k} className="chip" aria-pressed={estatus === k} onClick={() => cambiar('estatus', k)}>{n}</button>)}
       </div>

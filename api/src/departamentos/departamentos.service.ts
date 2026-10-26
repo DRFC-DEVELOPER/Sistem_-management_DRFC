@@ -1,7 +1,7 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { asc, eq, sql } from 'drizzle-orm';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { asc, count, eq, sql } from 'drizzle-orm';
 import { DB, DbOTx, InjectDb } from '../db/db.module';
-import { departamentos } from '../db/esquema';
+import { departamentos, empleados } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 
 export const normalizarDepto = (n: string) => n.replace(/\s+/g, ' ').trim().toUpperCase();
@@ -32,6 +32,7 @@ export class DepartamentosService {
 
   async crear(nombre: string, autorId: number) {
     const n = normalizarDepto(nombre);
+    if (n.length < 2) throw new BadRequestException('El nombre del departamento debe tener al menos 2 caracteres.');
     if (await this.db.query.departamentos.findFirst({ where: eq(departamentos.nombre, n) })) throw new ConflictException('Ese departamento ya existe.');
     const [d] = await this.db.insert(departamentos).values({ nombre: n }).returning();
     await this.bitacora.registrar({ usuarioId: autorId, accion: `Creó el departamento ${n}`, entidad: 'departamento', entidadId: d.id });
@@ -40,10 +41,25 @@ export class DepartamentosService {
 
   async renombrar(id: number, nombre: string, autorId: number) {
     const n = normalizarDepto(nombre);
+    if (n.length < 2) throw new BadRequestException('El nombre del departamento debe tener al menos 2 caracteres.');
     const antes = await this.db.query.departamentos.findFirst({ where: eq(departamentos.id, id) });
     if (!antes) throw new NotFoundException('El departamento no existe.');
+    const duplicado = await this.db.query.departamentos.findFirst({ where: eq(departamentos.nombre, n) });
+    if (duplicado && duplicado.id !== id) throw new ConflictException('Ese departamento ya existe.');
     const [d] = await this.db.update(departamentos).set({ nombre: n }).where(eq(departamentos.id, id)).returning();
     await this.bitacora.registrar({ usuarioId: autorId, accion: `Renombró el departamento ${antes.nombre} a ${n}`, entidad: 'departamento', entidadId: id });
     return d;
+  }
+
+  async eliminar(id: number, autorId: number) {
+    const departamento = await this.db.query.departamentos.findFirst({ where: eq(departamentos.id, id) });
+    if (!departamento) throw new NotFoundException('El departamento no existe.');
+    const [{ total }] = await this.db.select({ total: count() }).from(empleados).where(eq(empleados.departamentoId, id));
+    if (total > 0) {
+      throw new ConflictException(`No se puede eliminar ${departamento.nombre}: todavía tiene ${total} empleado${total === 1 ? '' : 's'}. Reasígnalos primero.`);
+    }
+    await this.db.delete(departamentos).where(eq(departamentos.id, id));
+    await this.bitacora.registrar({ usuarioId: autorId, accion: `Eliminó el departamento ${departamento.nombre}`, entidad: 'departamento', entidadId: id });
+    return { ok: true };
   }
 }

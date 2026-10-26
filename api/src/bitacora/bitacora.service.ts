@@ -7,7 +7,7 @@ import { paginar } from '../common/utiles';
 export interface Registro {
   usuarioId?: number | null;
   accion: string;
-  entidad: 'equipo' | 'empleado' | 'asignacion' | 'reparacion' | 'usuario' | 'departamento';
+  entidad: 'equipo' | 'empleado' | 'asignacion' | 'reparacion' | 'usuario' | 'departamento' | 'tipo_equipo' | 'marca_equipo' | 'puesto';
   entidadId?: number | null;
   detalle?: unknown;
 }

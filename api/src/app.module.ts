@@ -6,6 +6,7 @@ import { BitacoraModule } from './bitacora/bitacora.module';
 import { AuthModule } from './auth/auth.module';
 import { UsuariosSistemaModule } from './usuarios-sistema/usuarios-sistema.module';
 import { DepartamentosModule } from './departamentos/departamentos.module';
+import { CatalogosModule } from './catalogos/catalogos.module';
 import { EmpleadosModule } from './empleados/empleados.module';
 import { EquiposModule } from './equipos/equipos.module';
 import { AsignacionesModule } from './asignaciones/asignaciones.module';
@@ -26,6 +27,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     AuthModule,
     UsuariosSistemaModule,
     DepartamentosModule,
+    CatalogosModule,
     EmpleadosModule,
     EquiposModule,
     AsignacionesModule,

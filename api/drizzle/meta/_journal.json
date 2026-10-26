@@ -50,6 +50,20 @@
       "when": 1792819604838,
       "tag": "0006_tipo_soporte",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793054733717,
+      "tag": "0007_ambito_equipo",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793056096278,
+      "tag": "0008_altas_catalogos",
+      "breakpoints": true
     }
   ]
 }

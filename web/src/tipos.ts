@@ -81,7 +81,7 @@ export interface Asignacion {
   /** Equipo dañado o en reparación al que sustituye mientras la asignación es temporal. */
   sustituyeEquipoId?: number | null;
   empleado?: { id: number; nombre: string; departamento?: { nombre: string } | null };
-  equipo?: Pick<Equipo, 'id' | 'tipo' | 'marca' | 'modelo' | 'serie'> & { estatus?: Estatus; empleadoId?: number | null };
+  equipo?: Pick<Equipo, 'id' | 'tipo' | 'marca' | 'modelo' | 'serie' | 'color' | 'descripcion' | 'codigoBarras' | 'tipoAdaptador'> & { estatus?: Estatus; empleadoId?: number | null };
   entregadoPor?: { nombre: string } | null;
   recibidoPor?: { nombre: string } | null;
 }

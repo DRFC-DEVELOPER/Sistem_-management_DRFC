@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, qs } from '../api';
+import { agregarAColaResponsivas, ofrecerCartaResponsiva, useColaResponsivas } from '../responsiva';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
 import { AMBITOS_EQUIPO, EmpleadoListado, EquipoDetalle, Estatus, ESTATUS, etiquetaTipo, fecha, hoy, iniciales, nombreEquipo, Reparacion, Ref } from '../tipos';
@@ -14,6 +15,7 @@ export default function EquipoPagina() {
   const navegar = useNavigate();
   const { puedeEditar, esAdmin } = useSesion();
   const { avisar, confirmar, avisarEstatus } = useAvisos();
+  const colaResponsivas = useColaResponsivas();
   const { datos: e, error, recargar } = useCarga(() => api<EquipoDetalle>(`/equipos/${id}`), [id]);
   const [ventana, setVentana] = useState<Ventana>(null);
   const cerrar = () => setVentana(null);
@@ -27,7 +29,12 @@ export default function EquipoPagina() {
   };
   const devolver = async () => {
     if (await confirmar({ titulo: 'Registrar devolución', mensaje: `${nombreEquipo(e)} dejará de estar asignado a ${e.empleado?.nombre} y quedará disponible.`, boton: 'Registrar devolución' })) {
-      accion(() => api('/asignaciones/devolucion', { cuerpo: { equipoId: e.id } }), 'DISPONIBLE');
+      try {
+        await api('/asignaciones/devolucion', { cuerpo: { equipoId: e.id } });
+        recargar();
+        if (e.empleado) await ofrecerCartaResponsiva(e.empleado.id, confirmar, avisar);
+        avisarEstatus(nombreEquipo(e), 'DISPONIBLE');
+      } catch (err) { avisar((err as Error).message); }
     }
   };
   const marcar = (estatus: 'DISPONIBLE' | 'DANADO') => accion(() => api(`/equipos/${e.id}/estatus`, { cuerpo: { estatus } }), estatus);
@@ -52,6 +59,7 @@ export default function EquipoPagina() {
         </div>
         {puedeEditar && (
           <div className="acciones">
+            {colaResponsivas.length > 0 && <Link className="btn ghost" to="/excel?cola=1">Revisar cola ({colaResponsivas.length})</Link>}
             <button className="btn ghost" onClick={() => setVentana('editar')}>Editar</button>
             {e.ambito === 'USUARIO' && e.estatus === 'DISPONIBLE' && <button className="btn" onClick={() => setVentana('asignar')}>Asignar a un empleado</button>}
           </div>
@@ -178,7 +186,10 @@ function AsignarEquipo({ equipoId, nombre, onCerrar, onListo }: { equipoId: numb
   const elegir = async (emp: EmpleadoListado) => {
     try {
       await api('/asignaciones', { cuerpo: { equipoId, empleadoId: emp.id, fechaEntrega } });
-      avisar(`Asignado a ${emp.nombre}`);
+      const enCola = agregarAColaResponsivas(emp.id);
+      avisar(enCola
+        ? `Asignado a ${emp.nombre} y agregado a la cola de cartas`
+        : `Asignado a ${emp.nombre}, pero no se pudo guardar en la cola de cartas`);
       onListo();
     } catch (e) { setError((e as Error).message); }
   };
@@ -212,15 +223,18 @@ function AsignarEquipo({ equipoId, nombre, onCerrar, onListo }: { equipoId: numb
 }
 
 function EnviarReparacion({ equipo, onCerrar, onListo }: { equipo: EquipoDetalle; onCerrar: () => void; onListo: () => void }) {
-  const { avisarEstatus } = useAvisos();
+  const { avisar, confirmar, avisarEstatus } = useAvisos();
   const [motivo, setMotivo] = useState('');
   const [proveedor, setProveedor] = useState('');
   const [fechaEnvio, setFecha] = useState(hoy());
   return (
     <FormModal titulo="Enviar a reparación" sub={nombreEquipo(equipo)} boton="Enviar a reparación" onCerrar={onCerrar} onEnviar={async () => {
       await api('/reparaciones', { cuerpo: { equipoId: equipo.id, motivo, proveedor: proveedor || undefined, fechaEnvio } });
-      avisarEstatus(nombreEquipo(equipo), 'EN_REPARACION');
       onListo();
+      if (equipo.estatus === 'ASIGNADO' && equipo.empleado) {
+        await ofrecerCartaResponsiva(equipo.empleado.id, confirmar, avisar);
+      }
+      avisarEstatus(nombreEquipo(equipo), 'EN_REPARACION');
     }}>
       {equipo.estatus === 'ASIGNADO' && <p className="aviso">Lo tiene {equipo.empleado?.nombre}. Al enviarlo se registra la devolución automáticamente.</p>}
       <Campo etiqueta="Falla o motivo"><textarea value={motivo} onChange={(e) => setMotivo(e.target.value)} rows={3} /></Campo>
@@ -258,13 +272,14 @@ function DestinoReparado({ equipo, regresar, setRegresar }: { equipo: EquipoDeta
 }
 
 function MarcarDisponible({ equipo, onCerrar, onListo }: { equipo: EquipoDetalle; onCerrar: () => void; onListo: () => void }) {
-  const { avisarEstatus } = useAvisos();
+  const { avisar, confirmar, avisarEstatus } = useAvisos();
   const [regresar, setRegresar] = useState(true);
   return (
     <FormModal titulo="Marcar disponible" sub={nombreEquipo(equipo)} boton="Guardar" onCerrar={onCerrar} onEnviar={async () => {
       await api(`/equipos/${equipo.id}/estatus`, { cuerpo: { estatus: 'DISPONIBLE', regresarAEmpleado: regresar } });
-      avisarEstatus(nombreEquipo(equipo), regresar ? 'ASIGNADO' : 'DISPONIBLE');
       onListo();
+      if (regresar && equipo.empleado) await ofrecerCartaResponsiva(equipo.empleado.id, confirmar, avisar);
+      avisarEstatus(nombreEquipo(equipo), regresar ? 'ASIGNADO' : 'DISPONIBLE');
     }}>
       <DestinoReparado equipo={equipo} regresar={regresar} setRegresar={setRegresar} />
     </FormModal>
@@ -272,7 +287,7 @@ function MarcarDisponible({ equipo, onCerrar, onListo }: { equipo: EquipoDetalle
 }
 
 function RecibirReparacion({ reparacion, equipo, onCerrar, onListo }: { reparacion: Reparacion; equipo: EquipoDetalle; onCerrar: () => void; onListo: () => void }) {
-  const { avisarEstatus } = useAvisos();
+  const { avisar, confirmar, avisarEstatus } = useAvisos();
   const nombre = nombreEquipo(equipo);
   const [solucion, setSolucion] = useState('');
   const [resultado, setResultado] = useState<Estatus>('DISPONIBLE');
@@ -282,8 +297,9 @@ function RecibirReparacion({ reparacion, equipo, onCerrar, onListo }: { reparaci
   return (
     <FormModal titulo="Registrar regreso de reparación" sub={nombre} boton="Registrar regreso" onCerrar={onCerrar} onEnviar={async () => {
       await api(`/reparaciones/${reparacion.id}/recepcion`, { cuerpo: { solucion, resultado, fechaRecepcion, regresarAEmpleado: regresa } });
-      avisarEstatus(nombre, regresa ? 'ASIGNADO' : resultado);
       onListo();
+      if (regresa && equipo.empleado) await ofrecerCartaResponsiva(equipo.empleado.id, confirmar, avisar);
+      avisarEstatus(nombre, regresa ? 'ASIGNADO' : resultado);
     }}>
       <p className="sub" style={{ margin: 0 }}>Enviado el {fecha(reparacion.fechaEnvio)}: {reparacion.motivo}</p>
       <Campo etiqueta="Qué se hizo"><textarea value={solucion} onChange={(e) => setSolucion(e.target.value)} rows={3} /></Campo>

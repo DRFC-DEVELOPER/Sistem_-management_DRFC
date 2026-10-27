@@ -169,6 +169,8 @@ h1, h2, h3 { font-family: var(--titular); font-weight: 600; margin: 0; line-heig
 .panel h2 { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 12px; }
 .rejilla { display: grid; gap: 16px; margin-top: 16px; }
 @media (min-width: 860px) { .rejilla { grid-template-columns: 1fr 1fr; align-items: start; } .rejilla .panel + .panel { margin-top: 0; } }
+.excel-columna { display: grid; align-content: start; gap: 16px; min-width: 0; }
+.excel-columna > .panel { margin: 0; }
 .detalle { display: grid; gap: 16px; }
 @media (min-width: 960px) { .detalle { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; } }
 /* ---------- Resumen (diseño de la pantalla de inicio) ---------- */
@@ -290,6 +292,7 @@ h1, h2, h3 { font-family: var(--titular); font-weight: 600; margin: 0; line-heig
 @keyframes entra { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .hoja { animation: none; } }
 @media (max-width: 600px) { .capa { align-items: flex-end; padding: 0; } .hoja { border-radius: 16px 16px 0 0; max-height: 94vh; } }
+@media (max-width: 600px) { .modal-responsivas .responsiva-vista-lista { max-height: 52vh; } .responsiva-vista-acciones .btn { width: 100%; } }
 .hoja-cab { position: sticky; top: 0; z-index: 1; background: var(--fondo); display: flex; gap: 12px; align-items: flex-start; padding: 18px 0 12px; }
 .hoja-cab h2 { font-size: 1.35rem; flex: 1; }
 .hoja-cab .sub { display: block; font-family: var(--letra); font-weight: 400; margin-top: 2px; }
@@ -298,28 +301,64 @@ h1, h2, h3 { font-family: var(--titular); font-weight: 600; margin: 0; line-heig
 .dos-col { display: grid; gap: 14px; }
 @media (min-width: 540px) { .dos-col { grid-template-columns: 1fr 1fr; } .dos-col .ancho { grid-column: 1 / -1; } }
 .campo { display: grid; gap: 6px; }
-.campo > span { font-weight: 600; font-size: .92rem; }
+.campo > span, .campo > label { font-weight: 600; font-size: .92rem; }
 .campo em { font-style: normal; font-weight: 400; color: var(--tenue); }
 .fila { display: flex; gap: 8px; }
 .fila > input { flex: 1; }
+.responsiva-seleccionados { display: grid; gap: 5px; }
+.responsiva-seleccionado { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; border: 1px solid var(--linea); border-radius: 6px; background: var(--superficie); }
+.responsiva-seleccionado > span { display: grid; gap: 1px; min-width: 0; overflow-wrap: anywhere; }
+.responsiva-seleccionado .btn { flex: none; width: 28px; min-height: 28px; padding: 0; }
+.responsiva-seleccionado svg { width: 18px; height: 18px; }
+.responsiva-resultados { display: grid; gap: 4px; max-height: 220px; overflow-y: auto; padding: 6px; border: 1px solid var(--linea); border-radius: 8px; background: var(--superficie); }
+.responsiva-resultado { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 8px; border-bottom: 1px solid var(--linea); }
+.responsiva-resultado:last-child { border-bottom: 0; }
+.responsiva-resultado > span { display: grid; gap: 2px; }
+.responsiva-resultado .btn { flex: none; width: 34px; min-height: 34px; padding: 0; }
+.responsiva-resultado svg { width: 18px; height: 18px; }
+.responsiva-equipos-titulo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.responsiva-equipos-titulo > span { font-weight: 600; font-size: .92rem; }
+.responsiva-cola { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin: 12px 0 16px; padding: 10px 12px; border: 1px solid var(--linea); border-radius: 8px; background: var(--superficie2); }
+.responsiva-cola > div:first-child { display: grid; gap: 2px; }
+.responsiva-vista { display: grid; gap: 12px; }
+.responsiva-vista-lista { display: grid; gap: 8px; }
+.responsiva-persona-titulo { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.responsiva-persona-titulo h3 { min-width: 0; overflow-wrap: anywhere; }
+.responsiva-vista-acciones { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 8px; border-top: 1px solid var(--linea); }
+.modal-responsivas { max-width: 1000px !important; }
+.modal-responsivas .responsiva-vista-lista { max-height: 58vh; overflow-y: auto; padding: 2px; }
+.responsiva-datos-persona { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 7px 14px; margin: 6px 0 12px; }
+.responsiva-datos-persona > div { min-width: 0; }
+.responsiva-datos-persona dt { color: var(--tenue); font-size: .8rem; }
+.responsiva-datos-persona dd { margin: 0; overflow-wrap: anywhere; font-weight: 500; }
+.responsiva-lista-titulo { display: block; margin: 8px 0 4px; font-size: .88rem; }
+.responsiva-equipos-persona { display: grid; gap: 2px; margin-top: 6px; padding: 6px 8px; border: 1px solid var(--linea); border-radius: 6px; background: var(--superficie); }
+.responsiva-equipos-persona > b { margin-bottom: 1px; font-size: .9rem; }
+.responsiva-equipos-persona > h3 { font-size: 1rem; }
+.responsiva-equipo { display: flex; gap: 7px; align-items: center; min-width: 0; padding: 4px 2px; border-top: 1px solid var(--linea); cursor: pointer; }
+.responsiva-equipo > input { flex: none; width: 15px; height: 15px; margin: 0; }
+.responsiva-equipo > span { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; line-height: 1.3; }
+.responsiva-equipo .sub { font-size: .8rem; }
 .error { color: var(--mal); margin: 0; font-weight: 500; }
 .lista-elegir { display: grid; gap: 8px; max-height: 50vh; overflow: auto; margin-top: 4px; }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 40; background: var(--tinta); color: var(--fondo); padding: 10px 16px; border-radius: 8px; font-weight: 500; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
 
 /* ---------- Acceso ---------- */
 .acceso { min-height: 100vh; display: grid; place-items: center; padding: 32px; background: linear-gradient(110deg, rgba(40, 130, 178, .62), rgba(37, 139, 192, .5)), url('/fondo-acceso.png') center / cover no-repeat; }
-.acceso__marco { width: min(100%, 1120px); min-height: 580px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 32px; padding: 48px 68px; background: rgba(19, 93, 139, .6); box-shadow: 8px 8px 3px rgba(16, 55, 76, .22); }
-.acceso__bienvenida { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; padding: 80px 0 36px; color: #fff; }
-.acceso__bienvenida h1 { font-size: clamp(2rem, 4vw, 2.7rem); font-weight: 600; }
-.acceso__raya { display: block; width: 112px; height: 2px; margin-top: 12px; background: #fff; }
+.acceso__marco { width: min(100%, 1120px); min-height: 560px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(28px, 6vw, 80px); padding: 44px clamp(36px, 7vw, 68px); background: rgba(19, 93, 139, .6); box-shadow: 8px 8px 3px rgba(16, 55, 76, .22); }
+.acceso__bienvenida { align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding: 28px 0 26px; color: #fff; }
+.acceso__logo { display: block; width: min(190px, 60%); height: 88px; object-fit: contain; object-position: left center; }
+.acceso__bienvenida h1 { font-size: clamp(2.2rem, 4vw, 3rem); font-weight: 500; line-height: 1.12; }
+.acceso__bienvenida h1 strong { font-weight: 700; }
+.acceso__raya { display: block; width: 112px; height: 2px; margin-top: 10px; background: #fff; }
 .acceso__bienvenida p { max-width: 360px; margin: 0; font-size: .9rem; font-weight: 600; line-height: 1.35; }
-.acceso__formulario { width: min(100%, 400px); justify-self: center; gap: 12px; padding: 30px 42px 26px; background: rgba(237, 244, 248, .58); color: #fff; }
-.acceso__formulario h2 { margin-bottom: 0; color: #fff; text-align: center; font-size: 1.65rem; }
-.acceso__avatar { width: 58px; height: 58px; display: grid; place-items: center; justify-self: center; border-radius: 50%; background: #164c70; color: #fff; }
-.acceso__avatar svg { width: 38px; height: 38px; }
+.acceso__formulario { width: min(100%, 360px); justify-self: center; gap: 10px; padding: 28px 42px 24px; background: rgba(237, 244, 248, .58); color: #fff; }
+.acceso__formulario h2 { margin-bottom: 0; color: #fff; text-align: center; font-size: 1.55rem; }
+.acceso__avatar { width: 48px; height: 48px; display: grid; place-items: center; justify-self: center; border-radius: 50%; background: #164c70; color: #fff; }
+.acceso__avatar svg { width: 32px; height: 32px; }
 .acceso__formulario .campo { gap: 5px; }
-.acceso__formulario .campo > span { font-size: .88rem; color: #fff; }
-.acceso__formulario .campo input { min-height: 38px; padding: 6px 12px; border: 0; border-radius: 9px; background: rgba(255, 255, 255, .8); color: #17202b; }
+.acceso__formulario .campo > span { font-size: .86rem; color: #fff; }
+.acceso__formulario .campo input { min-height: 36px; padding: 6px 12px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, .8); color: #17202b; }
 .acceso__formulario .campo input:focus-visible { outline: 2px solid #164c70; outline-offset: 2px; }
 .acceso__password { position: relative; display: block; }
 .acceso__password input { padding-right: 42px !important; }
@@ -331,11 +370,12 @@ h1, h2, h3 { font-family: var(--titular); font-weight: 600; margin: 0; line-heig
 .acceso__error { margin: 0; color: #8b1d1d; font-weight: 600; }
 @media (max-width: 760px) {
   .acceso { padding: 18px; }
-  .acceso__marco { min-height: 0; grid-template-columns: 1fr; gap: 24px; padding: 32px 24px; }
-  .acceso__bienvenida { min-height: 132px; padding: 0; }
-  .acceso__bienvenida h1 { font-size: 2rem; }
+  .acceso__marco { width: min(100%, 520px); min-height: 0; grid-template-columns: 1fr; gap: 24px; padding: 28px 24px; }
+  .acceso__bienvenida { min-height: 190px; padding: 0; }
+  .acceso__logo { width: 150px; height: 68px; }
+  .acceso__bienvenida h1 { font-size: clamp(2rem, 8vw, 2.5rem); }
   .acceso__bienvenida p { max-width: 420px; font-size: .82rem; }
-  .acceso__formulario { padding: 24px; }
+  .acceso__formulario { width: 100%; padding: 24px clamp(22px, 8vw, 42px); }
 }
 @media (max-width: 400px) {
   .acceso { padding: 10px; }

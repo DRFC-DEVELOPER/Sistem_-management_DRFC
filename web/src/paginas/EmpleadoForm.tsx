@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
+import { agregarAColaResponsivas } from '../responsiva';
 import { Empleado, EmpleadoDetalle, Ref } from '../tipos';
 import { Campo, FormModal, useAvisos } from '../ui';
 
@@ -12,6 +13,7 @@ export default function EmpleadoForm({ empleado, onCerrar, onGuardado }: { emple
   const [deptos, setDeptos] = useState<Ref[]>([]);
   const [puestos, setPuestos] = useState<Ref[]>([]);
   const [errorPuestos, setErrorPuestos] = useState('');
+  const [agregarCartaACola, setAgregarCartaACola] = useState(!empleado);
   useEffect(() => { api<Ref[]>('/departamentos').then(setDeptos).catch((e: Error) => avisar(e.message)); }, []);
   const departamento = deptos.find((d) => d.nombre.toLocaleLowerCase() === v.departamento.trim().toLocaleLowerCase());
   useEffect(() => {
@@ -41,7 +43,14 @@ export default function EmpleadoForm({ empleado, onCerrar, onGuardado }: { emple
       const r = empleado
         ? await api<Empleado>(`/empleados/${empleado.id}`, { metodo: 'PATCH', cuerpo })
         : await api<Empleado>('/empleados', { cuerpo });
-      avisar(empleado ? 'Cambios guardados' : 'Empleado dado de alta');
+      if (!empleado) {
+        const enCola = !agregarCartaACola || agregarAColaResponsivas(r.id);
+        avisar(agregarCartaACola
+          ? enCola ? 'Empleado dado de alta y agregado a la cola de cartas' : 'Empleado dado de alta, pero no se pudo guardar en la cola de cartas'
+          : 'Empleado dado de alta');
+      } else {
+        avisar('Cambios guardados');
+      }
       onGuardado(r);
     }}>
       <Campo etiqueta="Nombre completo"><input value={v.nombre} onChange={poner('nombre')} autoComplete="off" /></Campo>
@@ -60,6 +69,12 @@ export default function EmpleadoForm({ empleado, onCerrar, onGuardado }: { emple
         <Campo etiqueta="Correo" opcional ancho><input type="email" value={v.correo} onChange={poner('correo')} autoComplete="off" /></Campo>
         <Campo etiqueta="Notas" ancho><textarea value={v.notas} onChange={poner('notas')} rows={2} /></Campo>
       </div>
+      {!empleado && (
+        <label className="casilla">
+          <input type="checkbox" checked={agregarCartaACola} onChange={(e) => setAgregarCartaACola(e.target.checked)} />
+          Agregar a la cola para generar su carta responsiva
+        </label>
+      )}
       {errorPuestos && <p className="error" role="alert">{errorPuestos}</p>}
     </FormModal>
   );

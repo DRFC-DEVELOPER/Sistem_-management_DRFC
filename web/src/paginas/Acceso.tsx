@@ -21,8 +21,9 @@ export default function Acceso() {
     <div className="acceso">
       <div className="acceso__marco">
         <section className="acceso__bienvenida" aria-label="Bienvenida">
+          <img className="acceso__logo" src="/logo-drfc.png" alt="DRFC Ingeniería S.A. de C.V." />
           <div>
-            <h1>¡Bienvenido!</h1>
+            <h1>Bienvenido a<br /><strong>SIGECI!</strong></h1>
             <span className="acceso__raya" aria-hidden="true" />
           </div>
           <p>Sistema de Gestión y Control de Inventario Informático para el Personal de la DRFC.</p>

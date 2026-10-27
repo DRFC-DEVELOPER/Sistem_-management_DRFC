@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, qs } from '../api';
+import { agregarAColaResponsivas, ofrecerCartaResponsiva, useColaResponsivas } from '../responsiva';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
 import { Asignacion, EmpleadoDetalle, Equipo, EquipoListado, Estatus, ESTATUS, etiquetaTipo, fecha, hoy, iniciales, nombreEquipo, Pagina, pluralTipo, RESULTADOS, TipoEquipoCatalogo } from '../tipos';
@@ -12,6 +13,7 @@ export default function EmpleadoPagina() {
   const navegar = useNavigate();
   const { puedeEditar, esAdmin } = useSesion();
   const { avisar, confirmar } = useAvisos();
+  const colaResponsivas = useColaResponsivas();
   const { datos: e, error, recargar } = useCarga(() => api<EmpleadoDetalle>(`/empleados/${id}`), [id]);
   const [ventana, setVentana] = useState<null | 'editar' | 'asignar'>(null);
   const [devolviendo, setDevolviendo] = useState<Equipo | null>(null);
@@ -54,8 +56,12 @@ export default function EmpleadoPagina() {
         </div>
         {puedeEditar && e.activo && (
           <div className="acciones">
+            {colaResponsivas.length > 0 && <Link className="btn ghost" to="/excel?cola=1">Revisar cola ({colaResponsivas.length})</Link>}
             <button className="btn" onClick={() => setVentana('asignar')}>Asignar equipo del inventario</button>
           </div>
+        )}
+        {puedeEditar && !e.activo && colaResponsivas.length > 0 && (
+          <Link className="btn ghost" to="/excel?cola=1">Revisar cola ({colaResponsivas.length})</Link>
         )}
       </div>
 
@@ -169,7 +175,7 @@ function EstadoAsignacion({ a, empleadoId, historial }: { a: Asignacion; emplead
 }
 
 function DevolverEquipo({ equipo, empleado: emp, onCerrar, onListo }: { equipo: Equipo; empleado: EmpleadoDetalle; onCerrar: () => void; onListo: () => void }) {
-  const { avisarEstatus } = useAvisos();
+  const { avisar, avisarEstatus, confirmar } = useAvisos();
   const empleado = emp.nombre;
   // Relación temporal: a quién sustituye este equipo, o quién lo sustituye a él mientras está dañado.
   const sustituyeId = emp.asignaciones.find((a) => a.equipoId === equipo.id && !a.fechaDevolucion)?.sustituyeEquipoId;
@@ -192,8 +198,9 @@ function DevolverEquipo({ equipo, empleado: emp, onCerrar, onListo }: { equipo: 
     setOcupado(true);
     try {
       await api('/asignaciones/devolucion', { cuerpo: { equipoId: equipo.id, fecha: fechaDev, estatus, notas: notas.trim() || undefined } });
-      avisarEstatus(nombre, estatus);
       onListo();
+      await ofrecerCartaResponsiva(emp.id, confirmar, avisar);
+      avisarEstatus(nombre, estatus);
     } catch (e) { setError((e as Error).message); } finally { setOcupado(false); }
   };
   return (
@@ -276,7 +283,10 @@ function ElegirEquipo({ empleado, onCerrar, onListo }: { empleado: EmpleadoDetal
   const elegir = async (equipoId: number, nombre: string) => {
     try {
       await api('/asignaciones', { cuerpo: { equipoId, empleadoId: empleado.id, fechaEntrega } });
-      avisar(`${nombre} asignado a ${empleado.nombre}`);
+      const enCola = agregarAColaResponsivas(empleado.id);
+      avisar(enCola
+        ? `${nombre} asignado y ${empleado.nombre} agregado a la cola de cartas`
+        : `${nombre} asignado, pero no se pudo guardar a ${empleado.nombre} en la cola de cartas`);
       onListo();
     } catch (e) { setError((e as Error).message); }
   };

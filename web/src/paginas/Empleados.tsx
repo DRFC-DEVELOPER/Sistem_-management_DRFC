@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api, qs } from '../api';
+import { useColaResponsivas } from '../responsiva';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
 import { EmpleadoListado, iniciales, ORDENES, Ref } from '../tipos';
@@ -9,6 +10,7 @@ import EmpleadoForm from './EmpleadoForm';
 
 export default function Empleados() {
   const { puedeEditar } = useSesion();
+  const colaResponsivas = useColaResponsivas();
   const navegar = useNavigate();
   const [p, setP] = useSearchParams();
   const texto = p.get('q') ?? '';
@@ -47,7 +49,12 @@ export default function Empleados() {
     <>
       <div className="encabezado">
         <h1>Empleados</h1>
-        {puedeEditar && <button className="btn" onClick={abrirAlta}>Dar de alta empleado</button>}
+        {puedeEditar && (
+          <div className="acciones">
+            {colaResponsivas.length > 0 && <Link className="btn ghost" to="/excel?cola=1">Revisar cola ({colaResponsivas.length})</Link>}
+            <button className="btn" onClick={abrirAlta}>Dar de alta empleado</button>
+          </div>
+        )}
       </div>
       <div className="barra">
         <label className="buscar crece">{BUSCAR}

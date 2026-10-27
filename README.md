@@ -171,6 +171,8 @@ Todas empiezan con `/api`. Excepto el login y la salud, requieren el encabezado 
 | `GET/POST/PATCH /usuarios-sistema` | Usuarios que entran al sistema (solo ADMIN) |
 | `GET /bitacora` | Quién hizo qué y cuándo (solo ADMIN) |
 | `GET /excel/exportar` | Descargar el inventario en Excel |
+| `GET /excel/responsiva?empleadoId={id}` | Descargar la carta responsiva del empleado, con equipos vigentes y devoluciones |
+| `GET /excel/responsivas?empleadoIds={id1,id2}&equipoIds={empleado-equipo,...}` | Descargar un Excel con una carta por hoja y solo los equipos seleccionados |
 | `POST /excel/analizar` · `POST /excel/importar` | Revisar un Excel sin guardar · importarlo |
 | `GET /salud` | Comprobar que API y base responden |
 
@@ -218,7 +220,8 @@ npm run dev     # http://localhost:5173
 
 Para cambiar la base de datos: edita `api/src/db/esquema.ts`, ejecuta `npm run migracion:generar` y revisa el SQL nuevo en `api/drizzle/`. Se aplicará solo en el siguiente arranque.
 
+La pantalla **Excel** permite filtrar las cartas responsivas por departamento y nombre, seleccionar una o varias personas del mismo departamento y elegir qué equipos asignados o devueltos aparecerán en cada carta; incluye la opción **Seleccionar todo**. Descarga un solo Excel con una carta por hoja. Cada carta lleva la fecha de generación. Al dar de alta a una persona o registrar/asignar un equipo, se puede agregar a la cola de cartas; desde la lista o ficha se abre la cola en Excel, se revisan los datos y equipos que aparecerán en cada hoja, y luego se genera el archivo. Las devoluciones conservan la opción de generar una carta individual. La API utiliza la plantilla `api/datos/plantilla-carta-responsiva.xlsx`; consérvala al desplegar.
+
 ## Próximas etapas
 
-- Carta responsiva en PDF al asignar un equipo.
 - App Android (APK) con escaneo de códigos de barras por cámara.

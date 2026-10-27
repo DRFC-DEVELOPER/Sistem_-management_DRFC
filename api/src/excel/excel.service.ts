@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { asc, eq, isNotNull } from 'drizzle-orm';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { asc, desc, eq, isNotNull } from 'drizzle-orm';
+import { join } from 'path';
 import ExcelJS from 'exceljs';
 import { DB, InjectDb } from '../db/db.module';
 import { asignaciones, departamentos, empleados, equipos, TipoAdaptador, TipoEquipo } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { normalizarDepto } from '../departamentos/departamentos.service';
+import { hoy } from '../common/utiles';
 import { color, dato, disco, esPropio, fecha, marca, memoria, NO_ES_USUARIO, sistema, texto, tipoMultifuncional } from './limpieza';
 
 interface EquipoLeido {
@@ -39,10 +41,186 @@ const TIPOS_ES: Record<TipoEquipo, string> = {
   MULTIFUNCIONAL: 'Multifuncional', SOPORTE: 'Soporte', ACCESS_POINT: 'Access Point', OTRO: 'Otro',
 };
 const clave = (nombre: string, depto: string) => `${nombre.toLowerCase()}|${normalizarDepto(depto)}`;
+const slugSeguro = (nombre: string) => nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 @Injectable()
 export class ExcelService {
   constructor(@InjectDb() private db: DB, private bitacora: BitacoraService) {}
+
+  private buscarEmpleadoResponsiva(empleadoId: number) {
+    return this.db.query.empleados.findFirst({
+      where: eq(empleados.id, empleadoId),
+      with: {
+        departamento: true,
+        puesto: true,
+        equiposActuales: { orderBy: [asc(equipos.tipo), asc(equipos.id)] },
+        asignaciones: {
+          orderBy: [desc(asignaciones.fechaDevolucion), desc(asignaciones.id)],
+          with: { equipo: true },
+        },
+      },
+    });
+  }
+
+  async generarResponsiva(empleadoId: number): Promise<{ buffer: Buffer; nombre: string }> {
+    return this.generarResponsivas([empleadoId]);
+  }
+
+  async generarResponsivas(
+    empleadoIds: number[],
+    seleccionEquipos?: { empleadoId: number; equipoId: number }[],
+  ): Promise<{ buffer: Buffer; nombre: string }> {
+    if (!empleadoIds.length) throw new BadRequestException('Selecciona al menos un empleado.');
+    if (new Set(empleadoIds).size !== empleadoIds.length) {
+      throw new BadRequestException('La selección contiene empleados repetidos.');
+    }
+    const claveEquipo = (empleadoId: number, equipoId: number) => `${empleadoId}:${equipoId}`;
+    if (seleccionEquipos && new Set(seleccionEquipos.map(({ empleadoId, equipoId }) => claveEquipo(empleadoId, equipoId))).size !== seleccionEquipos.length) {
+      throw new BadRequestException('La selección contiene equipos repetidos.');
+    }
+
+    const plantilla = join(__dirname, '..', '..', 'datos', 'plantilla-carta-responsiva.xlsx');
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.readFile(plantilla);
+    const hojaBase = wb.worksheets[0];
+    if (!hojaBase) throw new Error('La plantilla de carta responsiva no tiene hojas.');
+    const modeloBase = hojaBase.model;
+    const estilosBase = Array.from({ length: hojaBase.rowCount }, (_, fila) =>
+      Array.from({ length: hojaBase.columnCount }, (_, columna) => {
+        const celda = hojaBase.getCell(fila + 1, columna + 1);
+        return { direccion: celda.address, estilo: structuredClone(celda.style) };
+      }),
+    ).flat().filter(({ estilo }) => Object.keys(estilo).length > 0);
+
+    let primerNombre = '';
+    let departamentoId: number | null | undefined;
+    const equipoIdsValidos = new Set<string>();
+    const hojas: { hoja: ExcelJS.Worksheet; empleado: NonNullable<Awaited<ReturnType<ExcelService['buscarEmpleadoResponsiva']>>> }[] = [];
+    for (const [indice, empleadoId] of empleadoIds.entries()) {
+      const empleado = await this.buscarEmpleadoResponsiva(empleadoId);
+      if (!empleado) throw new NotFoundException(`El empleado con ID ${empleadoId} no existe.`);
+      if (indice === 0) {
+        departamentoId = empleado.departamentoId;
+      } else if (empleado.departamentoId !== departamentoId) {
+        throw new BadRequestException('Las cartas de un mismo archivo deben ser de empleados del mismo departamento.');
+      }
+      if (indice === 0) primerNombre = empleado.nombre;
+
+      const hojaNombre = `${slugSeguro(empleado.nombre).slice(0, 22) || 'empleado'}-${empleado.id}`;
+      const hoja = indice === 0 ? hojaBase : wb.addWorksheet(hojaNombre);
+      if (indice === 0) {
+        hoja.name = hojaNombre;
+      } else {
+        hoja.model = { ...modeloBase, id: hoja.id, name: hojaNombre };
+        estilosBase.forEach(({ direccion, estilo }) => { hoja.getCell(direccion).style = structuredClone(estilo); });
+        modeloBase.merges.forEach((merge) => hoja.mergeCellsWithoutStyle(merge));
+      }
+
+      empleado.equiposActuales.filter((e) => e.estatus === 'ASIGNADO').forEach((e) => equipoIdsValidos.add(claveEquipo(empleado.id, e.id)));
+      empleado.asignaciones.filter((a) => a.fechaDevolucion && a.equipo).forEach((a) => {
+        if (a.equipo) equipoIdsValidos.add(claveEquipo(empleado.id, a.equipo.id));
+      });
+      hojas.push({ hoja, empleado });
+    }
+
+    if (seleccionEquipos) {
+      const noPermitidos = seleccionEquipos.filter(({ empleadoId, equipoId }) => !equipoIdsValidos.has(claveEquipo(empleadoId, equipoId)));
+      if (noPermitidos.length) {
+        throw new BadRequestException('La selección incluye equipos que no pertenecen a los empleados seleccionados.');
+      }
+    }
+    let seleccionPorEmpleado: Map<number, Set<number>> | undefined;
+    if (seleccionEquipos) {
+      const selecciones = new Map<number, Set<number>>();
+      seleccionEquipos.forEach(({ empleadoId, equipoId }) => {
+        const seleccion = selecciones.get(empleadoId) ?? new Set<number>();
+        seleccion.add(equipoId);
+        selecciones.set(empleadoId, seleccion);
+      });
+      seleccionPorEmpleado = selecciones;
+    }
+    hojas.forEach(({ hoja, empleado }) => {
+      const seleccion = seleccionPorEmpleado
+        ? seleccionPorEmpleado.get(empleado.id) ?? new Set<number>()
+        : undefined;
+      this.llenarResponsiva(hoja, empleado, seleccion);
+    });
+
+    const nombre = empleadoIds.length === 1
+      ? `carta-responsiva-${slugSeguro(primerNombre)}-${hoy()}.xlsx`
+      : `cartas-responsivas-${hoy()}.xlsx`;
+    return { buffer: Buffer.from(await wb.xlsx.writeBuffer()), nombre };
+  }
+
+  private llenarResponsiva(
+    hoja: ExcelJS.Worksheet,
+    empleado: NonNullable<Awaited<ReturnType<ExcelService['buscarEmpleadoResponsiva']>>>,
+    equipoIds?: Set<number>,
+  ) {
+
+    const entregas = empleado.equiposActuales.filter((e) => e.estatus === 'ASIGNADO' && (!equipoIds || equipoIds.has(e.id)));
+    const devoluciones = empleado.asignaciones.filter((a) => a.fechaDevolucion && a.equipo && (!equipoIds || equipoIds.has(a.equipo.id)));
+    if (entregas.length > 12 || devoluciones.length > 11) {
+      throw new BadRequestException(
+        `La plantilla tiene espacio para 12 equipos entregados y 11 devoluciones, dejando un renglón en blanco entre cada registro. ${empleado.nombre} tiene ${entregas.length} entregas vigentes y ${devoluciones.length} devoluciones registradas.`,
+      );
+    }
+
+    const hoyFormato = new Date(`${hoy()}T12:00:00`);
+    const fechaTexto = (fecha?: string | null) => fecha
+      ? new Date(`${fecha.slice(0, 10)}T12:00:00`).toLocaleDateString('es-MX')
+      : '';
+    const tipoTexto = (tipo: string) => TIPOS_ES[tipo] ?? tipo;
+    const descripcion = (e: typeof equipos.$inferSelect) => {
+      const base = e.descripcion || tipoTexto(e.tipo);
+      return e.tipo === 'ADAPTADOR' && e.tipoAdaptador ? `${base} (${e.tipoAdaptador === 'RED' ? 'Red' : 'Multipuertos'})` : base;
+    };
+    const datosEquipo = (e: typeof equipos.$inferSelect, fila: number, observaciones: string) => {
+      hoja.getCell(`A${fila}`).value = e.codigoBarras || String(e.id);
+      hoja.getCell(`B${fila}`).value = 1;
+      hoja.getCell(`C${fila}`).value = descripcion(e);
+      hoja.getCell(`E${fila}`).value = e.marca ?? '';
+      hoja.getCell(`F${fila}`).value = e.modelo ?? '';
+      hoja.getCell(`G${fila}`).value = e.serie ?? '';
+      hoja.getCell(`H${fila}`).value = e.color ?? '';
+      hoja.getCell(`I${fila}`).value = observaciones;
+    };
+
+    hoja.getCell('A7').value = empleado.nombre;
+    hoja.getCell('E7').value = empleado.puesto?.nombre ?? '';
+    hoja.getCell('H6').value = empleado.departamento?.nombre ?? '';
+    hoja.getCell('H7').value = empleado.numero ?? '';
+    hoja.getCell('I7').value = hoyFormato;
+    hoja.getCell('I4').value = `No. Folio: ${empleado.id}-${hoy().replace(/-/g, '')}`;
+
+    const vigentes = new Map(empleado.asignaciones.filter((a) => !a.fechaDevolucion).map((a) => [a.equipoId, a]));
+    entregas.forEach((equipo, i) => {
+      const asignacion = vigentes.get(equipo.id);
+      const observaciones = [
+        asignacion?.fechaEntrega ? `Entregado: ${fechaTexto(asignacion.fechaEntrega)}` : '',
+        asignacion?.notas ?? '',
+      ].filter(Boolean).join(' | ');
+      datosEquipo(equipo, 14 + i * 2, observaciones);
+    });
+
+    const resultadoTexto: Record<string, string> = {
+      DISPONIBLE: 'Devuelto disponible',
+      DANADO: 'Devuelto dañado',
+      EN_REPARACION: 'Enviado a reparación',
+      BAJA: 'Dado de baja',
+    };
+    devoluciones.forEach((a, i) => {
+      if (!a.equipo) return;
+      const e = a.equipo;
+      const observaciones = [
+        a.fechaDevolucion ? `Devuelto: ${fechaTexto(a.fechaDevolucion)}` : '',
+        a.resultado ? resultadoTexto[a.resultado] ?? a.resultado : '',
+        a.notas ?? '',
+      ].filter(Boolean).join(' | ');
+      datosEquipo(e, 38 + i * 2, observaciones);
+    });
+
+  }
 
   private async leerHoja(buffer: Buffer) {
     const wb = new ExcelJS.Workbook();

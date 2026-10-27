@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../api';
+import { agregarAColaResponsivas } from '../responsiva';
 import { useCarga } from '../usar';
 import { AMBITOS_EQUIPO, AmbitoEquipo, CAMPOS, Equipo, EquipoDetalle, EmpleadoListado, etiquetaTipo, hoy, Ref, Tipo, TipoEquipoCatalogo } from '../tipos';
 import { Campo, ErrorCarga, FormModal, useAvisos } from '../ui';
@@ -12,6 +13,7 @@ export default function EquipoForm({ equipo, onCerrar, onGuardado, empleadoInici
 }) {
   const { avisar } = useAvisos();
   const nuevo = !equipo;
+  const [agregarCartaACola, setAgregarCartaACola] = useState(true);
   const [v, setV] = useState<Valores>(() => {
     const base: Valores = { tipo: equipo?.tipo ?? 'LAPTOP', ambito: equipo?.ambito ?? 'USUARIO', codigoBarras: equipo?.codigoBarras ?? '', notas: equipo?.notas ?? '' };
     CAMPOS.forEach((c) => (base[c.clave] = (equipo?.[c.clave] as string | null) ?? (c.opciones ? c.opciones[0][0] : '')));
@@ -46,11 +48,17 @@ export default function EquipoForm({ equipo, onCerrar, onGuardado, empleadoInici
       if (ambito === 'USUARIO' && v.empleadoId) { cuerpo.empleadoId = Number(v.empleadoId); cuerpo.fechaEntrega = v.fechaEntrega || undefined; }
       else cuerpo.estatusInicial = v.estatusInicial;
       r = await api<EquipoDetalle>('/equipos', { cuerpo });
-      avisar(v.empleadoId ? 'Equipo registrado y asignado' : 'Equipo registrado');
     } else {
       r = await api<Equipo>(`/equipos/${equipo.id}`, { metodo: 'PATCH', cuerpo });
-      avisar('Cambios guardados');
     }
+    let mensaje = nuevo ? (v.empleadoId ? 'Equipo registrado y asignado' : 'Equipo registrado') : 'Cambios guardados';
+    if (nuevo && ambito === 'USUARIO' && v.empleadoId && agregarCartaACola) {
+      const enCola = agregarAColaResponsivas(Number(v.empleadoId));
+      mensaje = enCola
+        ? 'Equipo registrado y empleado agregado a la cola de cartas responsivas'
+        : 'Equipo registrado, pero no se pudo guardar al empleado en la cola de cartas';
+    }
+    avisar(mensaje);
     onGuardado(r);
   };
 
@@ -120,6 +128,12 @@ export default function EquipoForm({ equipo, onCerrar, onGuardado, empleadoInici
         )}
         <Campo etiqueta="Notas" ancho><textarea value={v.notas} onChange={poner('notas')} rows={2} /></Campo>
       </div>
+      {nuevo && ambito === 'USUARIO' && v.empleadoId && (
+        <label className="casilla">
+          <input type="checkbox" checked={agregarCartaACola} onChange={(e) => setAgregarCartaACola(e.target.checked)} />
+          Agregar a {empleados.datos?.find((e) => String(e.id) === v.empleadoId)?.nombre ?? 'la persona'} a la cola de cartas
+        </label>
+      )}
       {nuevo && empleados.error && <ErrorCarga mensaje={empleados.error} />}
       {nuevo && departamentos.error && <ErrorCarga mensaje={departamentos.error} />}
       {tipos.error && <ErrorCarga mensaje={tipos.error} reintentar={tipos.recargar} />}

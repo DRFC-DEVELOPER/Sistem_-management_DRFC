@@ -1,12 +1,22 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api, qs } from '../api';
-import { agregarAColaResponsivas, ofrecerCartaResponsiva, useColaResponsivas } from '../responsiva';
+import { api, descargar, qs } from '../api';
+import { agregarAColaResponsivas, limpiarNotasResponsiva, ofrecerCartaResponsiva, useColaResponsivas } from '../responsiva';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
 import { Asignacion, EmpleadoDetalle, Equipo, EquipoListado, Estatus, ESTATUS, etiquetaTipo, fecha, hoy, iniciales, nombreEquipo, Pagina, pluralTipo, RESULTADOS, TipoEquipoCatalogo } from '../tipos';
 import { BUSCAR, Campo, Cargando, DatosEquipo, ErrorCarga, EtiquetaEquipo, Modal, MarcaTemporal, Pill, TarjetaEquipo, useAvisos, Vacio } from '../ui';
 import EmpleadoForm from './EmpleadoForm';
+
+interface EquipoCartaPerfil extends Pick<Equipo, 'id' | 'tipo' | 'descripcion' | 'marca' | 'modelo' | 'serie' | 'color' | 'codigoBarras' | 'tipoAdaptador'> {
+  clave: string;
+  registroClave: string;
+  actual: boolean;
+  fechaEntrega?: string | null;
+  fechaDevolucion?: string | null;
+  notas?: string | null;
+  resultado?: Estatus | null;
+}
 
 export default function EmpleadoPagina() {
   const id = Number(useParams().id);
@@ -17,6 +27,7 @@ export default function EmpleadoPagina() {
   const { datos: e, error, recargar } = useCarga(() => api<EmpleadoDetalle>(`/empleados/${id}`), [id]);
   const [ventana, setVentana] = useState<null | 'editar' | 'asignar'>(null);
   const [devolviendo, setDevolviendo] = useState<Equipo | null>(null);
+  const [cartaAbierta, setCartaAbierta] = useState(false);
   const cerrar = () => setVentana(null);
 
   if (error) return <ErrorCarga mensaje={error} reintentar={recargar} />;
@@ -54,15 +65,11 @@ export default function EmpleadoPagina() {
             <span className="sub">{e.departamento?.nombre ?? 'Sin departamento'}{e.puesto ? ` | ${e.puesto.nombre}` : ''}{e.activo ? '' : ` | Dado de baja el ${fecha(e.fechaBaja)}`}</span>
           </div>
         </div>
-        {puedeEditar && e.activo && (
-          <div className="acciones">
-            {colaResponsivas.length > 0 && <Link className="btn ghost" to="/excel?cola=1">Revisar cola ({colaResponsivas.length})</Link>}
-            <button className="btn" onClick={() => setVentana('asignar')}>Asignar equipo del inventario</button>
-          </div>
-        )}
-        {puedeEditar && !e.activo && colaResponsivas.length > 0 && (
-          <Link className="btn ghost" to="/excel?cola=1">Revisar cola ({colaResponsivas.length})</Link>
-        )}
+        <div className="acciones">
+          <button className="btn ghost" onClick={() => setCartaAbierta(true)}>Generar carta</button>
+          {colaResponsivas.length > 0 && <Link className="btn ghost" to="/excel?cola=1">Revisar cola ({colaResponsivas.length})</Link>}
+          {puedeEditar && e.activo && <button className="btn" onClick={() => setVentana('asignar')}>Asignar equipo del inventario</button>}
+        </div>
       </div>
 
       <div className="detalle">
@@ -137,7 +144,142 @@ export default function EmpleadoPagina() {
       {ventana === 'editar' && <EmpleadoForm empleado={e} onCerrar={cerrar} onGuardado={() => { cerrar(); recargar(); }} />}
       {ventana === 'asignar' && <ElegirEquipo empleado={e} onCerrar={cerrar} onListo={() => { cerrar(); recargar(); }} />}
       {devolviendo && <DevolverEquipo equipo={devolviendo} empleado={e} onCerrar={() => setDevolviendo(null)} onListo={() => { setDevolviendo(null); recargar(); }} />}
+      {cartaAbierta && <CartaResponsivaPerfil empleado={e} onCerrar={() => setCartaAbierta(false)} />}
     </>
+  );
+}
+
+function CartaResponsivaPerfil({ empleado, onCerrar }: { empleado: EmpleadoDetalle; onCerrar: () => void }) {
+  const { avisar } = useAvisos();
+  const asignacionesVigentes = new Map(empleado.asignaciones.filter((a) => !a.fechaDevolucion).map((a) => [a.equipoId, a]));
+  const equipos: EquipoCartaPerfil[] = [
+    ...empleado.equiposActuales.filter((equipo) => equipo.estatus === 'ASIGNADO').map((equipo): EquipoCartaPerfil => {
+      const asignacion = asignacionesVigentes.get(equipo.id);
+      return {
+        id: equipo.id,
+        clave: `${empleado.id}-${equipo.id}`,
+        registroClave: `actual-${equipo.id}`,
+        actual: true,
+        tipo: equipo.tipo,
+        descripcion: equipo.descripcion,
+        marca: equipo.marca,
+        modelo: equipo.modelo,
+        serie: equipo.serie,
+        color: equipo.color,
+        codigoBarras: equipo.codigoBarras,
+        tipoAdaptador: equipo.tipoAdaptador,
+        fechaEntrega: asignacion?.fechaEntrega,
+        notas: limpiarNotasResponsiva(asignacion?.notas),
+      };
+    }),
+    ...empleado.asignaciones.filter((a) => a.fechaDevolucion && a.equipo).flatMap((a): EquipoCartaPerfil[] => a.equipo ? [{
+      id: a.equipo.id,
+      clave: `${empleado.id}-${a.equipo.id}`,
+      registroClave: `devolucion-${a.id}`,
+      actual: false,
+      tipo: a.equipo.tipo,
+      descripcion: a.equipo.descripcion,
+      marca: a.equipo.marca,
+      modelo: a.equipo.modelo,
+      serie: a.equipo.serie,
+      color: a.equipo.color,
+      codigoBarras: a.equipo.codigoBarras,
+      tipoAdaptador: a.equipo.tipoAdaptador,
+      fechaEntrega: a.fechaEntrega,
+      fechaDevolucion: a.fechaDevolucion,
+      notas: limpiarNotasResponsiva(a.notas),
+      resultado: a.resultado,
+    }] : []),
+  ];
+  const [seleccionados, setSeleccionados] = useState<string[]>(() => [...new Set(equipos.map((equipo) => equipo.clave))]);
+  const [ocupado, setOcupado] = useState(false);
+  const todosSeleccionados = equipos.length > 0 && equipos.every((equipo) => seleccionados.includes(equipo.clave));
+  const entregas = equipos.filter((equipo) => equipo.actual && seleccionados.includes(equipo.clave)).length;
+  const devoluciones = equipos.filter((equipo) => !equipo.actual && seleccionados.includes(equipo.clave)).length;
+  const limiteSuperado = entregas > 12 || devoluciones > 11;
+  const fechaCarta = hoy();
+
+  const descargarCarta = async () => {
+    setOcupado(true);
+    try {
+      const ids = [...new Set(equipos.filter((equipo) => seleccionados.includes(equipo.clave)).map((equipo) => equipo.clave))];
+      await descargar(
+        `/excel/responsivas?empleadoIds=${empleado.id}&equipoIds=${encodeURIComponent(ids.join(','))}`,
+        `carta-responsiva-${empleado.id}.xlsx`,
+      );
+      avisar('Carta generada correctamente.');
+      onCerrar();
+    } catch (error) {
+      avisar((error as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  };
+
+  return (
+    <Modal
+      titulo="Vista previa de carta responsiva"
+      sub={empleado.nombre}
+      onCerrar={onCerrar}
+      ancho
+      clase="modal-responsivas"
+    >
+      <div className="responsiva-vista">
+        <div className="responsiva-equipos-titulo">
+          <span>Datos que aparecerán en la carta</span>
+          <button
+            type="button"
+            className="btn ghost sm"
+            onClick={() => setSeleccionados(todosSeleccionados ? [] : [...new Set(equipos.map((equipo) => equipo.clave))])}
+            disabled={!equipos.length}
+          >
+            {todosSeleccionados ? 'Quitar selección' : 'Seleccionar todo'}
+          </button>
+        </div>
+        <div className="responsiva-vista-lista">
+          <section className="responsiva-equipos-persona">
+            <h3>{empleado.nombre}</h3>
+            <dl className="responsiva-datos-persona">
+              <div><dt>Departamento</dt><dd>{empleado.departamento?.nombre ?? 'Sin departamento'}</dd></div>
+              <div><dt>Puesto</dt><dd>{empleado.puesto?.nombre ?? '—'}</dd></div>
+              <div><dt>Número</dt><dd>{empleado.numero || '—'}</dd></div>
+              <div><dt>Fecha de la carta</dt><dd>{fecha(fechaCarta)}</dd></div>
+              <div><dt>Folio</dt><dd>{empleado.id}-{fechaCarta.replace(/-/g, '')}</dd></div>
+            </dl>
+            <strong className="responsiva-lista-titulo">Equipos incluidos en la carta</strong>
+            {equipos.length ? equipos.map((equipo) => (
+              <label key={equipo.registroClave} className="responsiva-equipo">
+                <input
+                  type="checkbox"
+                  checked={seleccionados.includes(equipo.clave)}
+                  onChange={(event) => setSeleccionados((actuales) => event.target.checked
+                    ? [...new Set([...actuales, equipo.clave])]
+                    : actuales.filter((clave) => clave !== equipo.clave))}
+                />
+                <span>
+                  <strong>{equipo.descripcion || etiquetaTipo(equipo.tipo)}{equipo.tipo === 'ADAPTADOR' && equipo.tipoAdaptador ? ` (${equipo.tipoAdaptador === 'RED' ? 'Red' : 'Multipuertos'})` : ''}</strong>
+                  <span>Cantidad: 1 | Marca: {equipo.marca || '—'} | Modelo: {equipo.modelo || '—'} | Serie: {equipo.serie || '—'}</span>
+                  <span className="sub">
+                    {equipo.actual
+                      ? `Asignado actualmente${equipo.fechaEntrega ? ` | Entregado: ${fecha(equipo.fechaEntrega)}` : ''}`
+                      : `Devolución histórica${equipo.fechaDevolucion ? ` | Devuelto: ${fecha(equipo.fechaDevolucion)}` : ''}${equipo.resultado ? ` | ${RESULTADOS[equipo.resultado] ?? equipo.resultado}` : ''}`}
+                    {equipo.notas ? ` | ${equipo.notas}` : ''}
+                  </span>
+                  <span className="sub">{seleccionados.includes(equipo.clave) ? 'Se incluirá en la carta' : 'No se incluirá'}</span>
+                </span>
+              </label>
+            )) : <p className="sub">No hay equipos asignados ni devoluciones registradas.</p>}
+          </section>
+        </div>
+        {limiteSuperado && <p className="error" role="alert">La plantilla permite hasta 12 equipos asignados y 11 devoluciones por carta. Desmarca equipos para continuar.</p>}
+        <div className="responsiva-vista-acciones">
+          <span className="sub">{entregas} equipos asignados · {devoluciones} devoluciones históricas</span>
+          <button type="button" className="btn" onClick={descargarCarta} disabled={ocupado || limiteSuperado}>
+            {ocupado ? 'Preparando carta…' : 'Generar y descargar carta'}
+          </button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 

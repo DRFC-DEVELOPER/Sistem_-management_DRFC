@@ -26,7 +26,7 @@ export default function Acceso() {
             <h1>Bienvenido a<br /><strong>SIGECI!</strong></h1>
             <span className="acceso__raya" aria-hidden="true" />
           </div>
-          <p>Sistema de Gestión y Control de Inventario Informático para el Personal de la DRFC.</p>
+          <p>Sistema de Gestión y Control de Inventario Informático para el Personal de DRFC.</p>
         </section>
         <form className="acceso__formulario form" onSubmit={enviar} noValidate>
           <h2>Iniciar sesión</h2>

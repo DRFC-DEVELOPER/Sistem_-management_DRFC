@@ -170,6 +170,11 @@ export class ExcelService {
     const fechaTexto = (fecha?: string | null) => fecha
       ? new Date(`${fecha.slice(0, 10)}T12:00:00`).toLocaleDateString('es-MX')
       : '';
+    const notasVisibles = (notas?: string | null) => notas
+      ?.split('|')
+      .map((nota) => nota.trim())
+      .filter((nota) => nota.toLocaleLowerCase() !== 'importado del excel')
+      .join(' | ') ?? '';
     const tipoTexto = (tipo: string) => TIPOS_ES[tipo] ?? tipo;
     const descripcion = (e: typeof equipos.$inferSelect) => {
       const base = e.descripcion || tipoTexto(e.tipo);
@@ -197,8 +202,8 @@ export class ExcelService {
     entregas.forEach((equipo, i) => {
       const asignacion = vigentes.get(equipo.id);
       const observaciones = [
-        asignacion?.fechaEntrega ? `Entregado: ${fechaTexto(asignacion.fechaEntrega)}` : '',
-        asignacion?.notas ?? '',
+        `Entregado: ${fechaTexto(asignacion?.fechaEntrega) || '—'}`,
+        notasVisibles(asignacion?.notas),
       ].filter(Boolean).join(' | ');
       datosEquipo(equipo, 14 + i * 2, observaciones);
     });
@@ -213,9 +218,9 @@ export class ExcelService {
       if (!a.equipo) return;
       const e = a.equipo;
       const observaciones = [
-        a.fechaDevolucion ? `Devuelto: ${fechaTexto(a.fechaDevolucion)}` : '',
+        `Devuelto: ${fechaTexto(a.fechaDevolucion) || '—'}`,
         a.resultado ? resultadoTexto[a.resultado] ?? a.resultado : '',
-        a.notas ?? '',
+        notasVisibles(a.notas),
       ].filter(Boolean).join(' | ');
       datosEquipo(e, 38 + i * 2, observaciones);
     });

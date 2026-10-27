@@ -5,6 +5,14 @@ type Confirmar = (opciones: { titulo: string; mensaje: string; boton: string }) 
 const CLAVE_COLA = 'inventario.responsivas.cola';
 const EVENTO_COLA = 'inventario:responsivas-cola';
 
+export function limpiarNotasResponsiva(notas?: string | null): string {
+  return notas
+    ?.split('|')
+    .map((nota) => nota.trim())
+    .filter((nota) => nota.toLocaleLowerCase() !== 'importado del excel')
+    .join(' | ') ?? '';
+}
+
 export function leerColaResponsivas(): number[] {
   try {
     const datos: unknown = JSON.parse(localStorage.getItem(CLAVE_COLA) ?? '[]');

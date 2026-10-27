@@ -2,7 +2,7 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, descargar } from '../api';
 import { descargarEtiquetasPdf, OpcionesEtiquetas, OrdenEtiquetas } from '../etiquetasPdf';
-import { leerColaResponsivas, quitarDeColaResponsivas, useColaResponsivas, vaciarColaResponsivas } from '../responsiva';
+import { leerColaResponsivas, limpiarNotasResponsiva, quitarDeColaResponsivas, useColaResponsivas, vaciarColaResponsivas } from '../responsiva';
 import { useSesion } from '../sesion';
 import { Asignacion, EmpleadoDetalle, EmpleadoListado, Equipo, Ref, etiquetaTipo, hoy } from '../tipos';
 import { Campo, Modal, useAvisos } from '../ui';
@@ -163,14 +163,14 @@ function PanelResponsiva() {
         color: e.color, codigoBarras: e.codigoBarras, tipoAdaptador: e.tipoAdaptador, estatus: e.estatus,
         actual: true, clave: `${empleado.id}-${e.id}`, registroClave: `actual-${e.id}`,
         fechaEntrega: asignacionesVigentes.get(e.id)?.fechaEntrega,
-        notas: asignacionesVigentes.get(e.id)?.notas,
+        notas: limpiarNotasResponsiva(asignacionesVigentes.get(e.id)?.notas),
       });
     });
     empleado.asignaciones.filter((a) => a.fechaDevolucion && a.equipo).forEach((a) => {
       if (!a.equipo) return;
       equipos.push({
         ...a.equipo, actual: false, clave: `${empleado.id}-${a.equipo.id}`, registroClave: `devolucion-${a.id}`,
-        fechaEntrega: a.fechaEntrega, fechaDevolucion: a.fechaDevolucion, notas: a.notas, resultado: a.resultado,
+        fechaEntrega: a.fechaEntrega, fechaDevolucion: a.fechaDevolucion, notas: limpiarNotasResponsiva(a.notas), resultado: a.resultado,
       });
     });
     return { empleado, equipos };
@@ -248,15 +248,15 @@ function PanelResponsiva() {
       const ruta = `/excel/responsivas?empleadoIds=${empleadosSeleccionados.join(',')}&equipoIds=${equiposSeleccionados.join(',')}`;
       await descargar(ruta, 'cartas-responsivas.xlsx');
       if (colaCargada) {
-        if (!quitarDeColaResponsivas(empleadosSeleccionados)) avisar('Excel descargado, pero no se pudo actualizar la cola de cartas.');
-        else avisar(`Excel descargado con ${empleadosSeleccionados.length} ${empleadosSeleccionados.length === 1 ? 'carta' : 'cartas'}`);
+        if (!quitarDeColaResponsivas(empleadosSeleccionados)) avisar('Las cartas se generaron correctamente, pero no se pudo actualizar la cola.');
+        else avisar(`Se generaron correctamente ${empleadosSeleccionados.length} ${empleadosSeleccionados.length === 1 ? 'carta' : 'cartas'}.`);
         setColaCargada(false);
         setModalColaAbierto(false);
         setEmpleadosSeleccionados([]);
         setEquiposSeleccionados([]);
         setEmpleadosEquiposInicializados([]);
       } else {
-        avisar(`Excel descargado con ${empleadosSeleccionados.length} ${empleadosSeleccionados.length === 1 ? 'carta' : 'cartas'}`);
+        avisar(`Se generaron correctamente ${empleadosSeleccionados.length} ${empleadosSeleccionados.length === 1 ? 'carta' : 'cartas'}.`);
       }
     } catch (e) {
       avisar((e as Error).message);
@@ -469,7 +469,7 @@ function VistaPreviaResponsiva({
                 />
                 <span>
                   <strong>{equipo.descripcion || etiquetaTipo(equipo.tipo)}{equipo.tipo === 'ADAPTADOR' && equipo.tipoAdaptador ? ` (${equipo.tipoAdaptador === 'RED' ? 'Red' : 'Multipuertos'})` : ''}</strong>
-                  <span>Cantidad: 1 | Marca: {equipo.marca || '—'} | Modelo: {equipo.modelo || '—'} | Serie: {equipo.serie || '—'} | Color: {equipo.color || '—'} | Código: {equipo.codigoBarras || equipo.id}</span>
+                  <span>Cantidad: 1 | Marca: {equipo.marca || '—'} | Modelo: {equipo.modelo || '—'} | Serie: {equipo.serie || '—'}</span>
                   <span className="sub">
                     {equipo.actual
                       ? `Asignado actualmente${equipo.fechaEntrega ? ` | Entregado: ${new Date(`${equipo.fechaEntrega.slice(0, 10)}T12:00:00`).toLocaleDateString('es-MX')}` : ''}`

@@ -36,8 +36,8 @@ export default function Entrar() {
     }
   };
 
-  // La tarjeta blanca empieza al 38 % de la pantalla y llega hasta abajo.
-  const inicioTarjeta = Math.max(height * 0.38, 190);
+  // La tarjeta blanca empieza al 43 % de la pantalla y llega hasta abajo.
+  const inicioTarjeta = Math.max(height * 0.43, 210);
   const radio = 36 * s;
   const anchoCampo = 234 * s;
 
@@ -45,10 +45,10 @@ export default function Entrar() {
     <KeyboardAvoidingView style={e.raiz} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" bounces={false}>
         <View style={[e.encabezado, { height: inicioTarjeta + radio }]}>
-          <View style={{ height: inicioTarjeta, justifyContent: 'center', alignItems: 'center', paddingTop: 24 }}>
+          <View style={{ height: inicioTarjeta, justifyContent: 'center', alignItems: 'center', paddingTop: 48 }}>
             <Image
               source={require('../../assets/logo-drfc-blanco.png')}
-              style={{ width: 157 * s, height: 157 * s * (389 / 852) }}
+              style={{ width: 190 * s, height: 190 * s * (389 / 852) }}
               resizeMode="contain"
               accessibilityLabel="DRFC Ingeniería S.A. de C.V."
             />

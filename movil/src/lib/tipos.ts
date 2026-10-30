@@ -74,10 +74,26 @@ export interface EquipoDetalle extends EquipoBase {
   reportesFalla?: { id: number; estado: EstadoReporte; descripcion: string; creadoEn: string; empleado: { id: number; nombre: string } | null }[];
 }
 
-const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+/** Solicitud de soporte, como la ve el personal en la bandeja. */
+export interface ReporteFalla {
+  id: number; equipoId: number; empleadoId: number; descripcion: string; estado: EstadoReporte; respuesta: string | null;
+  reparacionId: number | null; atendidoEn: string | null; cerradoEn: string | null; creadoEn: string;
+  equipo: Pick<EquipoBase, 'id' | 'tipo' | 'marca' | 'modelo' | 'serie' | 'codigoBarras' | 'estatus'> | null;
+  empleado: { id: number; nombre: string; departamento: { nombre: string } | null } | null;
+  atendidoPor: { nombre: string } | null;
+  reparacion: { id: number; fechaEnvio: string; fechaRecepcion: string | null; proveedor: string | null } | null;
+}
+
+const MESES =['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 /** "2026-10-29" o una fecha ISO → "29 oct 2026". */
 export const fecha = (f?: string | null) => {
   if (!f) return '';
   const [a, m, d] = f.slice(0, 10).split('-').map(Number);
   return `${d} ${MESES[m - 1]} ${a}`;
+};
+/** Fecha ISO → "29 oct 2026, 16:05" en la hora del teléfono. */
+export const fechaHora = (iso: string) => {
+  const f = new Date(iso);
+  const dos = (n: number) => String(n).padStart(2, '0');
+  return `${f.getDate()} ${MESES[f.getMonth()]} ${f.getFullYear()}, ${dos(f.getHours())}:${dos(f.getMinutes())}`;
 };

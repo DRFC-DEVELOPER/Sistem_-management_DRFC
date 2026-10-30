@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
+import { NavigationBar } from 'expo-navigation-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Bienvenida } from '@/componentes/Bienvenida';
+import { CargaSesion } from '@/componentes/CargaSesion';
+import { ENCABEZADO } from '@/componentes/encabezado';
 import { useNotificaciones } from '@/lib/notificaciones';
 import { ProveedorSesion, useSesion } from '@/lib/sesion';
 import { COLOR } from '@/lib/tipos';
@@ -18,6 +21,8 @@ export default function Raiz() {
     <SafeAreaProvider>
       <ProveedorSesion>
         <StatusBar style="light" />
+        {/* Oculta los botones de Android; aparecen un momento al deslizar desde abajo. */}
+        <NavigationBar hidden />
         <Navegacion />
       </ProveedorSesion>
     </SafeAreaProvider>
@@ -26,10 +31,10 @@ export default function Raiz() {
 
 /**
  * Cada grupo de pantallas solo existe para quien le corresponde:
- * sin sesión → entrar; con contraseña temporal → cambiarla; empleado → sus equipos; personal → escáner.
+ * sin sesión → entrar; con contraseña temporal → cambiarla; empleado → sus equipos; personal → pestañas (escáner, inicio, solicitudes).
  */
 function Navegacion() {
-  const { usuario, cargando } = useSesion();
+  const { usuario, cargando, entrando } = useSesion();
   useNotificaciones(usuario);
   // La bienvenida se muestra cada vez que se abre la app y cubre la carga de la sesión.
   const [bienvenidaVista, setBienvenidaVista] = useState(false);
@@ -38,6 +43,7 @@ function Navegacion() {
   return (
     <View style={{ flex: 1, backgroundColor: COLOR.tinta }}>
       {!cargando && <Pantallas usuario={!!usuario} debeCambiar={!!usuario?.debeCambiarPassword} listo={listo} esEmpleado={esEmpleado} />}
+      <CargaSesion visible={entrando} />
       {!bienvenidaVista && <Bienvenida listo={!cargando} onFin={() => setBienvenidaVista(true)} />}
     </View>
   );
@@ -45,14 +51,7 @@ function Navegacion() {
 
 function Pantallas({ usuario, debeCambiar, listo, esEmpleado }: { usuario: boolean; debeCambiar: boolean; listo: boolean; esEmpleado: boolean }) {
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: COLOR.tinta },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: '700' },
-        contentStyle: { backgroundColor: COLOR.fondo },
-      }}
-    >
+    <Stack screenOptions={{ ...ENCABEZADO, contentStyle: { backgroundColor: COLOR.fondo } }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Protected guard={!usuario}>
         <Stack.Screen name="entrar" options={{ headerShown: false }} />
@@ -65,8 +64,7 @@ function Pantallas({ usuario, debeCambiar, listo, esEmpleado }: { usuario: boole
         <Stack.Screen name="empleado/reportar" options={{ title: 'Reportar falla', presentation: 'modal' }} />
       </Stack.Protected>
       <Stack.Protected guard={listo && !esEmpleado}>
-        <Stack.Screen name="soporte/index" options={{ title: 'Escanear equipo' }} />
-        <Stack.Screen name="soporte/equipo/[id]" options={{ title: 'Equipo' }} />
+        <Stack.Screen name="soporte" options={{ headerShown: false }} />
       </Stack.Protected>
     </Stack>
   );

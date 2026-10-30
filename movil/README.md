@@ -20,7 +20,7 @@ Las cuentas de empleado se crean en la web: perfil del empleado → **Acceso a l
    copy .env.example .env
    ```
 
-   En `.env`, `EXPO_PUBLIC_API_URL` debe apuntar a la API, por ejemplo `http://192.168.0.61:3000/api`.
+   En `.env`, `EXPO_PUBLIC_API_URL` debe apuntar a la API, por ejemplo `http://192.168.100.86:3000/api`.
 4. Arranca la app y escanea con Expo Go el QR que aparece en la terminal:
 
    ```powershell
@@ -81,7 +81,7 @@ Se hace una sola vez por versión de la app:
 
 | Perfil | Para qué | API |
 |---|---|---|
-| `preview` | Pruebas en tu red | `http://192.168.0.61:3000/api` (en `eas.json`; cámbiala si cambia la IP de tu PC) |
+| `preview` | Pruebas en tu red | `http://192.168.100.86:3000/api` (en `eas.json`; cámbiala si cambia la IP de tu PC) |
 | `production` | Uso real | Agrega `"env": { "EXPO_PUBLIC_API_URL": "https://tu-dominio/api" }` al perfil en `eas.json` |
 
 La app solo permite conexiones HTTP sin cifrar cuando la dirección de la API empieza con `http://` (ver `app.config.ts`). En producción usa la dirección HTTPS del VPS.

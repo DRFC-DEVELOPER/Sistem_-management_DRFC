@@ -1,8 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
-import { router, Stack, useFocusEffect } from 'expo-router';
-import { BotonSalir } from '@/componentes/BotonSalir';
+import { router, useFocusEffect } from 'expo-router';
 import { Aviso, Boton, Campo, Pantalla, Sub, Tarjeta } from '@/componentes/ui';
 import { api } from '@/lib/api';
 import { useSesion } from '@/lib/sesion';
@@ -21,7 +20,7 @@ export default function Escanear() {
   // La cámara reporta el mismo código muchas veces por segundo; solo se atiende el primero.
   const ocupado = useRef(false);
 
-  // Al regresar de la ficha, la cámara vuelve a leer.
+  // Al regresar de la ficha o de otra pestaña, la cámara vuelve a leer; fuera de esta pestaña se apaga.
   useFocusEffect(useCallback(() => {
     ocupado.current = false;
     setActiva(true);
@@ -49,7 +48,6 @@ export default function Escanear() {
 
   return (
     <Pantalla>
-      <Stack.Screen options={{ headerRight: () => <BotonSalir /> }} />
       <Sub>Hola, {usuario?.nombre.split(' ')[0]}. Apunta la cámara al código QR o de barras de la etiqueta del equipo.</Sub>
       {!permiso ? null : permiso.granted ? (
         <View style={e.marco}>

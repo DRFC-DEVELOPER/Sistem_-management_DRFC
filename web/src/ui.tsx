@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import JsBarcode from 'jsbarcode';
 import QRCode from 'qrcode';
 import Swal, { SweetAlertIcon } from 'sweetalert2';
-import { CAMPOS, ESTATUS, Estatus, Equipo, fecha, nombreEquipo, Tipo } from './tipos';
+import { AMBITOS_EQUIPO, CAMPOS, ESTATUS, Estatus, Equipo, esJefeArea, etiquetaTipo, fecha, nombreEquipo, Ref, Tipo } from './tipos';
 
 // ---------- Iconos por tipo de equipo ----------
 const TRAZOS: Record<string, string> = {
@@ -15,6 +15,7 @@ const TRAZOS: Record<string, string> = {
   MULTIFUNCIONAL: '<path d="M6 9V3h12v6M6 17H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/>',
   SOPORTE: '<rect x="2" y="7" width="20" height="12" rx="2"/><circle cx="8" cy="13" r="2.5"/><circle cx="16" cy="13" r="2.5"/><path d="M6 7V5h12v2"/>',
   ACCESS_POINT: '<path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/>',
+  TELEFONO_MOVIL: '<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/>',
   OTRO: '<path d="M21 8l-9-5-9 5 9 5zM3 8v8l9 5 9-5V8M12 13v8"/>',
 };
 export const Icono = ({ tipo }: { tipo: Tipo }) => (
@@ -31,6 +32,7 @@ const TRAZOS_ESTATUS: Record<Estatus, ReactNode> = {
   ASIGNADO: <><circle cx="12" cy="12" r="10" /><circle cx="12" cy="10" r="3.5" /><path d="M6 19c1.5-2.5 3.6-3.5 6-3.5s4.5 1 6 3.5" /></>,
   EN_REPARACION: <><path d="M14.5 6.5a4 4 0 0 1 5-5l-2.5 2.5.5 2 2 .5 2.5-2.5a4 4 0 0 1-5 5L6 20a2 2 0 0 1-3-3z" /><path d="M4 4l6 6" /></>,
   DANADO: <><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="7" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" /></>,
+  RESGUARDO: <><path d="M4 5h16v15H4zM8 5V3h8v2" /><path d="M9 10h6v6H9zM12 12v2" /></>,
   BAJA: <><path d="M3 7h18M8 7V4h8v3M5 7l1 14h12l1-14" /><path d="M10 11v6M14 11v6" /></>,
 };
 
@@ -79,17 +81,24 @@ export function TarjetaEquipo({ e, lado, a, onClick, persona, temporal }: { e: E
 }
 
 /** Características del equipo, como aparecen en su ficha. */
-export function DatosEquipo({ e }: { e: Equipo }) {
-  const caracteristicas = CAMPOS.filter((c) => e[c.clave] && (!c.tipos || c.tipos.includes(e.tipo)));
+/** Características del equipo. `completo` muestra todos los campos del formulario, aunque estén vacíos. */
+export function DatosEquipo({ e, completo }: { e: Equipo; completo?: boolean }) {
+  const caracteristicas = CAMPOS.filter((c) => (completo || e[c.clave]) && (!c.tipos || c.tipos.includes(e.tipo)));
+  const vacio = <span className="sub">—</span>;
   return (
     <dl className="dl">
+      {completo && <><dt>Tipo de equipo</dt><dd>{etiquetaTipo(e.tipo)}</dd></>}
+      {completo && <><dt>Área de uso</dt><dd>{AMBITOS_EQUIPO[e.ambito]}</dd></>}
       {caracteristicas.map((c) => (
         <div key={c.clave} style={{ display: 'contents' }}>
           <dt>{c.etiqueta}</dt>
-          <dd className={c.mono ? 'mono' : undefined}>{c.opciones ? c.opciones.find(([k]) => k === e[c.clave])?.[1] : String(e[c.clave])}</dd>
+          <dd className={c.mono && e[c.clave] ? 'mono' : undefined}>
+            {!e[c.clave] ? vacio : c.opciones ? c.opciones.find(([k]) => k === e[c.clave])?.[1] : String(e[c.clave])}
+          </dd>
         </div>
       ))}
-      {e.notas && <><dt>Notas</dt><dd>{e.notas}</dd></>}
+      {completo && <><dt>Código de barras</dt><dd className={e.codigoBarras ? 'mono' : undefined}>{e.codigoBarras || vacio}</dd></>}
+      {(completo || e.notas) && <><dt>Notas</dt><dd>{e.notas || vacio}</dd></>}
       <dt>Registrado</dt><dd>{fecha(e.creadoEn)}</dd>
     </dl>
   );
@@ -265,6 +274,57 @@ export function Campo({ etiqueta, opcional, children, ancho }: { etiqueta: strin
   );
 }
 
+/** A quién va un equipo entregado a un jefe de área. */
+export interface Destino { paraOtro: boolean; puestoId: string; persona: string }
+export const DESTINO_PROPIO: Destino = { paraOtro: false, puestoId: '', persona: '' };
+
+/**
+ * Solo para jefes de área: el equipo puede ser para su uso o para otra persona de su departamento.
+ * En el segundo caso el jefe queda como responsable y el equipo se muestra aparte en su perfil.
+ */
+export function DestinoJefe({ jefe, puestos, destino, onCambio }: {
+  jefe: string; puestos?: Ref[] | null; destino: Destino; onCambio: (d: Destino) => void;
+}) {
+  const opciones = (puestos ?? []).filter((p) => !esJefeArea(p.nombre));
+  const elegido = opciones.find((p) => String(p.id) === destino.puestoId);
+  const persona = destino.persona.trim();
+  return (
+    <>
+      <Campo etiqueta="¿Para quién es el equipo?">
+        <select value={destino.paraOtro ? 'OTRO' : 'JEFE'} onChange={(e) => onCambio(e.target.value === 'OTRO' ? { ...DESTINO_PROPIO, paraOtro: true } : DESTINO_PROPIO)}>
+          <option value="JEFE">Para {jefe} (uso personal)</option>
+          <option value="OTRO">Para otra persona de su departamento</option>
+        </select>
+      </Campo>
+      {destino.paraOtro && (
+        <>
+          <Campo etiqueta="Puesto de quien lo usará">
+            <select value={destino.puestoId} onChange={(e) => onCambio({ ...destino, puestoId: e.target.value })} disabled={!puestos}>
+              <option value="">Selecciona el puesto</option>
+              {opciones.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+            </select>
+          </Campo>
+          <Campo etiqueta="Nombre de quien lo usará" opcional>
+            <input value={destino.persona} onChange={(e) => onCambio({ ...destino, persona: e.target.value })} maxLength={150} placeholder={elegido ? `Nombre del ${elegido.nombre.toLowerCase()}` : 'Nombre de la persona'} autoComplete="off" />
+          </Campo>
+        </>
+      )}
+      {destino.paraOtro && puestos && !opciones.length && (
+        <p className="aviso err" style={{ gridColumn: '1 / -1', margin: 0 }}>
+          El departamento no tiene otros puestos. Agrégalos primero en Departamentos (por ejemplo, Almacenista).
+        </p>
+      )}
+      {destino.paraOtro && opciones.length > 0 && (
+        <p className="sub" style={{ gridColumn: '1 / -1', margin: 0 }}>
+          <b>{jefe}</b> queda como responsable del equipo{elegido ? ` que usará ${persona ? `${persona} (${elegido.nombre})` : `el ${elegido.nombre.toLowerCase()}`}` : ''}.
+          {' '}Cada persona puede tener un equipo de cada tipo; si no escribes el nombre, cuenta como una sola persona de ese puesto.
+          Aparecerá aparte en su perfil, en “Equipos para otros puestos”.
+        </p>
+      )}
+    </>
+  );
+}
+
 // ---------- Avisos y confirmaciones ----------
 interface Avisos {
   avisar: (m: string) => void;
@@ -278,6 +338,7 @@ const CAMBIOS: Partial<Record<Estatus, { titulo: string; icono: SweetAlertIcon; 
   DISPONIBLE: { titulo: 'Equipo disponible', icono: 'success', texto: 'quedó en el inventario, listo para entregarse.', ruta: '/equipos?estatus=DISPONIBLE', boton: 'Ver disponibles' },
   DANADO: { titulo: 'Equipo marcado como dañado', icono: 'warning', texto: 'quedó apartado como dañado. Envíalo a reparación o márcalo disponible cuando funcione.', ruta: '/equipos?estatus=DANADO', boton: 'Ver dañados' },
   EN_REPARACION: { titulo: 'Equipo enviado a reparación', icono: 'info', texto: 'quedó en los equipos en reparación, pendiente de regreso.', ruta: '/equipos?estatus=EN_REPARACION', boton: 'Ver en reparación' },
+  RESGUARDO: { titulo: 'Equipo en resguardo', icono: 'info', texto: 'quedó guardado en resguardo y no está disponible para asignación.', ruta: '/equipos?estatus=RESGUARDO', boton: 'Ver en resguardo' },
   BAJA: { titulo: 'Equipo dado de baja', icono: 'error', texto: 'ya no forma parte del inventario activo.', ruta: '/equipos?estatus=BAJA', boton: 'Ver dados de baja' },
 };
 const CtxAvisos = createContext<Avisos | null>(null);
@@ -352,4 +413,10 @@ export function Paginacion({ total, pagina, limite, onCambiar }: { total: number
 
 export const BUSCAR = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+);
+export const LAPIZ = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 20h4L19 9l-4-4L4 16z" /><path d="M13.5 6.5l4 4" /></svg>
+);
+export const BOTE = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" /><path d="M10 11v6M14 11v6" /></svg>
 );

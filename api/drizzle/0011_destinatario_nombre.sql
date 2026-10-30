@@ -1,0 +1,1 @@
+ALTER TABLE "asignaciones" ADD COLUMN "nombre_destinatario" varchar(150);

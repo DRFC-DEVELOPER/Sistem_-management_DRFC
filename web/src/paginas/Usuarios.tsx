@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { api } from '../api';
 import { useCarga } from '../usar';
 import { useSesion } from '../sesion';
-import { fecha, Rol, ROLES } from '../tipos';
+import { fecha, Rol, ROLES, ROLES_PERSONAL } from '../tipos';
 import { Campo, Cargando, ErrorCarga, FormModal, useAvisos } from '../ui';
 
 interface UsuarioSistema { id: number; nombre: string; usuario: string; correo: string | null; rol: Rol; activo: boolean; ultimoAcceso: string | null }
 
-const DESCRIPCION: Record<Rol, string> = {
+const DESCRIPCION: Record<(typeof ROLES_PERSONAL)[number], string> = {
   ADMIN: 'Todo, incluido administrar usuarios y ver la bitácora',
   TECNICO: 'Altas, bajas, asignaciones, reparaciones e importación',
   CONSULTA: 'Solo puede ver la información',
@@ -64,7 +64,7 @@ function FormUsuario({ u, propio, onCerrar, onListo }: { u?: UsuarioSistema; pro
       <Campo etiqueta="Correo" opcional><input type="email" value={v.correo} onChange={(e) => setV({ ...v, correo: e.target.value })} autoComplete="off" /></Campo>
       <Campo etiqueta="Rol">
         <select value={v.rol} onChange={(e) => setV({ ...v, rol: e.target.value as Rol })} disabled={propio}>
-          {(Object.keys(ROLES) as Rol[]).map((r) => <option key={r} value={r}>{ROLES[r]}: {DESCRIPCION[r]}</option>)}
+          {ROLES_PERSONAL.map((r) => <option key={r} value={r}>{ROLES[r]}: {DESCRIPCION[r]}</option>)}
         </select>
       </Campo>
       <Campo etiqueta={u ? 'Contraseña nueva (déjala vacía para no cambiarla)' : 'Contraseña (mínimo 10 caracteres)'}>

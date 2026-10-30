@@ -5,6 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { DB, InjectDb } from '../db/db.module';
 import { usuariosSistema } from '../db/esquema';
 import { UsuarioActual } from '../common/decorators/usuario-actual.decorator';
+import { puedeEntrar, sesion } from './auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -20,9 +21,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: { sub: number }): Promise<UsuarioActual> {
     const u = await this.db.query.usuariosSistema.findFirst({
       where: eq(usuariosSistema.id, payload.sub),
-      columns: { id: true, nombre: true, usuario: true, correo: true, rol: true, activo: true },
+      columns: { id: true, nombre: true, usuario: true, correo: true, rol: true, activo: true, empleadoId: true, debeCambiarPassword: true },
+      with: { empleado: { columns: { activo: true } } },
     });
-    if (!u || !u.activo) throw new UnauthorizedException('Tu acceso fue desactivado.');
-    return { id: u.id, nombre: u.nombre, usuario: u.usuario, correo: u.correo, rol: u.rol };
+    if (!u || !puedeEntrar(u)) throw new UnauthorizedException('Tu acceso fue desactivado.');
+    return sesion(u);
   }
 }

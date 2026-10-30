@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, desc, eq, isNull, SQL } from 'drizzle-orm';
-import { DB, InjectDb } from '../db/db.module';
+import { DB, InjectDb, Tx } from '../db/db.module';
 import { equipos, reparaciones } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { AsignacionesService, nombreEquipo } from '../asignaciones/asignaciones.service';
@@ -28,28 +28,31 @@ export class ReparacionesService {
 
   /** Envía el equipo a reparación. Si estaba asignado, se registra la devolución automáticamente. */
   enviar(dto: EnviarReparacionDto, usuarioId: number) {
-    return this.db.transaction(async (tx) => {
-      const e = await tx.query.equipos.findFirst({ where: eq(equipos.id, dto.equipoId) });
-      if (!e) throw new NotFoundException('El equipo no existe.');
-      if (e.estatus === 'EN_REPARACION') throw new ConflictException('El equipo ya está en reparación.');
-      if (e.estatus === 'BAJA') throw new BadRequestException('El equipo está dado de baja.');
-      const fecha = aFecha(dto.fechaEnvio) ?? hoy();
-      let de: string | undefined;
-      if (e.estatus === 'ASIGNADO') {
-        const a = await this.asignaciones.cerrarVigente(tx, e.id, usuarioId, 'EN_REPARACION', fecha, 'Enviado a reparación');
-        de = a?.empleado.nombre;
-      }
-      const [r] = await tx
-        .insert(reparaciones)
-        .values({ equipoId: e.id, fechaEnvio: fecha, motivo: dto.motivo.trim(), proveedor: dto.proveedor?.trim() || null, creadoPorId: usuarioId })
-        .returning();
-      await tx.update(equipos).set({ estatus: 'EN_REPARACION' }).where(eq(equipos.id, e.id));
-      await this.bitacora.registrar(
-        { usuarioId, accion: `Envió ${nombreEquipo(e)} a reparación${de ? ` (lo tenía ${de})` : ''}`, entidad: 'reparacion', entidadId: r.id, detalle: { equipoId: e.id } },
-        tx,
-      );
-      return r;
-    });
+    return this.db.transaction((tx) => this.enviarEn(tx, dto, usuarioId));
+  }
+
+  /** Igual que `enviar`, dentro de una transacción ya abierta. */
+  async enviarEn(tx: Tx, dto: EnviarReparacionDto, usuarioId: number) {
+    const e = await tx.query.equipos.findFirst({ where: eq(equipos.id, dto.equipoId) });
+    if (!e) throw new NotFoundException('El equipo no existe.');
+    if (e.estatus === 'EN_REPARACION') throw new ConflictException('El equipo ya está en reparación.');
+    if (e.estatus === 'BAJA') throw new BadRequestException('El equipo está dado de baja.');
+    const fecha = aFecha(dto.fechaEnvio) ?? hoy();
+    let de: string | undefined;
+    if (e.estatus === 'ASIGNADO') {
+      const a = await this.asignaciones.cerrarVigente(tx, e.id, usuarioId, 'EN_REPARACION', fecha, 'Enviado a reparación');
+      de = a?.empleado.nombre;
+    }
+    const [r] = await tx
+      .insert(reparaciones)
+      .values({ equipoId: e.id, fechaEnvio: fecha, motivo: dto.motivo.trim(), proveedor: dto.proveedor?.trim() || null, creadoPorId: usuarioId })
+      .returning();
+    await tx.update(equipos).set({ estatus: 'EN_REPARACION' }).where(eq(equipos.id, e.id));
+    await this.bitacora.registrar(
+      { usuarioId, accion: `Envió ${nombreEquipo(e)} a reparación${de ? ` (lo tenía ${de})` : ''}`, entidad: 'reparacion', entidadId: r.id, detalle: { equipoId: e.id } },
+      tx,
+    );
+    return r;
   }
 
   recibir(id: number, dto: RecibirReparacionDto, usuarioId: number) {

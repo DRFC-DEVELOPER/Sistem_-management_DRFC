@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, count, desc, eq, getTableColumns, ilike, isNull, ne, or, SQL, sql } from 'drizzle-orm';
 import { DB, DbOTx, InjectDb } from '../db/db.module';
-import { asignaciones, departamentos, empleados, EstatusEquipo, estatusEquipo, equipos, reparaciones, tiposEquipo } from '../db/esquema';
+import { asignaciones, departamentos, empleados, EstatusEquipo, estatusEquipo, equipos, puestos, reparaciones, reportesFalla, tiposEquipo } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { AsignacionesService, nombreEquipo } from '../asignaciones/asignaciones.service';
 import { hoy, limpiar, paginar, patron } from '../common/utiles';
@@ -37,6 +37,17 @@ export class EquiposService {
           ...getTableColumns(equipos),
           empleado: { id: empleados.id, nombre: empleados.nombre, numero: empleados.numero },
           departamento: { id: departamentos.id, nombre: departamentos.nombre },
+          puestoDestinatario: sql<{ id: number; nombre: string; persona: string | null } | null>`(
+            select case
+              when a.puesto_destinatario_id is null then null
+              else jsonb_build_object('id', p.id, 'nombre', p.nombre, 'persona', a.nombre_destinatario)
+            end
+            from ${asignaciones} a
+            left join ${puestos} p on p.id = a.puesto_destinatario_id
+            where a.equipo_id = ${equipos.id} and a.empleado_id = ${equipos.empleadoId}
+            order by a.id desc
+            limit 1
+          )`,
           temporal: sql<boolean>`exists (select 1 from ${asignaciones} x where x.equipo_id = ${equipos.id} and x.fecha_devolucion is null and x.sustituye_equipo_id is not null)`,
         })
         .from(equipos)
@@ -52,7 +63,7 @@ export class EquiposService {
 
   /** Datos del tablero: estatus, tipos, movimientos de 6 meses, departamentos, empleados y reparaciones. */
   async resumen() {
-    const [filas, movimientos, porDepartamento, [empleadosCuenta], [{ reparacionesAbiertas }]] = await Promise.all([
+    const [filas, movimientos, porDepartamento, [empleadosCuenta], [{ reparacionesAbiertas }], tiposCatalogo] = await Promise.all([
       this.db.select({ tipo: equipos.tipo, estatus: equipos.estatus, n: count() }).from(equipos).groupBy(equipos.tipo, equipos.estatus),
       this.db
         .execute<{ mes: string; entregas: number; devoluciones: number }>(sql`
@@ -64,12 +75,18 @@ export class EquiposService {
         .then((r) => r.rows),
       this.db
         .execute<{ nombre: string; n: number }>(sql`
-          select coalesce(d.nombre, 'Sin departamento') as nombre, count(*)::int as n
+          select d.nombre, count(e.id) filter (where e.estatus = 'ASIGNADO')::int as n
+          from departamentos d
+          left join empleados em on em.departamento_id = d.id
+          left join equipos e on e.empleado_id = em.id
+          group by d.id, d.nombre
+          union all
+          select 'Sin departamento', count(e.id)::int
           from equipos e
           join empleados em on em.id = e.empleado_id
-          left join departamentos d on d.id = em.departamento_id
-          where e.estatus = 'ASIGNADO'
-          group by 1 order by 2 desc, 1`)
+          where e.estatus = 'ASIGNADO' and em.departamento_id is null
+          having count(e.id) > 0
+          order by 2 desc, 1`)
         .then((r) => r.rows),
       this.db
         .execute<{ activos: number; sinEquipo: number }>(sql`
@@ -78,9 +95,12 @@ export class EquiposService {
           from empleados em where em.activo`)
         .then((r) => r.rows),
       this.db.select({ reparacionesAbiertas: count() }).from(reparaciones).where(isNull(reparaciones.fechaRecepcion)),
+      this.db.select({ nombre: tiposEquipo.nombre }).from(tiposEquipo),
     ]);
     const porEstatus = Object.fromEntries(estatusEquipo.enumValues.map((s) => [s, 0])) as Record<EstatusEquipo, number>;
-    const porTipo: Record<string, { total: number; disponibles: number }> = {};
+    const porTipo: Record<string, { total: number; disponibles: number }> = Object.fromEntries(
+      tiposCatalogo.map(({ nombre }) => [nombre, { total: 0, disponibles: 0 }]),
+    );
     for (const r of filas) {
       porEstatus[r.estatus] += r.n;
       if (r.estatus === 'BAJA') continue;
@@ -117,16 +137,23 @@ export class EquiposService {
           orderBy: [sql`${asignaciones.fechaEntrega} desc nulls last`, desc(asignaciones.id)],
           with: {
             empleado: { columns: { id: true, nombre: true } },
+            puestoDestinatario: { columns: { id: true, nombre: true } },
             entregadoPor: { columns: { nombre: true } },
             recibidoPor: { columns: { nombre: true } },
           },
         },
         reparaciones: { orderBy: [desc(reparaciones.fechaEnvio)] },
+        // Solicitud de soporte sin cerrar (hay como máximo una por equipo).
+        reportesFalla: {
+          where: ne(reportesFalla.estado, 'CERRADO'),
+          columns: { id: true, estado: true, descripcion: true, creadoEn: true },
+          with: { empleado: { columns: { id: true, nombre: true } } },
+        },
       },
     });
     if (!e) throw new NotFoundException('El equipo no existe.');
     const breve = { id: true, tipo: true, marca: true, modelo: true, serie: true, estatus: true } as const;
-    // Equipo dañado al que sustituye este (si es temporal) y equipos que sustituyen a este (si está dañado).
+    // Equipo que sustituye este (si es temporal) y equipos que lo sustituyen mientras se resuelve su estado.
     const vigente = e.asignaciones.find((a) => !a.fechaDevolucion);
     const [sustituye, temporales] = await Promise.all([
       vigente?.sustituyeEquipoId ? this.db.query.equipos.findFirst({ where: eq(equipos.id, vigente.sustituyeEquipoId), columns: breve }) : undefined,
@@ -150,12 +177,13 @@ export class EquiposService {
   }
 
   async crear(dto: CrearEquipoDto, usuarioId: number) {
-    const { estatusInicial, empleadoId, fechaEntrega, ...resto } = dto;
+    const { estatusInicial, empleadoId, fechaEntrega, puestoDestinatarioId, nombreDestinatario, ...resto } = dto;
     const d = limpiar(resto);
     if (!await this.db.query.tiposEquipo.findFirst({ where: eq(tiposEquipo.nombre, d.tipo) })) {
       throw new BadRequestException('El tipo de equipo seleccionado ya no existe. Actualiza la lista e inténtalo de nuevo.');
     }
     if (d.ambito === 'INFRAESTRUCTURA' && empleadoId) throw new BadRequestException('Los equipos de infraestructura no se asignan a empleados.');
+    if (puestoDestinatarioId && !empleadoId) throw new BadRequestException('Selecciona el jefe de área responsable del equipo destinatario.');
     // Sin código capturado, la base asigna el siguiente consecutivo.
     if (!d.codigoBarras) delete d.codigoBarras;
     if (!d.marca && !d.modelo && !d.serie && !d.descripcion) {
@@ -166,7 +194,7 @@ export class EquiposService {
       await this.validarUnicos(d, undefined, tx);
       const [e] = await tx.insert(equipos).values({ ...d, estatus: estatusInicial ?? 'DISPONIBLE' }).returning();
       await this.bitacora.registrar({ usuarioId, accion: `Registró ${nombreEquipo(e)}`, entidad: 'equipo', entidadId: e.id }, tx);
-      if (empleadoId) await this.asignaciones.asignarEn(tx, { equipoId: e.id, empleadoId, fechaEntrega }, usuarioId);
+      if (empleadoId) await this.asignaciones.asignarEn(tx, { equipoId: e.id, empleadoId, fechaEntrega, puestoDestinatarioId, nombreDestinatario }, usuarioId);
       return e.id;
     });
     return this.obtener(id);
@@ -182,8 +210,12 @@ export class EquiposService {
     if (d.ambito === 'INFRAESTRUCTURA' && actual.empleadoId) {
       throw new BadRequestException('Registra la devolución del equipo antes de cambiarlo a infraestructura.');
     }
-    // El código de barras se puede cambiar, pero no borrar: el equipo siempre conserva uno.
-    if (d.codigoBarras === null) delete d.codigoBarras;
+    // El código de barras es único y fijo: una vez asignado no se cambia ni se borra. Solo se captura si el equipo no tiene.
+    if (d.codigoBarras == null || (actual.codigoBarras && d.codigoBarras.toLowerCase() === actual.codigoBarras.toLowerCase())) {
+      delete d.codigoBarras;
+    } else if (actual.codigoBarras) {
+      throw new BadRequestException(`El código de barras ${actual.codigoBarras} ya está registrado y no se puede modificar.`);
+    }
     if (!Object.keys(d).length) throw new BadRequestException('No enviaste cambios.');
     // La serie solo se valida si cambió, para no bloquear equipos importados con series repetidas.
     await this.validarUnicos(

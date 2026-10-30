@@ -1,4 +1,5 @@
 import { DependencyList, useCallback, useEffect, useRef, useState } from 'react';
+import { api } from './api';
 
 /** Carga datos de la API y vuelve a cargarlos cuando cambian las dependencias. */
 export function useCarga<T>(fn: () => Promise<T>, deps: DependencyList) {
@@ -29,4 +30,23 @@ export function useRetraso<T>(valor: T, ms = 250) {
     return () => clearTimeout(t);
   }, [valor, ms]);
   return v;
+}
+
+const CAMBIO_SOPORTE = 'soporte-cambio';
+/** Avisa al contador del menú que cambió algún reporte de falla, para que se actualice sin esperar. */
+export const avisarCambioSoporte = () => window.dispatchEvent(new Event(CAMBIO_SOPORTE));
+
+/** Reportes de falla sin cerrar, para el contador del menú. Se consulta cada minuto. */
+export function useResumenSoporte(activo: boolean) {
+  const [resumen, setResumen] = useState({ pendientes: 0, enAtencion: 0 });
+  useEffect(() => {
+    if (!activo) return;
+    let vivo = true;
+    const leer = () => api<{ pendientes: number; enAtencion: number }>('/reportes-falla/resumen').then((r) => vivo && setResumen(r)).catch(() => {});
+    leer();
+    const t = setInterval(leer, 60_000);
+    window.addEventListener(CAMBIO_SOPORTE, leer);
+    return () => { vivo = false; clearInterval(t); window.removeEventListener(CAMBIO_SOPORTE, leer); };
+  }, [activo]);
+  return resumen;
 }

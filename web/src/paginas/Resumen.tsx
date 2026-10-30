@@ -32,13 +32,14 @@ function useTooltip() {
   return { en, capa };
 }
 
-const PRINCIPALES: Tipo[] = ['LAPTOP', 'MONITOR', 'TECLADO', 'MOUSE', 'ADAPTADOR', 'MULTIFUNCIONAL', 'SOPORTE'];
+const PRINCIPALES: Tipo[] = ['LAPTOP', 'MONITOR', 'TECLADO', 'MOUSE', 'ADAPTADOR', 'MULTIFUNCIONAL', 'SOPORTE', 'TELEFONO_MOVIL'];
 
 const ESTADOS: { estatus: Estatus; nombre: string; tono: string }[] = [
   { estatus: 'DISPONIBLE', nombre: 'Disponible', tono: 'green' },
   { estatus: 'ASIGNADO', nombre: 'Asignado', tono: 'blue' },
   { estatus: 'EN_REPARACION', nombre: 'En reparación', tono: 'orange' },
   { estatus: 'DANADO', nombre: 'Dañados', tono: 'red' },
+  { estatus: 'RESGUARDO', nombre: 'En resguardo', tono: 'purple' },
   { estatus: 'BAJA', nombre: 'Dados de baja', tono: 'gray' },
 ];
 
@@ -71,7 +72,7 @@ export default function Resumen() {
   if (!r.datos) return <Cargando />;
   const d = r.datos;
   const e = d.porEstatus;
-  const activos = e.DISPONIBLE + e.ASIGNADO + e.EN_REPARACION + e.DANADO;
+  const activos = e.DISPONIBLE + e.ASIGNADO + e.EN_REPARACION + e.DANADO + e.RESGUARDO;
   // Los totales por tipo no incluyen los dados de baja.
   // Los tipos principales se muestran siempre, aunque aún no haya equipos; los demás solo si tienen alguno.
   const tipos = (catalogos.datos?.map((t) => t.nombre) ?? Object.keys(TIPOS))

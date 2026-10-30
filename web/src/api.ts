@@ -47,7 +47,10 @@ async function peticion(ruta: string, o: Opciones = {}) {
 
 export async function api<T>(ruta: string, o: Opciones = {}): Promise<T> {
   const res = await peticion(ruta, o);
-  return res.status === 204 ? (undefined as T) : res.json();
+  if (res.status === 204) return undefined as T;
+  // Nest manda el cuerpo vacío cuando la ruta devuelve null (por ejemplo, un empleado sin acceso a la app).
+  const texto = await res.text();
+  return (texto ? JSON.parse(texto) : null) as T;
 }
 
 /** Descarga un archivo de la API y lo guarda en la computadora. */

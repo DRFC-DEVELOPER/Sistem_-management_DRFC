@@ -1,10 +1,12 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { asc, count, eq, sql } from 'drizzle-orm';
 import { DB, DbOTx, InjectDb } from '../db/db.module';
-import { departamentos, empleados } from '../db/esquema';
+import { departamentos, empleados, puestos } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 
 export const normalizarDepto = (n: string) => n.replace(/\s+/g, ' ').trim().toUpperCase();
+const esPuestoJefeArea = (nombre: string) =>
+  nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLocaleLowerCase() === 'jefe de area';
 
 @Injectable()
 export class DepartamentosService {
@@ -27,7 +29,15 @@ export class DepartamentosService {
     const n = normalizarDepto(nombre);
     await tx.insert(departamentos).values({ nombre: n }).onConflictDoNothing();
     const d = await tx.query.departamentos.findFirst({ where: eq(departamentos.nombre, n) });
+    await this.asegurarPuestoJefe(d!.id, tx);
     return d!.id;
+  }
+
+  private async asegurarPuestoJefe(departamentoId: number, tx: DbOTx) {
+    const existentes = await tx.select({ nombre: puestos.nombre }).from(puestos).where(eq(puestos.departamentoId, departamentoId));
+    if (!existentes.some((p) => esPuestoJefeArea(p.nombre))) {
+      await tx.insert(puestos).values({ departamentoId, nombre: 'Jefe de área' }).onConflictDoNothing();
+    }
   }
 
   async crear(nombre: string, autorId: number) {
@@ -35,6 +45,7 @@ export class DepartamentosService {
     if (n.length < 2) throw new BadRequestException('El nombre del departamento debe tener al menos 2 caracteres.');
     if (await this.db.query.departamentos.findFirst({ where: eq(departamentos.nombre, n) })) throw new ConflictException('Ese departamento ya existe.');
     const [d] = await this.db.insert(departamentos).values({ nombre: n }).returning();
+    await this.asegurarPuestoJefe(d.id, this.db);
     await this.bitacora.registrar({ usuarioId: autorId, accion: `Creó el departamento ${n}`, entidad: 'departamento', entidadId: d.id });
     return d;
   }

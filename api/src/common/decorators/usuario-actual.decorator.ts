@@ -7,6 +7,9 @@ export interface UsuarioActual {
   usuario: string;
   correo: string | null;
   rol: Rol;
+  /** Ficha del empleado dueño de la cuenta (solo rol EMPLEADO). */
+  empleadoId: number | null;
+  debeCambiarPassword: boolean;
 }
 
 export const Usuario = createParamDecorator(

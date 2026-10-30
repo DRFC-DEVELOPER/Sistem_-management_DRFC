@@ -32,6 +32,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       CORS_ORIGEN: ${CORS_ORIGEN:-}
       SWAGGER: ${SWAGGER:-true}
+      EXPO_ACCESS_TOKEN: ${EXPO_ACCESS_TOKEN:-}
       TZ: ${TZ:-America/Mexico_City}
 
   # Caddy sirve la web y reenvía /api a la API. Se construye desde ./web.

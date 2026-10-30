@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, desc, eq, inArray, isNull, ne, SQL, sql } from 'drizzle-orm';
 import { DB, InjectDb, Tx } from '../db/db.module';
-import { asignaciones, empleados, EstatusEquipo, equipos } from '../db/esquema';
+import { asignaciones, empleados, EstatusEquipo, equipos, puestos } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { aFecha, hoy } from '../common/utiles';
 import { AsignarDto, DevolverDto, FiltroAsignacionesDto } from './dto/asignacion.dto';
@@ -9,8 +9,12 @@ import { AsignarDto, DevolverDto, FiltroAsignacionesDto } from './dto/asignacion
 export const nombreEquipo = (e: { tipo: string; marca: string | null; modelo: string | null; serie: string | null }) =>
   [e.tipo, e.marca, e.modelo, e.serie && `(${e.serie})`].filter(Boolean).join(' ');
 
-/** Estatus en los que el equipo conserva al empleado que lo tenía. */
-export const sigueLigado = (estatus: EstatusEquipo) => estatus === 'DANADO' || estatus === 'EN_REPARACION';
+/** Estatus que conservan el vínculo del equipo con el empleado. */
+export const sigueLigado = (estatus: EstatusEquipo) =>
+  estatus === 'ASIGNADO' || estatus === 'DANADO' || estatus === 'EN_REPARACION' || estatus === 'RESGUARDO';
+
+const esJefeArea = (nombre?: string | null) =>
+  nombre?.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLocaleLowerCase() === 'jefe de area';
 
 const equipoBreve = { columns: { id: true, tipo: true, marca: true, modelo: true, serie: true, estatus: true } } as const;
 
@@ -30,6 +34,7 @@ export class AsignacionesService {
       with: {
         equipo: equipoBreve,
         empleado: { columns: { id: true, nombre: true }, with: { departamento: { columns: { nombre: true } } } },
+        puestoDestinatario: { columns: { id: true, nombre: true } },
         entregadoPor: { columns: { id: true, nombre: true } },
         recibidoPor: { columns: { id: true, nombre: true } },
       },
@@ -38,9 +43,30 @@ export class AsignacionesService {
 
   /** Crea la asignación dentro de una transacción ya abierta. */
   async asignarEn(tx: Tx, dto: AsignarDto, usuarioId: number) {
-    const empleado = await tx.query.empleados.findFirst({ where: eq(empleados.id, dto.empleadoId) });
+    const empleado = await tx.query.empleados.findFirst({
+      where: eq(empleados.id, dto.empleadoId),
+      with: { puesto: { columns: { nombre: true } } },
+    });
     if (!empleado) throw new NotFoundException('El empleado no existe.');
     if (!empleado.activo) throw new BadRequestException(`${empleado.nombre} está dado de baja; reactívalo para asignarle equipo.`);
+    await tx.execute(sql`select id from ${empleados} where ${empleados.id} = ${empleado.id} for update`);
+    const puestoDestinatarioId = dto.puestoDestinatarioId ?? null;
+    const nombreDestinatario = puestoDestinatarioId ? dto.nombreDestinatario?.replace(/\s+/g, ' ').trim() || null : null;
+    if (dto.nombreDestinatario?.trim() && !puestoDestinatarioId) {
+      throw new BadRequestException('Para indicar quién usará el equipo, selecciona también su puesto.');
+    }
+    // Cómo se nombra al destinatario en los mensajes: el empleado mismo, o la persona/puesto a cargo del jefe de área.
+    let destinatario = empleado.nombre;
+    if (puestoDestinatarioId) {
+      if (!esJefeArea(empleado.puesto?.nombre)) {
+        throw new BadRequestException('Solo un empleado con el puesto Jefe de área puede recibir equipos para otro puesto.');
+      }
+      const puesto = await tx.query.puestos.findFirst({ where: eq(puestos.id, puestoDestinatarioId) });
+      if (!puesto || puesto.departamentoId !== empleado.departamentoId || esJefeArea(puesto.nombre)) {
+        throw new BadRequestException('El puesto destinatario debe pertenecer al mismo departamento y no puede ser Jefe de área.');
+      }
+      destinatario = nombreDestinatario ? `${nombreDestinatario} (${puesto.nombre})` : `El puesto ${puesto.nombre} (sin nombre de persona)`;
+    }
 
     // La condición de estatus en el UPDATE evita que dos personas asignen el mismo equipo a la vez.
     const [equipo] = await tx
@@ -54,23 +80,34 @@ export class AsignacionesService {
       throw new ConflictException(`El equipo no está disponible (estatus actual: ${e.estatus}).`);
     }
     if (equipo.ambito !== 'USUARIO') throw new BadRequestException('Los equipos de infraestructura no se asignan a empleados.');
-    // Solo un equipo en uso por tipo; uno dañado o en reparación sí admite otro (que queda como temporal).
+    // Las reglas por tipo se aplican a cada destinatario: el propio empleado o cada persona (puesto + nombre) a cargo del jefe de área.
+    const mismoDestinatario = sql`exists (
+      select 1 from (
+        select a.puesto_destinatario_id, a.nombre_destinatario from ${asignaciones} a
+        where a.equipo_id = ${equipos.id} and a.empleado_id = ${equipos.empleadoId}
+        order by a.id desc limit 1
+      ) u
+      where u.puesto_destinatario_id is not distinct from ${puestoDestinatarioId}::int
+        and lower(u.nombre_destinatario) is not distinct from lower(${nombreDestinatario}::text)
+    )`;
+    // Solo un equipo en uso por tipo; uno dañado, en reparación o en resguardo admite un sustituto temporal.
     if (equipo.tipo !== 'OTRO') {
       const igual = await tx.query.equipos.findFirst({
-        where: and(eq(equipos.empleadoId, empleado.id), eq(equipos.tipo, equipo.tipo), eq(equipos.estatus, 'ASIGNADO'), ne(equipos.id, equipo.id)),
+        where: and(eq(equipos.empleadoId, empleado.id), eq(equipos.tipo, equipo.tipo), eq(equipos.estatus, 'ASIGNADO'), ne(equipos.id, equipo.id), mismoDestinatario),
       });
       if (igual) {
         throw new ConflictException(
-          `${empleado.nombre} ya tiene asignado ${nombreEquipo(igual)}. Solo puede recibir otro del mismo tipo si ese está dañado, en reparación o dado de baja.`,
+          `${destinatario} ya tiene asignado ${nombreEquipo(igual)}. Solo puede recibir otro del mismo tipo si el anterior está dañado, en reparación, en resguardo o dado de baja.`,
         );
       }
     }
-    // Si el empleado tiene ligado un equipo del mismo tipo dañado o en reparación, este lo sustituye temporalmente.
+    // Si el destinatario tiene ligado un equipo del mismo tipo dañado, en reparación o en resguardo, este lo sustituye temporalmente.
     const sustituido = await tx.query.equipos.findFirst({
       where: and(
         eq(equipos.empleadoId, empleado.id),
         eq(equipos.tipo, equipo.tipo),
-        inArray(equipos.estatus, ['DANADO', 'EN_REPARACION']),
+        inArray(equipos.estatus, ['DANADO', 'EN_REPARACION', 'RESGUARDO']),
+        mismoDestinatario,
         sql`not exists (select 1 from ${asignaciones} x where x.sustituye_equipo_id = ${equipos.id} and x.fecha_devolucion is null)`,
       ),
       orderBy: [asc(equipos.id)],
@@ -80,6 +117,8 @@ export class AsignacionesService {
       .values({
         equipoId: equipo.id,
         empleadoId: empleado.id,
+        puestoDestinatarioId,
+        nombreDestinatario,
         fechaEntrega: aFecha(dto.fechaEntrega) ?? hoy(),
         notas: dto.notas?.trim() || null,
         sustituyeEquipoId: sustituido?.id ?? null,
@@ -89,7 +128,7 @@ export class AsignacionesService {
     await this.bitacora.registrar(
       {
         usuarioId,
-        accion: `Asignó ${nombreEquipo(equipo)} a ${empleado.nombre}${sustituido ? ` (temporal, en lugar de ${nombreEquipo(sustituido)})` : ''}`,
+        accion: `Asignó ${nombreEquipo(equipo)} a ${empleado.nombre}${puestoDestinatarioId ? ` para ${destinatario}` : ''}${sustituido ? ` (temporal, en lugar de ${nombreEquipo(sustituido)})` : ''}`,
         entidad: 'equipo',
         entidadId: equipo.id,
         detalle: { asignacionId: a.id, ...(sustituido ? { sustituyeEquipoId: sustituido.id } : {}) },
@@ -105,7 +144,7 @@ export class AsignacionesService {
 
   /**
    * Cierra la asignación vigente del equipo.
-   * Si sale dañado o a reparación sigue ligado al empleado; solo se desliga al quedar disponible o de baja.
+   * Si queda dañado o en reparación sigue ligado al empleado; en los demás estados se desliga.
    * No cambia el estatus del equipo: quien llama lo pone igual a `resultado`.
    */
   async cerrarVigente(tx: Tx, equipoId: number, usuarioId: number, resultado: EstatusEquipo, fecha?: string, nota?: string) {
@@ -189,12 +228,28 @@ export class AsignacionesService {
       if (!e) throw new NotFoundException('El equipo no existe.');
       if (e.estatus !== 'ASIGNADO') throw new ConflictException('El equipo no está asignado.');
       const estatus = dto.estatus ?? 'DISPONIBLE';
+      if (estatus === 'RESGUARDO' && e.empleadoId) {
+        await tx.execute(sql`select id from ${empleados} where ${empleados.id} = ${e.empleadoId} for update`);
+        const otroEnResguardo = await tx.query.equipos.findFirst({
+          where: and(
+            eq(equipos.empleadoId, e.empleadoId),
+            eq(equipos.tipo, e.tipo),
+            eq(equipos.estatus, 'RESGUARDO'),
+            ne(equipos.id, e.id),
+          ),
+        });
+        if (otroEnResguardo) {
+          throw new ConflictException(
+            `Esta persona ya tiene ${nombreEquipo(otroEnResguardo)} en resguardo. Solo se permite un equipo de este tipo; el reemplazo debe quedarse asignado como temporal.`,
+          );
+        }
+      }
       const a = await this.cerrarVigente(tx, e.id, usuarioId, estatus, aFecha(dto.fecha), dto.notas?.trim());
       const [equipo] = await tx.update(equipos).set({ estatus }).where(eq(equipos.id, e.id)).returning();
       await this.bitacora.registrar(
         {
           usuarioId,
-          accion: `Recibió ${nombreEquipo(e)} de ${a?.empleado.nombre ?? 'empleado'}${estatus === 'DANADO' ? ' (dañado)' : ''}`,
+          accion: `Recibió ${nombreEquipo(e)} de ${a?.empleado.nombre ?? 'empleado'}${estatus === 'DANADO' ? ' (dañado)' : estatus === 'RESGUARDO' ? ' (en resguardo)' : ''}`,
           entidad: 'equipo',
           entidadId: e.id,
           detalle: dto.notas?.trim() ? { notas: dto.notas.trim() } : undefined,

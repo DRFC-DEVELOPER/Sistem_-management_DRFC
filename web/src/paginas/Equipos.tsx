@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api, qs } from '../api';
 import { useCarga, useRetraso } from '../usar';
 import { useSesion } from '../sesion';
-import { AMBITOS_EQUIPO, AmbitoEquipo, ESTATUS, EquipoListado, Estatus, ORDENES, Pagina, TipoEquipoCatalogo, etiquetaTipo } from '../tipos';
+import { AMBITOS_EQUIPO, AmbitoEquipo, ESTATUS, EquipoListado, Estatus, ORDENES, Pagina, TipoEquipoCatalogo, etiquetaTipo, textoDestinatario } from '../tipos';
 import { BUSCAR, Cargando, ErrorCarga, Paginacion, Pill, TarjetaEquipo, Vacio } from '../ui';
 import EquipoForm from './EquipoForm';
 
@@ -82,7 +82,14 @@ export default function Equipos() {
           {datos.datos.length ? (
             <div className="lista dos">
               {datos.datos.map((e) => (
-                <TarjetaEquipo key={e.id} e={e} a={`/equipos/${e.id}`} persona={e.empleado?.nombre} temporal={e.temporal} lado={<Pill estatus={e.estatus} />} />
+                <TarjetaEquipo
+                  key={e.id}
+                  e={e}
+                  a={`/equipos/${e.id}`}
+                  persona={e.empleado ? `${e.empleado.nombre}${e.puestoDestinatario ? ` · Para ${textoDestinatario(e.puestoDestinatario.nombre, e.puestoDestinatario.persona)}` : ''}` : undefined}
+                  temporal={e.temporal}
+                  lado={<Pill estatus={e.estatus} />}
+                />
               ))}
             </div>
           ) : (

@@ -34,12 +34,20 @@ export class CrearEquipoDto {
   @IsOptional() @IsInt()
   empleadoId?: number;
 
+  /** Puesto de la persona destinataria; solo se permite para jefes de área. */
+  @IsOptional() @Type(() => Number) @IsInt()
+  puestoDestinatarioId?: number;
+
+  /** Nombre de quien usará el equipo (opcional); solo junto con puestoDestinatarioId. */
+  @IsOptional() @IsString() @MaxLength(150)
+  nombreDestinatario?: string;
+
   /** AAAA-MM-DD. Solo se usa junto con empleadoId. */
   @IsOptional() @IsDateString()
   fechaEntrega?: string;
 }
 
-export class ActualizarEquipoDto extends PartialType(OmitType(CrearEquipoDto, ['estatusInicial', 'empleadoId', 'fechaEntrega'] as const)) {}
+export class ActualizarEquipoDto extends PartialType(OmitType(CrearEquipoDto, ['estatusInicial', 'empleadoId', 'fechaEntrega', 'puestoDestinatarioId', 'nombreDestinatario'] as const)) {}
 
 export class CambiarEstatusDto {
   @IsIn(['DISPONIBLE', 'DANADO'], { message: 'Solo se puede cambiar a DISPONIBLE o DANADO desde aquí.' })

@@ -2,6 +2,7 @@ import { FormEvent, ReactNode, useEffect, useLayoutEffect, useRef, useState } fr
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from './api';
 import { useSesion } from './sesion';
+import { useResumenSoporte } from './usar';
 import { iniciales, ROLES, Usuario } from './tipos';
 import { Campo, Cargando, FormModal, useAvisos } from './ui';
 import Acceso from './paginas/Acceso';
@@ -11,6 +12,7 @@ import EquipoPagina from './paginas/Equipo';
 import Empleados from './paginas/Empleados';
 import EmpleadoPagina from './paginas/Empleado';
 import Reparaciones from './paginas/Reparaciones';
+import Soporte from './paginas/Soporte';
 import Excel from './paginas/Excel';
 import Usuarios from './paginas/Usuarios';
 import Altas from './paginas/Altas';
@@ -32,6 +34,7 @@ const SECCIONES: { ruta: string; nombre: string; admin?: boolean; icono: ReactNo
   { ruta: '/empleados', nombre: 'Empleados', icono: <svg {...trazo}><rect x="2.5" y="7" width="19" height="13" rx="2" /><path d="M8.5 7V5a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 15.5 5v2M2.5 12.5h19M10.5 11.5v2h3v-2" /></svg> },
   { ruta: '/equipos', nombre: 'Equipos', icono: <svg {...trazo}><rect x="5" y="3" width="15" height="10.5" rx="1" /><path d="M3 16h17M9 6.5l-1.5 1.5M13 6l-4 4" /><rect x="2.5" y="12" width="6" height="9" rx="1" /><path d="M5 19h1" /></svg> },
   { ruta: '/reparaciones', nombre: 'Reparaciones', icono: <svg {...trazo}><rect x="3" y="3" width="16" height="12" rx="1" /><path d="M8 19h6M11 15v4" /><path d="M11 6.5 8.5 11h5z" /><path d="m15.5 14.5 5 5a1.4 1.4 0 0 1-2 2l-5-5" /></svg> },
+  { ruta: '/soporte', nombre: 'Soporte', icono: <svg {...trazo}><path d="M4 13v-1a8 8 0 0 1 16 0v1" /><rect x="2.5" y="13" width="4" height="6" rx="1.5" /><rect x="17.5" y="13" width="4" height="6" rx="1.5" /><path d="M19.5 19v.5a2.5 2.5 0 0 1-2.5 2.5h-3.5" /></svg> },
   { ruta: '/excel', nombre: 'Generar', icono: <svg {...trazo}><path d="M7 18H6a4 4 0 0 1-.5-8A6 6 0 0 1 17 8.5a4.5 4.5 0 0 1 1 9h-1" /><path d="M12 21v-9M8.5 15 12 11.5l3.5 3.5" /></svg> },
   { ruta: '/bitacora', nombre: 'Bitacora', admin: true, icono: <svg {...trazo}><path d="M15 4.5h2.5a1 1 0 0 1 1 1V12M8.5 4.5H6a1 1 0 0 0-1 1V20a1 1 0 0 0 1 1h6" /><rect x="8.5" y="3" width="6.5" height="3" rx="1" /><path d="M8 10h7M8 13.5h4" /><circle cx="17" cy="18" r="4" /><path d="m15.3 18 1.2 1.2 2.2-2.4" /></svg> },
   { ruta: '/usuarios', nombre: 'Usuarios', admin: true, icono: <svg {...trazo}><path d="M12 2.5 4 5.5v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10v-6z" /><circle cx="12" cy="10" r="2.5" /><path d="M8 16.5c.8-1.7 2.2-2.5 4-2.5s3.2.8 4 2.5" /></svg> },
@@ -145,7 +148,7 @@ function EquiposConBusqueda() {
 }
 
 /** Opciones del menú; la pestaña gris se desliza hasta la opción activa al cambiar de pantalla. */
-function MenuSecciones({ esAdmin }: { esAdmin: boolean }) {
+function MenuSecciones({ esAdmin, pendientes }: { esAdmin: boolean; pendientes: number }) {
   const { pathname } = useLocation();
   const nav = useRef<HTMLElement>(null);
   const [marca, setMarca] = useState<{ top: number; height: number; animar: boolean } | null>(null);
@@ -167,7 +170,10 @@ function MenuSecciones({ esAdmin }: { esAdmin: boolean }) {
     <nav className="sidebar__nav" aria-label="Secciones" ref={nav}>
       {marca && <span className={`sidebar__indicador${marca.animar ? ' anima' : ''}`} style={{ top: marca.top, height: marca.height }} aria-hidden />}
       {SECCIONES.filter((s) => !s.admin || esAdmin).map((s) => (
-        <NavLink key={s.ruta} to={s.ruta} end={s.ruta === '/'}>{s.icono}<span>{s.nombre}</span></NavLink>
+        <NavLink key={s.ruta} to={s.ruta} end={s.ruta === '/'}>
+          {s.icono}<span>{s.nombre}</span>
+          {s.ruta === '/soporte' && pendientes > 0 && <span className="contador" aria-label={`${pendientes} sin atender`}>{pendientes}</span>}
+        </NavLink>
       ))}
     </nav>
   );
@@ -177,6 +183,7 @@ export default function App() {
   const { usuario, cargando, esAdmin, salir } = useSesion();
   const { pathname } = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const { pendientes } = useResumenSoporte(!!usuario);
   useEffect(() => { window.scrollTo(0, 0); setMenuAbierto(false); }, [pathname]);
 
   if (cargando) return <main className="content"><Cargando /></main>;
@@ -186,7 +193,7 @@ export default function App() {
     <div className="layout">
       <aside className={`sidebar${menuAbierto ? ' abierto' : ''}`}>
         <Perfil />
-        <MenuSecciones esAdmin={esAdmin} />
+        <MenuSecciones esAdmin={esAdmin} pendientes={pendientes} />
         <button className="sidebar__salir" onClick={salir}>cerrar sesión</button>
       </aside>
       {menuAbierto && <div className="sidebar__velo" onClick={() => setMenuAbierto(false)} />}
@@ -198,7 +205,10 @@ export default function App() {
           </div>
           <div className="topbar__right">
             <Buscador />
-            <Link className="bell" to="/reparaciones" title="Reparaciones" aria-label="Reparaciones">{CAMPANA}</Link>
+            <Link className="bell" to="/soporte" title="Solicitudes de soporte" aria-label={pendientes ? `Solicitudes de soporte: ${pendientes} sin atender` : 'Solicitudes de soporte'}>
+              {CAMPANA}
+              {pendientes > 0 && <span className="contador" aria-hidden>{pendientes > 99 ? '99+' : pendientes}</span>}
+            </Link>
           </div>
         </header>
         <main className="content">
@@ -209,6 +219,7 @@ export default function App() {
             <Route path="/empleados" element={<Empleados />} />
             <Route path="/empleados/:id" element={<EmpleadoPagina />} />
             <Route path="/reparaciones" element={<Reparaciones />} />
+            <Route path="/soporte" element={<Soporte />} />
             <Route path="/excel" element={<Excel />} />
             {esAdmin && <Route path="/usuarios" element={<Usuarios />} />}
             {esAdmin && <Route path="/altas" element={<Altas />} />}

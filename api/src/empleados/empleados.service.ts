@@ -1,10 +1,10 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, desc, eq, getTableColumns, ilike, isNull, ne, or, SQL, sql } from 'drizzle-orm';
-import { DB, InjectDb } from '../db/db.module';
-import { asignaciones, departamentos, empleados, equipos, puestos } from '../db/esquema';
+import { DB, DbOTx, InjectDb } from '../db/db.module';
+import { asignaciones, departamentos, empleados, equipos, puestos, usuariosSistema } from '../db/esquema';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { DepartamentosService } from '../departamentos/departamentos.service';
-import { AsignacionesService, nombreEquipo } from '../asignaciones/asignaciones.service';
+import { AsignacionesService, nombreEquipo, sigueLigado } from '../asignaciones/asignaciones.service';
 import { hoy, limpiar, patron } from '../common/utiles';
 import { ActualizarEmpleadoDto, CrearEmpleadoDto, FiltroEmpleadosDto } from './dto/empleado.dto';
 
@@ -52,6 +52,7 @@ export class EmpleadosService {
                 descripcion: true, codigoBarras: true, tipoAdaptador: true, estatus: true, empleadoId: true,
               },
             },
+            puestoDestinatario: { columns: { id: true, nombre: true } },
           },
         },
       },
@@ -79,17 +80,47 @@ export class EmpleadosService {
     }
   }
 
+  private async verificarJefeDisponible(
+    puestoId: number | null | undefined,
+    departamentoId: number | null,
+    excluirId: number | undefined,
+    tx: DbOTx,
+  ) {
+    if (puestoId == null || departamentoId == null) return;
+    const puesto = await tx.query.puestos.findFirst({ where: eq(puestos.id, puestoId) });
+    const esJefeArea = (nombre?: string | null) =>
+      nombre?.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLocaleLowerCase() === 'jefe de area';
+    if (!esJefeArea(puesto?.nombre)) return;
+
+    await tx.execute(sql`select id from ${departamentos} where ${departamentos.id} = ${departamentoId} for update`);
+    const responsables = await tx
+      .select({ id: empleados.id, puesto: puestos.nombre })
+      .from(empleados)
+      .innerJoin(puestos, eq(empleados.puestoId, puestos.id))
+      .where(and(
+        eq(empleados.departamentoId, departamentoId),
+        eq(empleados.activo, true),
+        excluirId ? ne(empleados.id, excluirId) : undefined,
+      ));
+    if (responsables.some((responsable) => esJefeArea(responsable.puesto))) {
+      throw new ConflictException('Este departamento ya tiene un Jefe de área asignado. Solo puede haber uno por departamento.');
+    }
+  }
+
   async crear(dto: CrearEmpleadoDto, usuarioId: number) {
     const d = limpiar(dto);
     const departamentoId = await this.deptos.obtenerOCrear(d.departamento);
     await this.verificarPuesto(d.puestoId, departamentoId);
     await this.verificarDuplicado(d.nombre, departamentoId);
-    const [e] = await this.db
-      .insert(empleados)
-      .values({ nombre: d.nombre, numero: d.numero, correo: d.correo?.toLowerCase() ?? null, notas: d.notas, departamentoId, puestoId: d.puestoId ?? null })
-      .returning();
-    await this.bitacora.registrar({ usuarioId, accion: `Dio de alta a ${e.nombre}`, entidad: 'empleado', entidadId: e.id });
-    return e;
+    return this.db.transaction(async (tx) => {
+      await this.verificarJefeDisponible(d.puestoId, departamentoId, undefined, tx);
+      const [e] = await tx
+        .insert(empleados)
+        .values({ nombre: d.nombre, numero: d.numero, correo: d.correo?.toLowerCase() ?? null, notas: d.notas, departamentoId, puestoId: d.puestoId ?? null })
+        .returning();
+      await this.bitacora.registrar({ usuarioId, accion: `Dio de alta a ${e.nombre}`, entidad: 'empleado', entidadId: e.id }, tx);
+      return e;
+    });
   }
 
   async actualizar(id: number, dto: ActualizarEmpleadoDto, usuarioId: number) {
@@ -111,14 +142,19 @@ export class EmpleadosService {
     }
     if (!Object.keys(data).length) throw new BadRequestException('No enviaste cambios.');
     await this.verificarDuplicado(data.nombre ?? actual.nombre, data.departamentoId !== undefined ? data.departamentoId : actual.departamentoId, id);
-    const [e] = await this.db.update(empleados).set(data).where(eq(empleados.id, id)).returning();
-    await this.bitacora.registrar({ usuarioId, accion: `Modificó los datos de ${e.nombre}`, entidad: 'empleado', entidadId: id, detalle: { cambios: Object.keys(data) } });
-    return e;
+    const puestoId = data.puestoId !== undefined ? data.puestoId : actual.puestoId;
+    return this.db.transaction(async (tx) => {
+      await this.verificarJefeDisponible(puestoId, departamentoId, id, tx);
+      const [e] = await tx.update(empleados).set(data).where(eq(empleados.id, id)).returning();
+      if (data.nombre) await tx.update(usuariosSistema).set({ nombre: e.nombre }).where(eq(usuariosSistema.empleadoId, id));
+      await this.bitacora.registrar({ usuarioId, accion: `Modificó los datos de ${e.nombre}`, entidad: 'empleado', entidadId: id, detalle: { cambios: Object.keys(data) } }, tx);
+      return e;
+    });
   }
 
   /**
    * Da de baja al empleado y regresa sus equipos asignados al inventario como disponibles.
-   * Los que tenía ligados por estar dañados o en reparación conservan su estatus y quedan sin empleado.
+   * Los equipos dañados, en reparación o en resguardo conservan su vínculo hasta quedar disponibles o de baja.
    */
   baja(id: number, usuarioId: number) {
     return this.db.transaction(async (tx) => {
@@ -127,7 +163,7 @@ export class EmpleadosService {
       if (!e.activo) throw new BadRequestException('El empleado ya está dado de baja.');
       for (const eq_ of e.equiposActuales) {
         if (eq_.estatus !== 'ASIGNADO') {
-          await tx.update(equipos).set({ empleadoId: null }).where(eq(equipos.id, eq_.id));
+          if (!sigueLigado(eq_.estatus)) await tx.update(equipos).set({ empleadoId: null }).where(eq(equipos.id, eq_.id));
           continue;
         }
         await this.asignaciones.cerrarVigente(tx, eq_.id, usuarioId, 'DISPONIBLE', hoy(), `Devuelto por baja de ${e.nombre}`);
@@ -135,6 +171,8 @@ export class EmpleadosService {
         await this.bitacora.registrar({ usuarioId, accion: `Recibió ${nombreEquipo(eq_)} por baja de ${e.nombre}`, entidad: 'equipo', entidadId: eq_.id }, tx);
       }
       const [r] = await tx.update(empleados).set({ activo: false, fechaBaja: hoy() }).where(eq(empleados.id, id)).returning();
+      // Pierde el acceso a la app; si se reactiva, el admin decide si se lo devuelve.
+      await tx.update(usuariosSistema).set({ activo: false }).where(eq(usuariosSistema.empleadoId, id));
       await this.bitacora.registrar(
         { usuarioId, accion: `Dio de baja a ${e.nombre}`, entidad: 'empleado', entidadId: id, detalle: { equiposDevueltos: e.equiposActuales.length } },
         tx,

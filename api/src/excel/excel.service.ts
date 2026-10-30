@@ -39,6 +39,7 @@ interface Analisis {
 const TIPOS_ES: Record<TipoEquipo, string> = {
   LAPTOP: 'Laptop', TECLADO: 'Teclado', MOUSE: 'Mouse', MONITOR: 'Monitor', ADAPTADOR: 'Adaptador',
   MULTIFUNCIONAL: 'Multifuncional', SOPORTE: 'Soporte', ACCESS_POINT: 'Access Point', OTRO: 'Otro',
+  TELEFONO_MOVIL: 'Teléfono móvil',
 };
 const clave = (nombre: string, depto: string) => `${nombre.toLowerCase()}|${normalizarDepto(depto)}`;
 const slugSeguro = (nombre: string) => nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -212,6 +213,7 @@ export class ExcelService {
       DISPONIBLE: 'Devuelto disponible',
       DANADO: 'Devuelto dañado',
       EN_REPARACION: 'Enviado a reparación',
+      RESGUARDO: 'En resguardo',
       BAJA: 'Dado de baja',
     };
     devoluciones.forEach((a, i) => {

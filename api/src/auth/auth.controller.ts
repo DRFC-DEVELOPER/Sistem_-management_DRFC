@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
 import { Publico } from '../common/decorators/publico.decorator';
+import { ConClaveTemporal } from '../common/decorators/clave-temporal.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Usuario, UsuarioActual } from '../common/decorators/usuario-actual.decorator';
 import { AuthService } from './auth.service';
@@ -25,6 +26,8 @@ export class AuthController {
   /** Datos del usuario con la sesión iniciada. */
   @Get('yo')
   @ApiBearerAuth()
+  @ConClaveTemporal()
+  @Roles('ADMIN', 'TECNICO', 'CONSULTA', 'EMPLEADO')
   yo(@Usuario() u: UsuarioActual) {
     return u;
   }
@@ -32,7 +35,8 @@ export class AuthController {
   /** Cambia la contraseña propia. */
   @Patch('password')
   @ApiBearerAuth()
-  @Roles('ADMIN', 'TECNICO', 'CONSULTA')
+  @ConClaveTemporal()
+  @Roles('ADMIN', 'TECNICO', 'CONSULTA', 'EMPLEADO')
   cambiarPassword(@Usuario() u: UsuarioActual, @Body() dto: CambiarPasswordDto) {
     return this.auth.cambiarPassword(u.id, dto.actual, dto.nueva);
   }

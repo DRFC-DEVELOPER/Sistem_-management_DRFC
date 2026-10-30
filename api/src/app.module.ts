@@ -12,6 +12,8 @@ import { EquiposModule } from './equipos/equipos.module';
 import { AsignacionesModule } from './asignaciones/asignaciones.module';
 import { ReparacionesModule } from './reparaciones/reparaciones.module';
 import { ExcelModule } from './excel/excel.module';
+import { ReportesModule } from './reportes/reportes.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { SaludController } from './salud/salud.controller';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -33,6 +35,8 @@ import { RolesGuard } from './common/guards/roles.guard';
     AsignacionesModule,
     ReparacionesModule,
     ExcelModule,
+    ReportesModule,
+    NotificacionesModule,
   ],
   controllers: [SaludController],
   providers: [

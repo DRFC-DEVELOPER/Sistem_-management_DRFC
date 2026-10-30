@@ -32,6 +32,7 @@ const RESULTADOS_CARTA: Record<string, string> = {
   DISPONIBLE: 'Devuelto disponible',
   DANADO: 'Devuelto dañado',
   EN_REPARACION: 'Enviado a reparación',
+  RESGUARDO: 'En resguardo',
   BAJA: 'Dado de baja',
 };
 

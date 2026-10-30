@@ -2,9 +2,11 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { asc, count, eq, sql } from 'drizzle-orm';
 import { BitacoraService } from '../bitacora/bitacora.service';
 import { DB, InjectDb } from '../db/db.module';
-import { departamentos, empleados, equipos, marcasEquipo, puestos, tiposEquipo } from '../db/esquema';
+import { asignaciones, departamentos, empleados, equipos, marcasEquipo, puestos, tiposEquipo } from '../db/esquema';
 
 const nombreLimpio = (nombre: string) => nombre.replace(/\s+/g, ' ').trim();
+const esPuestoJefeArea = (nombre: string) =>
+  nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLocaleLowerCase() === 'jefe de area';
 
 @Injectable()
 export class CatalogosService {
@@ -97,6 +99,7 @@ export class CatalogosService {
     await this.verificarDepartamento(departamentoId);
     const n = nombreLimpio(nombre);
     if (n.length < 2) throw new BadRequestException('El nombre del puesto debe tener al menos 2 caracteres.');
+    if (esPuestoJefeArea(n)) throw new ConflictException('El puesto Jefe de área se crea automáticamente con cada departamento.');
     const existe = await this.db.query.puestos.findFirst({
       where: sql`${puestos.departamentoId} = ${departamentoId} and lower(${puestos.nombre}) = lower(${n})`,
     });
@@ -109,6 +112,7 @@ export class CatalogosService {
   async renombrarPuesto(departamentoId: number, id: number, nombre: string, autorId: number) {
     const actual = await this.db.query.puestos.findFirst({ where: eq(puestos.id, id) });
     if (!actual || actual.departamentoId !== departamentoId) throw new NotFoundException('El puesto no existe en ese departamento.');
+    if (esPuestoJefeArea(actual.nombre)) throw new BadRequestException('El puesto Jefe de área es necesario para las asignaciones del departamento y no se puede renombrar.');
     const n = nombreLimpio(nombre);
     if (n.length < 2) throw new BadRequestException('El nombre del puesto debe tener al menos 2 caracteres.');
     const duplicado = await this.db.query.puestos.findFirst({
@@ -123,8 +127,11 @@ export class CatalogosService {
   async eliminarPuesto(departamentoId: number, id: number, autorId: number) {
     const puesto = await this.db.query.puestos.findFirst({ where: eq(puestos.id, id) });
     if (!puesto || puesto.departamentoId !== departamentoId) throw new NotFoundException('El puesto no existe en ese departamento.');
+    if (esPuestoJefeArea(puesto.nombre)) throw new BadRequestException('El puesto Jefe de área es necesario para las asignaciones del departamento y no se puede eliminar.');
     const [{ total }] = await this.db.select({ total: count() }).from(empleados).where(eq(empleados.puestoId, id));
     if (total) throw new ConflictException(`No se puede eliminar ${puesto.nombre}: hay ${total} empleado${total === 1 ? '' : 's'} con ese puesto.`);
+    const [{ asignacionesTotal }] = await this.db.select({ asignacionesTotal: count() }).from(asignaciones).where(eq(asignaciones.puestoDestinatarioId, id));
+    if (asignacionesTotal) throw new ConflictException(`No se puede eliminar ${puesto.nombre}: aparece en ${asignacionesTotal} asignación${asignacionesTotal === 1 ? '' : 'es'} del historial.`);
     await this.db.delete(puestos).where(eq(puestos.id, id));
     await this.bitacora.registrar({ usuarioId: autorId, accion: `Eliminó el puesto ${puesto.nombre}`, entidad: 'puesto', entidadId: id });
     return { ok: true };
